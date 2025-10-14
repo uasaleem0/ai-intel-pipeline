@@ -61,6 +61,7 @@ def _openai_complete_json(system: str, user: Any, max_tokens: int = 400, model: 
         ],
         temperature=0.2,
         max_tokens=max_tokens,
+        response_format={"type": "json_object"},
     )
     text = resp.choices[0].message.content if resp and resp.choices else ""
     try:
@@ -82,4 +83,3 @@ def llm_complete_json(system: str, user: Any, max_tokens: int = 400) -> Optional
     if out is not None:
         return out
     return _openai_complete_json(system, user, max_tokens=max_tokens)
-
