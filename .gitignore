@@ -1,0 +1,15 @@
+﻿# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Local artifacts and vault outputs
+vault/
+.artifacts/
+
+# Local testing repos
+testrepo/
+
+# OS
+.DS_Store
+Thumbs.db
