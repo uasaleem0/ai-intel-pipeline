@@ -1,0 +1,17 @@
+{
+  "pillar": "Claude/OpenAI Best Practices",
+  "items": [
+    {
+      "id": "20251014-0936-193223",
+      "title": "SuperClaude-Org/SuperClaude_Framework",
+      "url": "https://github.com/SuperClaude-Org/SuperClaude_Framework",
+      "date": "2025-10-14T09:35:04Z"
+    },
+    {
+      "id": "20251014-0937-530435",
+      "title": "langfuse/langfuse",
+      "url": "https://github.com/langfuse/langfuse",
+      "date": "2025-10-14T09:37:36Z"
+    }
+  ]
+}

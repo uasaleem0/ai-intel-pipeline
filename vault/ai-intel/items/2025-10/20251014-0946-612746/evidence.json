@@ -1,0 +1,14 @@
+{
+  "verdict": "pass",
+  "confidence": 0.6,
+  "citations": [
+    {
+      "source": "https://github.com/hongbo-miao/hongbomiao.com",
+      "pointer": "https://github.com/hongbo-miao/hongbomiao.com",
+      "quote": [
+        "Source: hongbo-miao/hongbomiao.com"
+      ]
+    }
+  ],
+  "notes": "Heuristic baseline; LLM step may refine."
+}

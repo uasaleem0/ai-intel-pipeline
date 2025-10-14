@@ -1,0 +1,12 @@
+{
+  "verdict": "pass",
+  "confidence": 0.6,
+  "citations": [
+    {
+      "source": "https://github.com/fmerian/awesome-product-hunt",
+      "pointer": "https://github.com/fmerian/awesome-product-hunt",
+      "quote": "Context: Awesome developer tools launched on Product Hunt."
+    }
+  ],
+  "notes": "Baseline heuristic Gate 1; replace with LLM when keys are set."
+}

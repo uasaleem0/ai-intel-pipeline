@@ -1,0 +1,24 @@
+{
+  "id": "20251014-0946-078072",
+  "title": "tutur3u/platform",
+  "canonical_url": "https://github.com/tutur3u/platform",
+  "source_type": "github",
+  "source_name": "tutur3u/platform",
+  "published_at": "2025-10-14T09:45:12Z",
+  "type": "application",
+  "status": "ingested",
+  "route": "weekly",
+  "scores": {
+    "validity_conf": 0.6,
+    "credibility": 0.5,
+    "novelty": 0.5,
+    "relevance": 0.45,
+    "actionability": 0.6,
+    "overall": 0.5325,
+    "route": "weekly"
+  },
+  "links": {
+    "repo": "https://github.com/tutur3u/platform"
+  },
+  "pillars": []
+}

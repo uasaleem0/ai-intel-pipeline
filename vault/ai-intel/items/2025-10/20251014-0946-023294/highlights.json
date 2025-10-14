@@ -1,0 +1,22 @@
+{
+  "summary_bullets": [
+    "Source: zapplyjobs/New-Grad-Positions",
+    "Title: zapplyjobs/New-Grad-Positions",
+    "Type: application",
+    "Context: An up to date collection of New Grad Tech Jobs for 2026 | Daily-updated positions from FAANG & top startups"
+  ],
+  "keyphrases": [
+    "New-Grad-Positions",
+    "New Grad Tech Jobs",
+    "Daily-updated",
+    "FAANG"
+  ],
+  "key_claims": [
+    {
+      "claim": "Potential best-practice or tutorial",
+      "pointer": "https://github.com/zapplyjobs/New-Grad-Positions",
+      "type": "tutorial"
+    }
+  ],
+  "youtube_quotes": []
+}

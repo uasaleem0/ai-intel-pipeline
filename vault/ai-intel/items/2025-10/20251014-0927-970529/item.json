@@ -1,0 +1,26 @@
+{
+  "id": "20251014-0927-970529",
+  "title": "microsoft/document-generation-solution-accelerator",
+  "canonical_url": "https://github.com/microsoft/document-generation-solution-accelerator",
+  "source_type": "github",
+  "source_name": "microsoft/document-generation-solution-accelerator",
+  "published_at": "2025-10-14T09:26:54Z",
+  "type": "application",
+  "status": "ingested",
+  "route": "weekly",
+  "scores": {
+    "validity_conf": 0.6,
+    "credibility": 0.5,
+    "novelty": 0.5,
+    "relevance": 0.4,
+    "actionability": 0.6,
+    "overall": 0.5149999999999999,
+    "route": "weekly"
+  },
+  "links": {
+    "repo": "https://github.com/microsoft/document-generation-solution-accelerator"
+  },
+  "pillars": [
+    "Claude/OpenAI Best Practices"
+  ]
+}

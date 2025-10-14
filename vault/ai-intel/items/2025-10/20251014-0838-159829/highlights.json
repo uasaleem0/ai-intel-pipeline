@@ -1,0 +1,23 @@
+{
+  "summary_bullets": [
+    "Source: vercel/next.js",
+    "Title: v16.0.0-canary.4",
+    "Type: Release notes",
+    "Context: ### Core Changes\n\n- Use ESLint Flat Config: #84800\n- fix missing flight-router-state-tree header normalization: #84718\n- Write `.next/dev/types/**/*.d.ts` to default tsconfig: #84747\n- Upgrade React from `9724e3e6-20251008` to `ead92181-202"
+  ],
+  "keyphrases": [
+    "UI",
+    "Release",
+    "Core Changes",
+    "Use ESLint Flat Config",
+    "Write"
+  ],
+  "key_claims": [
+    {
+      "claim": "New release announced",
+      "pointer": "https://github.com/vercel/next.js/releases/tag/v16.0.0-canary.4",
+      "type": "release"
+    }
+  ],
+  "youtube_quotes": []
+}

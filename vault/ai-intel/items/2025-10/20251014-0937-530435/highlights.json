@@ -1,0 +1,23 @@
+{
+  "summary_bullets": [
+    "Source: langfuse/langfuse",
+    "Title: langfuse/langfuse",
+    "Type: application",
+    "Context: 🪢 Open source LLM engineering platform: LLM Observability, metrics, evals, prompt management, playground, datasets. Integrates with OpenTelemetry, Langchain, OpenAI SDK, LiteLLM, and more."
+  ],
+  "keyphrases": [
+    "OpenAI",
+    "Open",
+    "LLM",
+    "LLM Observability",
+    "Integrates"
+  ],
+  "key_claims": [
+    {
+      "claim": "Potential best-practice or tutorial",
+      "pointer": "https://github.com/langfuse/langfuse",
+      "type": "tutorial"
+    }
+  ],
+  "youtube_quotes": []
+}

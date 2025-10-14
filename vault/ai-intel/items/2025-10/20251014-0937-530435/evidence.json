@@ -1,0 +1,14 @@
+{
+  "verdict": "pass",
+  "confidence": 0.6,
+  "citations": [
+    {
+      "source": "https://github.com/langfuse/langfuse",
+      "pointer": "https://github.com/langfuse/langfuse",
+      "quote": [
+        "Source: langfuse/langfuse"
+      ]
+    }
+  ],
+  "notes": "Heuristic baseline; LLM step may refine."
+}

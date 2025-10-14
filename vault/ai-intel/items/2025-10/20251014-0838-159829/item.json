@@ -1,0 +1,23 @@
+{
+  "id": "20251014-0838-159829",
+  "title": "v16.0.0-canary.4",
+  "canonical_url": "https://github.com/vercel/next.js/releases/tag/v16.0.0-canary.4",
+  "source_type": "github",
+  "source_name": "vercel/next.js",
+  "published_at": "2025-10-13T23:37:59Z",
+  "type": "release",
+  "status": "ingested",
+  "route": "weekly",
+  "scores": {
+    "validity_conf": 0.75,
+    "credibility": 0.8,
+    "novelty": 0.7,
+    "relevance": 0.6,
+    "actionability": 0.6,
+    "overall": 0.585,
+    "route": "weekly"
+  },
+  "links": {
+    "repo": "https://github.com/vercel/next.js"
+  }
+}

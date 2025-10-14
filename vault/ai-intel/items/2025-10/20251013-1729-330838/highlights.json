@@ -1,0 +1,23 @@
+{
+  "summary_bullets": [
+    "Source: OpenAI",
+    "Title: OpenAI x Broadcom — The OpenAI Podcast Ep. 8",
+    "Type: Video (talk/tutorial)",
+    "Context: OpenAI and  Broadcom are teaming up to design our own chips—bringing lessons from building frontier models straight into the hardware. In partnership with Broadcom and alongside our other partners, we’re creating the next generation of AI i"
+  ],
+  "keyphrases": [
+    "OpenAI",
+    "UI",
+    "Broadcom",
+    "The OpenAI Podcast",
+    "Sam Altman"
+  ],
+  "key_claims": [
+    {
+      "claim": "Potential best-practice or tutorial",
+      "pointer": "https://www.youtube.com/watch?v=qqAbVTFnfk8",
+      "type": "tutorial"
+    }
+  ],
+  "youtube_quotes": []
+}

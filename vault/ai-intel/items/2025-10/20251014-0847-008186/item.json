@@ -1,0 +1,23 @@
+{
+  "id": "20251014-0847-008186",
+  "title": "rust-unofficial/awesome-rust",
+  "canonical_url": "https://github.com/rust-unofficial/awesome-rust",
+  "source_type": "github",
+  "source_name": "rust-unofficial/awesome-rust",
+  "published_at": "2025-10-14T08:46:25Z",
+  "type": "application",
+  "status": "ingested",
+  "route": "weekly",
+  "scores": {
+    "validity_conf": 0.6,
+    "credibility": 0.5,
+    "novelty": 0.5,
+    "relevance": 0.4,
+    "actionability": 0.6,
+    "overall": 0.5149999999999999,
+    "route": "weekly"
+  },
+  "links": {
+    "repo": "https://github.com/rust-unofficial/awesome-rust"
+  }
+}

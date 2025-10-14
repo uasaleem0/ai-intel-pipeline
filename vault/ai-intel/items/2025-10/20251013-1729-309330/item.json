@@ -1,0 +1,23 @@
+{
+  "id": "20251013-1729-309330",
+  "title": "v15.5.5",
+  "canonical_url": "https://github.com/vercel/next.js/releases/tag/v15.5.5",
+  "source_type": "github",
+  "source_name": "vercel/next.js",
+  "published_at": "2025-10-13T17:15:14Z",
+  "type": "release",
+  "status": "ingested",
+  "route": "weekly",
+  "scores": {
+    "validity_conf": 0.75,
+    "credibility": 0.8,
+    "novelty": 0.7,
+    "relevance": 0.4,
+    "actionability": 0.6,
+    "overall": 0.5149999999999999,
+    "route": "weekly"
+  },
+  "links": {
+    "repo": "https://github.com/vercel/next.js"
+  }
+}

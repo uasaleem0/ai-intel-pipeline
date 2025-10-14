@@ -1,0 +1,20 @@
+{
+  "summary_bullets": [
+    "Source: fmerian/awesome-product-hunt",
+    "Title: fmerian/awesome-product-hunt",
+    "Type: application",
+    "Context: Awesome developer tools launched on Product Hunt."
+  ],
+  "keyphrases": [
+    "Awesome",
+    "Product Hunt"
+  ],
+  "key_claims": [
+    {
+      "claim": "Potential best-practice or tutorial",
+      "pointer": "https://github.com/fmerian/awesome-product-hunt",
+      "type": "tutorial"
+    }
+  ],
+  "youtube_quotes": []
+}

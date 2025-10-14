@@ -1,0 +1,17 @@
+{
+  "summary_bullets": [
+    "Source: marcelscruz/dev-resources",
+    "Title: marcelscruz/dev-resources",
+    "Type: application",
+    "Context: A collaborative list of resources for developers"
+  ],
+  "keyphrases": [],
+  "key_claims": [
+    {
+      "claim": "Potential best-practice or tutorial",
+      "pointer": "https://github.com/marcelscruz/dev-resources",
+      "type": "tutorial"
+    }
+  ],
+  "youtube_quotes": []
+}

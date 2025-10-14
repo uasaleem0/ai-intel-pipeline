@@ -1,0 +1,14 @@
+{
+  "verdict": "pass",
+  "confidence": 0.6,
+  "citations": [
+    {
+      "source": "https://github.com/tutur3u/platform",
+      "pointer": "https://github.com/tutur3u/platform",
+      "quote": [
+        "Source: tutur3u/platform"
+      ]
+    }
+  ],
+  "notes": "Heuristic baseline; LLM step may refine."
+}

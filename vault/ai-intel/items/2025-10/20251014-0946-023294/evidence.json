@@ -1,0 +1,14 @@
+{
+  "verdict": "pass",
+  "confidence": 0.6,
+  "citations": [
+    {
+      "source": "https://github.com/zapplyjobs/New-Grad-Positions",
+      "pointer": "https://github.com/zapplyjobs/New-Grad-Positions",
+      "quote": [
+        "Source: zapplyjobs/New-Grad-Positions"
+      ]
+    }
+  ],
+  "notes": "Heuristic baseline; LLM step may refine."
+}

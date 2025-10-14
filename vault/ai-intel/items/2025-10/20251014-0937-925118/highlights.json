@@ -1,0 +1,23 @@
+{
+  "summary_bullets": [
+    "Source: nishatrhythm/Bangladesh-Railway-Train-Seat-Availability-Web-Application",
+    "Title: nishatrhythm/Bangladesh-Railway-Train-Seat-Availability-Web-Application",
+    "Type: application",
+    "Context: A web application for checking Bangladesh Railway train seat availability with secure server-side authentication, visual seat layouts, and real-time data from official APIs. Features mobile-optimized UI, 10-day availability planning, and in"
+  ],
+  "keyphrases": [
+    "UI",
+    "Bangladesh-Railway-Train-Seat-Availability-Web-Application",
+    "Bangladesh Railway",
+    "APIs",
+    "Features"
+  ],
+  "key_claims": [
+    {
+      "claim": "Potential best-practice or tutorial",
+      "pointer": "https://github.com/nishatrhythm/Bangladesh-Railway-Train-Seat-Availability-Web-Application",
+      "type": "tutorial"
+    }
+  ],
+  "youtube_quotes": []
+}

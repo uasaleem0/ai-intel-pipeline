@@ -1,0 +1,24 @@
+{
+  "id": "20251014-0919-466476",
+  "title": "fmerian/awesome-product-hunt",
+  "canonical_url": "https://github.com/fmerian/awesome-product-hunt",
+  "source_type": "github",
+  "source_name": "fmerian/awesome-product-hunt",
+  "published_at": "2025-10-14T09:18:34Z",
+  "type": "application",
+  "status": "ingested",
+  "route": "weekly",
+  "scores": {
+    "validity_conf": 0.6,
+    "credibility": 0.5,
+    "novelty": 0.5,
+    "relevance": 0.4,
+    "actionability": 0.6,
+    "overall": 0.5149999999999999,
+    "route": "weekly"
+  },
+  "links": {
+    "repo": "https://github.com/fmerian/awesome-product-hunt"
+  },
+  "pillars": []
+}

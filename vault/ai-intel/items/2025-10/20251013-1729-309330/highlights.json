@@ -1,0 +1,23 @@
+{
+  "summary_bullets": [
+    "Source: vercel/next.js",
+    "Title: v15.5.5",
+    "Type: Release notes",
+    "Context: > [!NOTE]  \r\n> This release is backporting bug fixes. It does **not** include all pending features/changes on canary."
+  ],
+  "keyphrases": [
+    "Release",
+    "NOTE",
+    "This",
+    "Core Changes",
+    "Split"
+  ],
+  "key_claims": [
+    {
+      "claim": "New release announced",
+      "pointer": "https://github.com/vercel/next.js/releases/tag/v15.5.5",
+      "type": "release"
+    }
+  ],
+  "youtube_quotes": []
+}

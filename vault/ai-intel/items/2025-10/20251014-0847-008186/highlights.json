@@ -1,0 +1,19 @@
+{
+  "summary_bullets": [
+    "Source: rust-unofficial/awesome-rust",
+    "Title: rust-unofficial/awesome-rust",
+    "Type: application",
+    "Context: A curated list of Rust code and resources."
+  ],
+  "keyphrases": [
+    "Rust"
+  ],
+  "key_claims": [
+    {
+      "claim": "Potential best-practice or tutorial",
+      "pointer": "https://github.com/rust-unofficial/awesome-rust",
+      "type": "tutorial"
+    }
+  ],
+  "youtube_quotes": []
+}

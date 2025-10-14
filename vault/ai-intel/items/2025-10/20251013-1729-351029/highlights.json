@@ -1,0 +1,23 @@
+{
+  "summary_bullets": [
+    "Source: vercel/next.js",
+    "Title: v16.0.0-canary.3",
+    "Type: Release notes",
+    "Context: ### Core Changes\n\n- Upgrade React from `3025aa39-20251007` to `9724e3e6-20251008`: #84642\n- Remove unused `eslint-disable` directives: #84797\n\n### Misc Changes\n\n- [cna] Preserve existing config option when enabling React Compiler: #84663\n- "
+  ],
+  "keyphrases": [
+    "Core Changes",
+    "Upgrade React",
+    "Remove",
+    "Misc Changes",
+    "Preserve"
+  ],
+  "key_claims": [
+    {
+      "claim": "New release announced",
+      "pointer": "https://github.com/vercel/next.js/releases/tag/v16.0.0-canary.3",
+      "type": "release"
+    }
+  ],
+  "youtube_quotes": []
+}

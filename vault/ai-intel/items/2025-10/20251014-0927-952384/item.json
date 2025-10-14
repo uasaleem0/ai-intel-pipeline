@@ -1,0 +1,24 @@
+{
+  "id": "20251014-0927-952384",
+  "title": "marcelscruz/dev-resources",
+  "canonical_url": "https://github.com/marcelscruz/dev-resources",
+  "source_type": "github",
+  "source_name": "marcelscruz/dev-resources",
+  "published_at": "2025-10-14T09:27:24Z",
+  "type": "application",
+  "status": "ingested",
+  "route": "weekly",
+  "scores": {
+    "validity_conf": 0.6,
+    "credibility": 0.5,
+    "novelty": 0.5,
+    "relevance": 0.4,
+    "actionability": 0.6,
+    "overall": 0.5149999999999999,
+    "route": "weekly"
+  },
+  "links": {
+    "repo": "https://github.com/marcelscruz/dev-resources"
+  },
+  "pillars": []
+}

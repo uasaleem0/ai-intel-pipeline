@@ -1,0 +1,21 @@
+{
+  "id": "20251013-1729-330838",
+  "title": "OpenAI x Broadcom — The OpenAI Podcast Ep. 8",
+  "canonical_url": "https://www.youtube.com/watch?v=qqAbVTFnfk8",
+  "source_type": "youtube",
+  "source_name": "OpenAI",
+  "published_at": "2025-10-13T13:00:58Z",
+  "type": "talk",
+  "status": "ingested",
+  "route": "weekly",
+  "scores": {
+    "validity_conf": 0.75,
+    "credibility": 0.8,
+    "novelty": 0.5,
+    "relevance": 0.6,
+    "actionability": 0.6,
+    "overall": 0.585,
+    "route": "weekly"
+  },
+  "links": {}
+}

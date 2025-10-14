@@ -1,0 +1,21 @@
+{
+  "summary_bullets": [
+    "Source: SuperClaude-Org/SuperClaude_Framework",
+    "Title: SuperClaude-Org/SuperClaude_Framework",
+    "Type: application",
+    "Context: A configuration framework that enhances Claude Code with specialized commands, cognitive personas, and development methodologies."
+  ],
+  "keyphrases": [
+    "Claude",
+    "Claude Code",
+    "SuperClaude-Org/"
+  ],
+  "key_claims": [
+    {
+      "claim": "Potential best-practice or tutorial",
+      "pointer": "https://github.com/SuperClaude-Org/SuperClaude_Framework",
+      "type": "tutorial"
+    }
+  ],
+  "youtube_quotes": []
+}

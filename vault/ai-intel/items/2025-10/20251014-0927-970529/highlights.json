@@ -1,0 +1,23 @@
+{
+  "summary_bullets": [
+    "Source: microsoft/document-generation-solution-accelerator",
+    "Title: microsoft/document-generation-solution-accelerator",
+    "Type: application",
+    "Context: Document Generation Solution Accelerator using Azure OpenAI Service and Azure AI Search."
+  ],
+  "keyphrases": [
+    "OpenAI",
+    "Document Generation Solution Accelerator",
+    "Azure OpenAI Service",
+    "Azure",
+    "Search"
+  ],
+  "key_claims": [
+    {
+      "claim": "Potential best-practice or tutorial",
+      "pointer": "https://github.com/microsoft/document-generation-solution-accelerator",
+      "type": "tutorial"
+    }
+  ],
+  "youtube_quotes": []
+}

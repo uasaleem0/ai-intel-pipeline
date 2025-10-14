@@ -1,0 +1,54 @@
+pillars:
+- name: Hygienic Workflow
+  keywords:
+  - workflow
+  - lint
+  - tests
+  - refactor
+  - quality
+- name: AI UI/UX
+  keywords:
+  - ui
+  - ux
+  - design
+  - tailwind
+  - shadcn
+  - radix
+  - next.js
+  - react
+- name: Automation
+  keywords:
+  - automation
+  - pipeline
+  - scheduling
+  - n8n
+  - zapier
+- name: No-code Workflows
+  keywords:
+  - no-code
+  - ai builds code
+  - scaffold
+  - app builder
+- name: Claude/OpenAI Best Practices
+  keywords:
+  - claude
+  - claude code
+  - openai
+  - prompt
+  - assistant
+- name: Agents
+  keywords:
+  - agent
+  - multi-agent
+  - autonomous
+  - crew
+  - swarm
+- name: DevOps/Infra for AI
+  keywords:
+  - deploy
+  - vercel
+  - cloudflare
+  - workers
+  - monitor
+  - cost
+  - latency

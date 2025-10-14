@@ -1,0 +1,26 @@
+{
+  "id": "20251014-0936-193223",
+  "title": "SuperClaude-Org/SuperClaude_Framework",
+  "canonical_url": "https://github.com/SuperClaude-Org/SuperClaude_Framework",
+  "source_type": "github",
+  "source_name": "SuperClaude-Org/SuperClaude_Framework",
+  "published_at": "2025-10-14T09:35:04Z",
+  "type": "application",
+  "status": "ingested",
+  "route": "weekly",
+  "scores": {
+    "validity_conf": 0.6,
+    "credibility": 0.5,
+    "novelty": 0.5,
+    "relevance": 0.6,
+    "actionability": 0.6,
+    "overall": 0.585,
+    "route": "weekly"
+  },
+  "links": {
+    "repo": "https://github.com/SuperClaude-Org/SuperClaude_Framework"
+  },
+  "pillars": [
+    "Claude/OpenAI Best Practices"
+  ]
+}

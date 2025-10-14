@@ -1,0 +1,9 @@
+thresholds:
+  validity_conf: 0.7
+  revolutionary:
+    novelty: 0.75
+    credibility: 0.65
+    relevance: 0.6
+    actionability: 0.6
+routing:
+  weekly_day: Friday

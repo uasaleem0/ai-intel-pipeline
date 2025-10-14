@@ -1,0 +1,12 @@
+{
+  "verdict": "pass",
+  "confidence": 0.75,
+  "citations": [
+    {
+      "source": "https://github.com/vercel/next.js/releases/tag/v15.5.5",
+      "pointer": "https://github.com/vercel/next.js/releases/tag/v15.5.5",
+      "quote": "Context: > [!NOTE]  \r\n> This release is backporting bug fixes. It does **not** include all pending features/changes on canary."
+    }
+  ],
+  "notes": "Baseline heuristic Gate 1; replace with LLM when keys are set."
+}

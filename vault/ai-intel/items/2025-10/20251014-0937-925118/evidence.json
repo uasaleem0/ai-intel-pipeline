@@ -1,0 +1,14 @@
+{
+  "verdict": "pass",
+  "confidence": 0.6,
+  "citations": [
+    {
+      "source": "https://github.com/nishatrhythm/Bangladesh-Railway-Train-Seat-Availability-Web-Application",
+      "pointer": "https://github.com/nishatrhythm/Bangladesh-Railway-Train-Seat-Availability-Web-Application",
+      "quote": [
+        "Source: nishatrhythm/Bangladesh-Railway-Train-Seat-Availability-Web-Application"
+      ]
+    }
+  ],
+  "notes": "Heuristic baseline; LLM step may refine."
+}

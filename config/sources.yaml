@@ -1,0 +1,33 @@
+youtube:
+  channels:
+  # Channels optional; query search will catch relevant small creators too
+  - name: Anthropic
+    channel_id: UCoZ8xVQCAmyG3fZ4ZNSiK-Q
+  - name: OpenAI
+    channel_id: UCXZCJLdBC09xxGZ6gcdrc6A
+  queries:
+  - Claude Code best practices
+  - AI code generation workflow
+  - AI builds app end to end
+  - AI agent UI patterns
+  - Cursor advanced prompts coding
+  - RAG UI best practices
+  - Next.js AI agent tutorial
+github:
+  repos:
+  - vercel/next.js
+  - shadcn/ui
+  search_queries:
+  - "agent framework app"
+  - "ai app end-to-end"
+  - "autonomous agent ui"
+  - "rag application template"
+feeds:
+- name: Anthropic Blog
+  url: https://www.anthropic.com/news/rss.xml
+- name: OpenAI Blog
+  url: https://openai.com/blog/rss/
+- name: Vercel Changelog
+  url: https://vercel.com/changelog.atom
+- name: Cloudflare Blog
+  url: https://blog.cloudflare.com/rss/

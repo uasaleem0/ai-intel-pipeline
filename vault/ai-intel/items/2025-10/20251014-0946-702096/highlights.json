@@ -1,0 +1,23 @@
+{
+  "summary_bullets": [
+    "Source: iflytek/astron-rpa",
+    "Title: iflytek/astron-rpa",
+    "Type: application",
+    "Context: Enterprise-grade desktop RPA client with a pluggable library of atomic capabilities, policy‑friendly packaging, and CI/CD‑friendly CLI. Integrates with leading Agent platforms and LLMs for end‑to‑end desktop/web automation."
+  ],
+  "keyphrases": [
+    "Enterprise-grade",
+    "RPA",
+    "CI/CD",
+    "CLI",
+    "Integrates"
+  ],
+  "key_claims": [
+    {
+      "claim": "Potential best-practice or tutorial",
+      "pointer": "https://github.com/iflytek/astron-rpa",
+      "type": "tutorial"
+    }
+  ],
+  "youtube_quotes": []
+}

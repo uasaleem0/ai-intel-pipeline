@@ -1,0 +1,21 @@
+{
+  "summary_bullets": [
+    "Source: alibaba/spring-ai-alibaba",
+    "Title: alibaba/spring-ai-alibaba",
+    "Type: application",
+    "Context: Agentic AI Framework for Java Developers"
+  ],
+  "keyphrases": [
+    "Agentic",
+    "Framework",
+    "Java Developers"
+  ],
+  "key_claims": [
+    {
+      "claim": "Potential best-practice or tutorial",
+      "pointer": "https://github.com/alibaba/spring-ai-alibaba",
+      "type": "tutorial"
+    }
+  ],
+  "youtube_quotes": []
+}

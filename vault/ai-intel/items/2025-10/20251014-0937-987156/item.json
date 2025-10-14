@@ -1,0 +1,24 @@
+{
+  "id": "20251014-0937-987156",
+  "title": "lablup/backend.ai",
+  "canonical_url": "https://github.com/lablup/backend.ai",
+  "source_type": "github",
+  "source_name": "lablup/backend.ai",
+  "published_at": "2025-10-14T09:33:23Z",
+  "type": "application",
+  "status": "ingested",
+  "route": "weekly",
+  "scores": {
+    "validity_conf": 0.6,
+    "credibility": 0.5,
+    "novelty": 0.5,
+    "relevance": 0.45,
+    "actionability": 0.6,
+    "overall": 0.5325,
+    "route": "weekly"
+  },
+  "links": {
+    "repo": "https://github.com/lablup/backend.ai"
+  },
+  "pillars": []
+}

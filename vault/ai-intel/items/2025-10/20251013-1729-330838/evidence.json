@@ -1,0 +1,12 @@
+{
+  "verdict": "pass",
+  "confidence": 0.75,
+  "citations": [
+    {
+      "source": "https://www.youtube.com/watch?v=qqAbVTFnfk8",
+      "pointer": "https://www.youtube.com/watch?v=qqAbVTFnfk8",
+      "quote": "Context: OpenAI and  Broadcom are teaming up to design our own chips—bringing lessons from building frontier models straight into the hardware. In partnership with Broadcom and alongside our other partners, we’re creating the next generation of AI i"
+    }
+  ],
+  "notes": "Baseline heuristic Gate 1; replace with LLM when keys are set."
+}

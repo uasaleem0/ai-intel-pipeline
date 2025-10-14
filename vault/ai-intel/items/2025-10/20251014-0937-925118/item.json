@@ -1,0 +1,26 @@
+{
+  "id": "20251014-0937-925118",
+  "title": "nishatrhythm/Bangladesh-Railway-Train-Seat-Availability-Web-Application",
+  "canonical_url": "https://github.com/nishatrhythm/Bangladesh-Railway-Train-Seat-Availability-Web-Application",
+  "source_type": "github",
+  "source_name": "nishatrhythm/Bangladesh-Railway-Train-Seat-Availability-Web-Application",
+  "published_at": "2025-10-14T09:37:18Z",
+  "type": "application",
+  "status": "ingested",
+  "route": "weekly",
+  "scores": {
+    "validity_conf": 0.6,
+    "credibility": 0.5,
+    "novelty": 0.5,
+    "relevance": 0.6,
+    "actionability": 0.6,
+    "overall": 0.585,
+    "route": "weekly"
+  },
+  "links": {
+    "repo": "https://github.com/nishatrhythm/Bangladesh-Railway-Train-Seat-Availability-Web-Application"
+  },
+  "pillars": [
+    "AI UI/UX"
+  ]
+}
