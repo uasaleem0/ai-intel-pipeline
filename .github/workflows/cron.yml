@@ -16,32 +16,28 @@ jobs:
         with:
           python-version: '3.12'
       - name: Setup Python deps
-        working-directory: ai-intel-pipeline
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Ingest
         run: |
           python -m ai_intel_pipeline ingest --limit 12
-        working-directory: ai-intel-pipeline
       - name: Digest
         run: |
           python -m ai_intel_pipeline digest --week current
-        working-directory: ai-intel-pipeline
       - name: Export RAG JSONL
         run: |
           python -m ai_intel_pipeline export
-        working-directory: ai-intel-pipeline
       - name: Upload digest artifact
         uses: actions/upload-artifact@v4
         with:
           name: weekly-digest
-          path: ai-intel-pipeline/vault/digests/weekly/
+          path: vault/digests/weekly/
       - name: Upload vault snapshot
         uses: actions/upload-artifact@v4
         with:
           name: vault-snapshot
-          path: ai-intel-pipeline/vault/
+          path: vault/
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
