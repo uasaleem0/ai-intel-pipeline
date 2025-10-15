@@ -54,24 +54,27 @@ jobs:
         with:
           name: status-report
           path: vault/ai-intel/status/
-      - name: Prepare email body
-        run: |
-          echo "EMAIL_BODY<<EOF" >> $GITHUB_ENV
-          cat vault/ai-intel/status/email.html >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+      - name: Read email body
+        id: read_email
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const html = fs.readFileSync('vault/ai-intel/status/email.html', 'utf8');
+            core.setOutput('html', html);
       - name: Send daily email
-        if: ${{ env.SMTP_SERVER != '' && env.TO_EMAIL != '' && env.FROM_EMAIL != '' }}
+        if: ${{ secrets.SMTP_SERVER && secrets.SMTP_USERNAME && secrets.SMTP_PASSWORD && secrets.TO_EMAIL && secrets.FROM_EMAIL }}
         uses: dawidd6/action-send-mail@v3
         with:
-          server_address: ${{ env.SMTP_SERVER }}
-          server_port: ${{ env.SMTP_PORT || '587' }}
-          username: ${{ env.SMTP_USERNAME }}
-          password: ${{ env.SMTP_PASSWORD }}
+          server_address: ${{ secrets.SMTP_SERVER }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
           subject: AI Intel Daily Report
-          to: ${{ env.TO_EMAIL }}
-          from: ${{ env.FROM_EMAIL }}
+          to: ${{ secrets.TO_EMAIL }}
+          from: ${{ secrets.FROM_EMAIL }}
           content_type: text/html
-          body: ${{ env.EMAIL_BODY }}
+          body: ${{ steps.read_email.outputs.html }}
           attachments: |
             vault/ai-intel/status/report.md
             vault/digests/weekly/*.md
