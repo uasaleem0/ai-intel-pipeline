@@ -56,7 +56,7 @@ jobs:
           path: vault/ai-intel/status/
       - name: Prepare email body
         run: |
-          echo "EMAIL_BODY<<'EOF'" >> $GITHUB_ENV
+          echo "EMAIL_BODY<<EOF" >> $GITHUB_ENV
           cat vault/ai-intel/status/email.html >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
       - name: Send daily email
