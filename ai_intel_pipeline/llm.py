@@ -12,34 +12,44 @@ def have_llm() -> bool:
 def _anthropic_complete_json(system: str, user: Any, max_tokens: int = 400, model: Optional[str] = None) -> Optional[Dict]:
     try:
         import anthropic
+        from anthropic._exceptions import APIStatusError
     except Exception:
         return None
     api_key = os.getenv("ANTHROPIC_API_KEY")
     if not api_key:
         return None
     client = anthropic.Anthropic(api_key=api_key)
-    model = model or os.getenv("ANTHROPIC_MODEL", "claude-3-5-sonnet-latest")
+    preferred = model or os.getenv("ANTHROPIC_MODEL")
+    candidates = [m for m in [preferred, "claude-3-5-sonnet-20241022", "claude-3-5-sonnet-latest", "claude-3-sonnet-20240229"] if m]
     prompt_user = json.dumps(user, ensure_ascii=False)
-    msg = client.messages.create(
-        model=model,
-        max_tokens=max_tokens,
-        temperature=0.2,
-        system=system + " Always return strict JSON only.",
-        messages=[{"role": "user", "content": prompt_user}],
-    )
-    text = "".join([block.text for block in msg.content if getattr(block, "type", "") == "text"]) if hasattr(msg, "content") else str(msg)
-    try:
-        return json.loads(text)
-    except Exception:
-        # try to locate JSON substring
-        start = text.find("{")
-        end = text.rfind("}")
-        if start != -1 and end != -1 and end > start:
+    last_err = None
+    for m in candidates:
+        try:
+            msg = client.messages.create(
+                model=m,
+                max_tokens=max_tokens,
+                temperature=0.2,
+                system=system + " Always return strict JSON only.",
+                messages=[{"role": "user", "content": prompt_user}],
+            )
+            text = "".join([block.text for block in msg.content if getattr(block, "type", "") == "text"]) if hasattr(msg, "content") else str(msg)
             try:
-                return json.loads(text[start : end + 1])
+                return json.loads(text)
             except Exception:
-                return None
-        return None
+                start = text.find("{")
+                end = text.rfind("}")
+                if start != -1 and end != -1 and end > start:
+                    try:
+                        return json.loads(text[start : end + 1])
+                    except Exception:
+                        pass
+        except APIStatusError as e:
+            last_err = e
+            continue
+        except Exception as e:
+            last_err = e
+            continue
+    return None
 
 
 def _openai_complete_json(system: str, user: Any, max_tokens: int = 400, model: Optional[str] = None) -> Optional[Dict]:
