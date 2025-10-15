@@ -2,8 +2,11 @@ from __future__ import annotations
 
 import csv
 import json
+import os
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List
+from .model.recommend import recommend as rec_top
 
 
 def _safe_read_json(path: Path):
@@ -124,6 +127,18 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
     for t in data["top_items"]:
         lines.append(f"- {t['title']} — {t['overall']:.3f}")
         lines.append(f"  {t['url']}")
+    # Top recommendations (embedding-based)
+    try:
+        from ..config import load_profile
+        profile = load_profile()
+        model_dir = Path("vault/model")
+        recs = rec_top(vault_root, index_csv, model_dir, profile, top_k=5)
+        lines.append("\n## Top Recommendations (Embedding-Based)")
+        for r in recs:
+            lines.append(f"- {r['title']} — {r['scores']['combined']:.3f}")
+            lines.append(f"  {r['url']}")
+    except Exception:
+        pass
     out_path = out_dir / "report.md"
     out_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     # Email HTML (simple)
@@ -145,8 +160,76 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
     for t in data["top_items"]:
         email_lines.append(f"<li><a href='{t['url']}'>{t['title']}</a> — {t['overall']:.3f}</li>")
     email_lines.append("</ol>")
+    # Recommended (embedding)
+    try:
+        from ..config import load_profile
+        profile = load_profile()
+        model_dir = Path("vault/model")
+        recs = rec_top(vault_root, index_csv, model_dir, profile, top_k=5)
+        email_lines.append("<h3>Top Recommendations</h3><ol>")
+        for r in recs:
+            email_lines.append(f"<li><a href='{r['url']}'>{r['title']}</a> — {r['scores']['combined']:.3f}</li>")
+        email_lines.append("</ol>")
+    except Exception:
+        pass
     email_lines.append("<p>Full weekly digest attached.</p>")
     email_lines.append("</body></html>")
     (out_dir / "email.html").write_text("\n".join(email_lines), encoding="utf-8")
     (out_dir / "email.txt").write_text("\n".join(lines), encoding="utf-8")
+    # Append history
+    hist_path = out_dir / "history.json"
+    try:
+        hist = json.loads(hist_path.read_text(encoding="utf-8")) if hist_path.exists() else []
+    except Exception:
+        hist = []
+    run_id = os.getenv("GITHUB_RUN_ID")
+    repo = os.getenv("GITHUB_REPOSITORY")
+    server = os.getenv("GITHUB_SERVER_URL", "https://github.com")
+    run_url = f"{server}/{repo}/actions/runs/{run_id}" if run_id and repo else None
+    hist.append({
+        "ts": datetime.now(timezone.utc).isoformat(),
+        "items": c["items"],
+        "evidence_pass": c["evidence_pass"],
+        "evidence_fail": c["evidence_fail"],
+        "avg_confidence": c["avg_confidence"],
+        "transcripts": c["transcripts"],
+        "transcripts_fallback": c["transcripts_fallback"],
+        "run_url": run_url,
+    })
+    hist_path.write_text(json.dumps(hist[-50:], indent=2), encoding="utf-8")
+    # Dashboard HTML
+    dash = []
+    dash.append("<html><head><meta charset='utf-8'><title>AI Intel Dashboard</title><style>body{font-family:Arial,sans-serif;margin:24px} .row{margin:8px 0} .bar{background:#eee;border-radius:4px;overflow:hidden;height:10px} .bar>span{display:block;height:10px;background:#4f46e5} table{border-collapse:collapse;width:100%} th,td{border:1px solid #ddd;padding:8px} th{background:#f6f6f6;text-align:left}</style></head><body>")
+    dash.append("<h1>AI Intel Dashboard</h1>")
+    dash.append(f"<p><b>Items:</b> {c['items']} | <b>Evidence:</b> {c['evidence']} (pass {c['evidence_pass']}/{c['evidence_fail']} fail) | <b>Avg confidence:</b> {c['avg_confidence']}</p>")
+    dash.append(f"<p><b>Transcripts:</b> {c['transcripts']} (fallback {c['transcripts_fallback']})</p>")
+    # Helpers
+    def bars(title, d):
+        if not d:
+            return f"<h3>{title}</h3><p>—</p>"
+        total = sum(d.values())
+        html = [f"<h3>{title}</h3>"]
+        for k,v in sorted(d.items(), key=lambda kv: kv[1], reverse=True):
+            pct = int(100 * (v/total)) if total else 0
+            html.append(f"<div class='row'><div>{k}: {v} ({pct}%)</div><div class='bar'><span style='width:{pct}%'></span></div></div>")
+        return "\n".join(html)
+    dash.append(bars("By Source", data["by_source"]))
+    dash.append(bars("By Type", data["by_type"]))
+    dash.append(bars("Pillars", data["pillars"]))
+    # Top items table
+    dash.append("<h3>Top Items (Overall)</h3><table><tr><th>Title</th><th>Score</th><th>Link</th></tr>")
+    for t in data["top_items"]:
+        dash.append(f"<tr><td>{t['title']}</td><td>{t['overall']:.3f}</td><td><a href='{t['url']}'>open</a></td></tr>")
+    dash.append("</table>")
+    # Top recommendations table
+    try:
+        recs = rec_top(vault_root, index_csv, Path("vault/model"), load_profile(), top_k=5)
+        dash.append("<h3>Top Recommendations</h3><table><tr><th>Title</th><th>Score</th><th>Pillars</th><th>Link</th></tr>")
+        for r in recs:
+            dash.append(f"<tr><td>{r['title']}</td><td>{r['scores']['combined']:.3f}</td><td>{', '.join(r['pillars'])}</td><td><a href='{r['url']}'>open</a></td></tr>")
+        dash.append("</table>")
+    except Exception:
+        pass
+    dash.append("</body></html>")
+    (out_dir / "dashboard.html").write_text("\n".join(dash), encoding="utf-8")
     return out_path
