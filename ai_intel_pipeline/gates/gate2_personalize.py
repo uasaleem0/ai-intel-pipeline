@@ -46,11 +46,11 @@ def gate2_personalize(highlights: Dict, profile: Dict, candidate: Dict, item_dir
             "route": "alert" if overall >= 0.7 else "weekly",
         }
 
-    # LLM path: produce concisely structured Markdown with sections
+    # LLM path: strict JSON schema
     sys = (
-        "You are a senior AI engineer. Given highlights and user profile, produce a concise, actionable brief. "
-        "Sections: TL;DR (1-2 lines); Why it matters (3 bullets); Trade-offs (2 bullets); Apply steps (3-5 numbered, repo-aware if links present); "
-        "Prompt snippets (2-3 for Claude/OpenAI). Keep to ~300-500 tokens."
+        "You are a senior AI engineer. Produce a concise JSON object with fields: "
+        "{tldr: string (<=2 lines), why: [3 bullets], tradeoffs: [2 bullets], apply_steps: [3-5 numbered steps], prompts: [2-3 strings], "
+        "relevance: float 0..1, actionability: float 0..1, overall: float 0..1, route: 'alert'|'weekly'}."
     )
     user = {
         "item": {
@@ -63,17 +63,38 @@ def gate2_personalize(highlights: Dict, profile: Dict, candidate: Dict, item_dir
         "profile": profile,
         "highlights": highlights,
     }
-    resp = llm_complete_json(system=sys, user=user, max_tokens=600)
-    if isinstance(resp, dict):
-        md = resp.get("markdown") or ""
+    resp = llm_complete_json(system=sys, user=user, max_tokens=700)
+    if isinstance(resp, dict) and (resp.get("tldr") or resp.get("apply_steps")):
+        # render markdown
+        md_lines = []
+        if resp.get("tldr"):
+            md_lines.append("TL;DR")
+            md_lines.append(str(resp.get("tldr")))
+            md_lines.append("")
+        if resp.get("why"):
+            md_lines.append("Why it matters")
+            md_lines.extend([f"- {x}" for x in resp.get("why")])
+            md_lines.append("")
+        if resp.get("tradeoffs"):
+            md_lines.append("Trade-offs")
+            md_lines.extend([f"- {x}" for x in resp.get("tradeoffs")])
+            md_lines.append("")
+        if resp.get("apply_steps"):
+            md_lines.append("Apply steps")
+            md_lines.extend([str(x) for x in resp.get("apply_steps")])
+            md_lines.append("")
+        if resp.get("prompts"):
+            md_lines.append("Prompt snippets")
+            md_lines.extend([f"- {x}" for x in resp.get("prompts")])
+            md_lines.append("")
+        md = "\n".join(md_lines)
         r = float(resp.get("relevance", relevance) or relevance)
         a = float(resp.get("actionability", actionability) or actionability)
         o = float(resp.get("overall", overall) or overall)
         route = resp.get("route") or ("alert" if o >= 0.7 else "weekly")
-        if md.strip():
-            return md, {"relevance": r, "actionability": a, "overall": o, "route": route}
+        return md, {"relevance": r, "actionability": a, "overall": o, "route": route}
 
-    # fallback if LLM response malformed
+    # fallback
     fallback = (
         "TL;DR\n" + "\n".join(bullets[:3]) + "\n\n" +
         "Why it matters\n- Potentially valuable.\n- Requires validation.\n- Low risk to prototype.\n\n" +

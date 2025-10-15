@@ -53,7 +53,28 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: status-report
-          path: vault/status/
+          path: vault/ai-intel/status/
+      - name: Prepare email body
+        run: |
+          echo "EMAIL_BODY<<'EOF'" >> $GITHUB_ENV
+          cat vault/ai-intel/status/email.html >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+      - name: Send daily email
+        if: ${{ env.SMTP_SERVER != '' && env.TO_EMAIL != '' && env.FROM_EMAIL != '' }}
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ env.SMTP_SERVER }}
+          server_port: ${{ env.SMTP_PORT || '587' }}
+          username: ${{ env.SMTP_USERNAME }}
+          password: ${{ env.SMTP_PASSWORD }}
+          subject: AI Intel Daily Report
+          to: ${{ env.TO_EMAIL }}
+          from: ${{ env.FROM_EMAIL }}
+          content_type: text/html
+          body: ${{ env.EMAIL_BODY }}
+          attachments: |
+            vault/ai-intel/status/report.md
+            vault/digests/weekly/*.md
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

@@ -18,7 +18,7 @@ def generate_status(vault_root: Path, index_csv: Path) -> Dict:
     if index_csv.exists():
         with index_csv.open("r", encoding="utf-8") as f:
             idx_rows = list(csv.DictReader(f))
-    items_dir = vault_root / "ai-intel" / "items"
+    items_dir = vault_root / "items"
     item_folders = [p for p in items_dir.rglob("*") if p.is_dir() and (p / "item.json").exists()]
 
     source_counts: Dict[str, int] = {}
@@ -126,5 +126,27 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
         lines.append(f"  {t['url']}")
     out_path = out_dir / "report.md"
     out_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    # Email HTML (simple)
+    email_lines = []
+    email_lines.append("<html><body style='font-family:Arial,sans-serif'>")
+    email_lines.append("<h2>AI Intel Daily Status</h2>")
+    email_lines.append(f"<p><b>Items:</b> {c['items']} | <b>Evidence:</b> {c['evidence']} (pass {c['evidence_pass']} / fail {c['evidence_fail']}) | <b>Avg confidence:</b> {c['avg_confidence']}</p>")
+    email_lines.append(f"<p><b>Transcripts:</b> {c['transcripts']} (fallback {c['transcripts_fallback']})</p>")
+    # Sources/types
+    def dict_to_ul(d):
+        if not d:
+            return "<ul><li>—</li></ul>"
+        return "<ul>" + "".join([f"<li>{k}: {v}</li>" for k,v in sorted(d.items(), key=lambda kv: kv[1], reverse=True)]) + "</ul>"
+    email_lines.append("<h3>By Source</h3>" + dict_to_ul(data["by_source"]))
+    email_lines.append("<h3>By Type</h3>" + dict_to_ul(data["by_type"]))
+    email_lines.append("<h3>Pillars</h3>" + dict_to_ul(data["pillars"]))
+    # Top items
+    email_lines.append("<h3>Top Items</h3><ol>")
+    for t in data["top_items"]:
+        email_lines.append(f"<li><a href='{t['url']}'>{t['title']}</a> — {t['overall']:.3f}</li>")
+    email_lines.append("</ol>")
+    email_lines.append("<p>Full weekly digest attached.</p>")
+    email_lines.append("</body></html>")
+    (out_dir / "email.html").write_text("\n".join(email_lines), encoding="utf-8")
+    (out_dir / "email.txt").write_text("\n".join(lines), encoding="utf-8")
     return out_path
-
