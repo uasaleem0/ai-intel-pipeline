@@ -9,7 +9,9 @@ jobs:
   run:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
+      pages: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -54,17 +56,13 @@ jobs:
         with:
           name: status-report
           path: vault/ai-intel/status/
-      - name: Publish dashboard to docs/
-        run: |
-          mkdir -p docs
-          cp -f vault/ai-intel/status/dashboard.html docs/index.html
-          cp -f vault/ai-intel/status/report.json docs/report.json
-          echo "Updated dashboard at $(date -u)" > docs/last_update.txt
-          git config user.name ai-intel-bot
-          git config user.email bot@example.com
-          git add docs/index.html docs/report.json docs/last_update.txt
-          git commit -m "chore(docs): update dashboard" || echo "no changes"
-          git push
+      - name: Upload Pages artifact (dashboard)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: vault/ai-intel/status
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4
       - name: Read email body
         id: read_email
         uses: actions/github-script@v7

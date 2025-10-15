@@ -231,5 +231,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
     except Exception:
         pass
     dash.append("</body></html>")
-    (out_dir / "dashboard.html").write_text("\n".join(dash), encoding="utf-8")
+    html = "\n".join(dash)
+    (out_dir / "dashboard.html").write_text(html, encoding="utf-8")
+    (out_dir / "index.html").write_text(html, encoding="utf-8")
     return out_path
