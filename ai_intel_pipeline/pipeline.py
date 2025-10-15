@@ -173,6 +173,28 @@ def run_ingest(
                     if ch:
                         (item_dir / "repo_snippets" / f"{repo.replace('/', '_')}_CHANGELOG.md").write_text(ch[:4000], encoding="utf-8")
 
+        # If GitHub application or release, add evidence sources
+        if c.get("source_type") == "github":
+            links = (json.loads((item_dir / "item.json").read_text(encoding="utf-8"))).get("links", {})
+            # For releases, store raw description as source.md if present
+            if (c.get("type") == "release") and c.get("raw_description"):
+                vault.write_text(item_dir / "source.md", (c.get("raw_description") or "")[:10000])
+            # For application repos, fetch README/CHANGELOG
+            repo_url = None
+            if isinstance(links, dict):
+                repo_url = links.get("repo") or (links.get("repos", [None])[0] if links.get("repos") else None)
+            if repo_url and "/" in repo_url:
+                owner_repo = repo_url.split("github.com/")[-1].split("/")[:2]
+                if len(owner_repo) == 2:
+                    orpath = "/".join(owner_repo)
+                    (item_dir / "repo_snippets").mkdir(parents=True, exist_ok=True)
+                    rd = fetch_readme(orpath)
+                    if rd:
+                        (item_dir / "repo_snippets" / f"{orpath.replace('/', '_')}_README.md").write_text(rd[:4000], encoding="utf-8")
+                    ch = fetch_changelog(orpath)
+                    if ch:
+                        (item_dir / "repo_snippets" / f"{orpath.replace('/', '_')}_CHANGELOG.md").write_text(ch[:4000], encoding="utf-8")
+
         # Gate 1 validity
         evidence, scores = gate1_validate(candidate=c, highlights=highlights, item_dir=item_dir, dry_run=dry_run)
         if evidence:

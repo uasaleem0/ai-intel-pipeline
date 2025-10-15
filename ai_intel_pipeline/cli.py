@@ -11,6 +11,9 @@ from .storage.index import Index
 from .pipeline import run_ingest, run_digest
 from .exporter import export_jsonl
 from .apply.pr import apply_to_repo_from_item
+from .model.embedder import build_embeddings
+from .model.recommend import recommend
+from .report import write_report
 
 app = typer.Typer(add_completion=False, help="AI Intel Pipeline CLI")
 console = Console()
@@ -116,6 +119,47 @@ def selftest():
     except Exception as e:
         console.print(f"Selftest FAILED: {e}")
         raise
+
+
+@app.command()
+def index_model(
+    export_path: str = typer.Option("vault/export/chunks.jsonl", help="Path to export JSONL"),
+    out_dir: str = typer.Option("vault/model", help="Output directory for embeddings index"),
+):
+    """Build embeddings index from export JSONL (for RAG/recommendations)."""
+    export_p = Path(export_path)
+    out_p = Path(out_dir)
+    emb_path, meta_path = build_embeddings(export_p, out_p)
+    console.print(f"Embeddings written: {emb_path} and {meta_path}")
+
+
+@app.command()
+def recommend_top(
+    k: int = typer.Option(5, help="Top K items to recommend"),
+):
+    """Recommend top items based on profile priorities + embeddings + scores."""
+    vault_root = Path("vault/ai-intel")
+    index_csv = Path("vault/index.csv")
+    model_dir = Path("vault/model")
+    from .config import load_profile
+
+    profile = load_profile()
+    recs = recommend(vault_root, index_csv, model_dir, profile, top_k=k)
+    for i, r in enumerate(recs, 1):
+        console.print(f"{i}. {r['title']} ({', '.join(r['pillars'])})")
+        console.print(f"   {r['url']}")
+        s = r["scores"]
+        console.print(f"   score={s['combined']:.3f} sim={s['sim']:.3f} rel={s['relevance']:.3f} act={s['actionability']:.3f} cred={s['credibility']:.3f}")
+        console.print("")
+
+
+@app.command()
+def report():
+    """Generate a daily status report with counts and top items."""
+    vault_root = Path("vault/ai-intel")
+    index_csv = Path("vault/index.csv")
+    out = write_report(vault_root, index_csv)
+    console.print(f"Status report written to {out}")
 
 
 if __name__ == "__main__":
