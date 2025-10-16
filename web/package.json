@@ -21,6 +21,7 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@tailwindcss/postcss": "^4.1.14",
     "@tailwindcss/typography": "^0.5.19",
+    "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.21",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -31,10 +32,7 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.26.1",
     "tailwind-merge": "^3.3.1",
-    "tailwindcss": "^4.1.14"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-react": "^4.2.1",
+    "tailwindcss": "^4.1.14",
     "vite": "^5.4.2"
   }
 }
