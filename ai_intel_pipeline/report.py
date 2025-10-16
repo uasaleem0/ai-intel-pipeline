@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import csv
 import json
@@ -133,7 +133,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
     # Top items
     lines.append("\n## Top Items (Overall)")
     for t in data["top_items"]:
-        lines.append(f"- {t['title']} — {t['overall']:.3f}")
+        lines.append(f"- {t['title']} â€” {t['overall']:.3f}")
         lines.append(f"  {t['url']}")
     # Top recommendations (embedding-based)
     try:
@@ -143,7 +143,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
         recs = rec_top(vault_root, index_csv, model_dir, profile, top_k=5)
         lines.append("\n## Top Recommendations (Embedding-Based)")
         for r in recs:
-            lines.append(f"- {r['title']} — {r['scores']['combined']:.3f}")
+            lines.append(f"- {r['title']} â€” {r['scores']['combined']:.3f}")
             lines.append(f"  {r['url']}")
     except Exception:
         pass
@@ -158,7 +158,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
     # Sources/types
     def dict_to_ul(d):
         if not d:
-            return "<ul><li>—</li></ul>"
+            return "<ul><li>â€”</li></ul>"
         return "<ul>" + "".join([f"<li>{k}: {v}</li>" for k,v in sorted(d.items(), key=lambda kv: kv[1], reverse=True)]) + "</ul>"
     email_lines.append("<h3>By Source</h3>" + dict_to_ul(data["by_source"]))
     email_lines.append("<h3>By Type</h3>" + dict_to_ul(data["by_type"]))
@@ -166,7 +166,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
     # Top items
     email_lines.append("<h3>Top Items</h3><ol>")
     for t in data["top_items"]:
-        email_lines.append(f"<li><a href='{t['url']}'>{t['title']}</a> — {t['overall']:.3f}</li>")
+        email_lines.append(f"<li><a href='{t['url']}'>{t['title']}</a> â€” {t['overall']:.3f}</li>")
     email_lines.append("</ol>")
     # Recommended (embedding)
     try:
@@ -176,7 +176,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
         recs = rec_top(vault_root, index_csv, model_dir, profile, top_k=5)
         email_lines.append("<h3>Top Recommendations</h3><ol>")
         for r in recs:
-            email_lines.append(f"<li><a href='{r['url']}'>{r['title']}</a> — {r['scores']['combined']:.3f}</li>")
+            email_lines.append(f"<li><a href='{r['url']}'>{r['title']}</a> â€” {r['scores']['combined']:.3f}</li>")
         email_lines.append("</ol>")
     except Exception:
         pass
@@ -239,10 +239,10 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
 
       <!-- KPIs -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div class="card"><div class="kpi" id="kpiItems">—</div><div class="kpi-label">Items</div></div>
-        <div class="card"><div class="kpi" id="kpiPass">—</div><div class="kpi-label">Evidence Pass</div></div>
-        <div class="card"><div class="kpi" id="kpiConfidence">—</div><div class="kpi-label">Avg Confidence</div></div>
-        <div class="card"><div class="kpi" id="kpiTranscripts">—</div><div class="kpi-label">Transcripts (fallback)</div></div>
+        <div class="card"><div class="kpi" id="kpiItems">â€”</div><div class="kpi-label">Items</div></div>
+        <div class="card"><div class="kpi" id="kpiPass">â€”</div><div class="kpi-label">Evidence Pass</div></div>
+        <div class="card"><div class="kpi" id="kpiConfidence">â€”</div><div class="kpi-label">Avg Confidence</div></div>
+        <div class="card"><div class="kpi" id="kpiTranscripts">â€”</div><div class="kpi-label">Transcripts (fallback)</div></div>
       </div>
 
       <!-- Search and Filters -->
@@ -288,7 +288,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
     </div>
 
     <script>
-      async function loadJSON(path) {{
+      async function loadJSON(path) {
         const res = await fetch(path + '?cache=' + Date.now());
         return await res.json();
       }}
@@ -338,7 +338,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
       function renderHistory(hist) {{
         const el = document.getElementById('history');
         el.innerHTML = hist.slice(-20).reverse().map(h => (
-          `<div class='mb-2 text-sm'>${new Date(h.ts).toLocaleString()} — items: ${h.items}, pass: ${h.evidence_pass}/${h.evidence_pass+h.evidence_fail}, conf: ${h.avg_confidence} ${h.run_url?`— <a target='_blank' href='${h.run_url}'>run</a>`:''}</div>`
+          `<div class='mb-2 text-sm'>${new Date(h.ts).toLocaleString()} â€” items: ${h.items}, pass: ${h.evidence_pass}/${h.evidence_pass+h.evidence_fail}, conf: ${h.avg_confidence} ${h.run_url?`â€” <a target='_blank' href='${h.run_url}'>run</a>`:''}</div>`
         )).join('');
       }}
 
@@ -383,3 +383,4 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
     (out_dir / "dashboard.html").write_text(html, encoding="utf-8")
     (out_dir / "index.html").write_text(html, encoding="utf-8")
     return out_path
+
