@@ -364,7 +364,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
       .seg button.active { background:#2563eb; color:white; border-color:#1d4ed8; }
       .chip { display:inline-block; padding:.25rem .6rem; border-radius:9999px; background:#0f172a; border:1px solid #1f2937; margin:.2rem; cursor:pointer; }
       .chip:hover { background:#111b33; }
-      .is-collapsed #sidebar { display:none; }
+      .is-collapsed #sidebar { display:none !important; }
       .seg button { border:1px solid #374151; padding:.35rem .6rem; border-radius:.5rem; background:#0f172a; color:#cbd5e1; }
       .seg button.active { background:#4b5563; color:white; border-color:#334155; }
       details { display:block; width:100%; }
@@ -525,7 +525,8 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
 
       function withinRange(d, days){ if(days==='all') return true; const cutoff = dayjs().subtract(Number(days), 'day'); return dayjs(d).isAfter(cutoff); }
 
-      function barChart(ctx, labels, data) { new Chart(ctx, { type:'bar', data: { labels, datasets:[{ label:'Count', data, backgroundColor:'#60a5fa' }] }, options: { plugins:{ legend:{ display:false } }, scales:{ x:{ ticks:{ color:'#9ca3af' } }, y:{ ticks:{ color:'#9ca3af' }, beginAtZero:true, grid:{ color:'#1f2937' } } } }); }
+            function filterByDays(items, days){ if(days==='all') return items; const cutoff = dayjs().subtract(Number(days),'day'); return items.filter(it=> dayjs(it.date).isAfter(cutoff)); }
+      function updateKPIsFromItems(list){ try { const itemsCount = list.length; let passCount=0, failCount=0, confSum=0, confN=0; list.forEach(it=>{ const v=(it.verdict||'').toLowerCase(); if(v==='pass') passCount++; else if(v==='fail') failCount++; const c = Number(it.confidence); if(!Number.isNaN(c)) { confSum+=c; confN++; } }); const evidence = passCount + failCount; const k = (id)=>document.getElementById(id); if(k('kpiItems')) k('kpiItems').textContent = itemsCount; if(k('kpiPass')) k('kpiPass').textContent = evidence? ${passCount}/ : '—'; if(k('kpiConfidence')) k('kpiConfidence').textContent = confN? (confSum/confN).toFixed(2) : '—'; } catch(e){} }function barChart(ctx, labels, data) { new Chart(ctx, { type:'bar', data: { labels, datasets:[{ label:'Count', data, backgroundColor:'#60a5fa' }] }, options: { plugins:{ legend:{ display:false } }, scales:{ x:{ ticks:{ color:'#9ca3af' } }, y:{ ticks:{ color:'#9ca3af' }, beginAtZero:true, grid:{ color:'#1f2937' } } } }); }
       function lineChart(ctx, labels, data){ new Chart(ctx, { type:'line', data: { labels, datasets:[{ label:'Items', data, borderColor:'#60a5fa', backgroundColor:'#60a5fa22', fill:true, tension:.2 }] }, options: { plugins:{ legend:{ display:false } }, scales:{ x:{ ticks:{ color:'#9ca3af' } }, y:{ ticks:{ color:'#9ca3af' }, beginAtZero:true, grid:{ color:'#1f2937' } } } }); }
 
       function renderCharts(rep){ const sL = Object.keys(rep.by_source), sV = Object.values(rep.by_source); const tL = Object.keys(rep.by_type), tV = Object.values(rep.by_type); const pL = Object.keys(rep.pillars), pV = Object.values(rep.pillars); barChart(document.getElementById('chartSource'), sL, sV); barChart(document.getElementById('chartType'), tL, tV); barChart(document.getElementById('chartPillars'), pL, pV); }
@@ -551,9 +552,9 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
 
       function wireNav(){ document.querySelectorAll('[data-nav]').forEach(a=>{ a.addEventListener('click', (e)=>{ document.querySelectorAll('[data-nav]').forEach(x=>x.classList.remove('active')); a.classList.add('active'); const id = a.getAttribute('data-nav'); const sec = document.getElementById(id); if(sec){ sec.scrollIntoView({behavior:'smooth'}); } }); }); }
 
-      function wireSeg(){ document.querySelectorAll('#dateSeg button').forEach(btn=>{ btn.addEventListener('click', ()=>{ document.querySelectorAll('#dateSeg button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); currentDays = btn.getAttribute('data-days'); renderItems(window.__items, currentDays, currentQuery, currentPillar, currentSourceType); }); }); }
+      function wireSeg(){ document.querySelectorAll('#dateSeg button').forEach(btn=>{ btn.addEventListener('click', ()=>{ document.querySelectorAll('#dateSeg button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); currentDays = btn.getAttribute('data-days'); const cut = currentDays==='all'? null : dayjs().subtract(Number(currentDays),'day'); const fl = (window.__items||[]).filter(it => !cut || dayjs(it.date).isAfter(cut)); (function(){ try { const itemsCount = fl.length; let passCount=0, failCount=0, confSum=0, confN=0; fl.forEach(it=>{ const v=(it.verdict||'').toLowerCase(); if(v==='pass') passCount++; else if(v==='fail') failCount++; const c=Number(it.confidence); if(!Number.isNaN(c)){ confSum+=c; confN++; } }); const evidence = passCount + failCount; const k=(id)=>document.getElementById(id); if(k('kpiItems')) k('kpiItems').textContent = itemsCount; if(k('kpiPass')) k('kpiPass').textContent = evidence? ${passCount}/ : '—'; if(k('kpiConfidence')) k('kpiConfidence').textContent = confN? (confSum/confN).toFixed(2) : '—'; } catch(e){} })(); updateAQ(fl); renderItems(window.__items||[], currentDays, currentQuery, currentPillar, currentSourceType); }); }); }); }); }); }); }
 
-      function wireSidebarToggle(){ const btn=document.getElementById('toggleSidebar'); const sb=document.getElementById('sidebar'); if(btn){ btn.addEventListener('click', ()=>{ if(sb){ sb.classList.toggle('hidden'); } document.body.classList.toggle('is-collapsed'); }); } } document.body.classList.toggle('is-collapsed'); }); } } document.body.classList.toggle('is-collapsed'); }); }); } else { sb.classList.add('hidden'); } }); }
+      function wireSidebarToggle(){ const btn=document.getElementById("toggleSidebar"); const sb=document.getElementById("sidebar"); if(!btn||!sb) return; btn.addEventListener("click", ()=>{ document.body.classList.toggle("is-collapsed"); sb.classList.toggle("hidden"); }); } document.body.classList.toggle('is-collapsed'); }); } } document.body.classList.toggle('is-collapsed'); }); } } document.body.classList.toggle('is-collapsed'); }); }); } else { sb.classList.add('hidden'); } }); }
 
       async function init(){
         const [rep, hist, items] = await Promise.all([
@@ -581,14 +582,13 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
         renderForYou(rep);
         renderWhatChanged(hist||[]);
         renderBrowse(rep, items);
-        renderItems(items, currentDays, currentQuery, currentPillar, currentSourceType);
-        updateAQ(items);
+        const fl = filterByDays(items, currentDays); updateKPIsFromItems(fl); renderItems(items, currentDays, currentQuery, currentPillar, currentSourceType); updateAQ(fl);
         wireNav(); wireSeg(); wireSidebarToggle();
         const search = document.getElementById('globalSearch'); search.addEventListener('input', ()=>{ currentQuery = search.value || ''; renderItems(items, currentDays, currentQuery, currentPillar, currentSourceType); });
       }
 
       // Modal wiring
-      (function(){ const m = document.getElementById('addSourceModal'); const open = document.getElementById('btnAddSource'); const close = document.getElementById('modalClose'); const input = document.getElementById('modalUrl'); const wf = document.getElementById('modalIngestWorkflow'); const iss = document.getElementById('modalIngestIssue'); function links(){ const v = encodeURIComponent(input.value || ''); const user = (location.host.split('.')[0]||''); wf.href = `https://github.com/${user}/ai-intel-pipeline/actions/workflows/ingest_manual.yml`; iss.href = `https://github.com/${user}/ai-intel-pipeline/issues/new?labels=ingest&title=${encodeURIComponent('Ingest source')}&body=${encodeURIComponent('Paste URL here: ')}${v}`; } input.addEventListener('input', links); open.addEventListener('click', ()=>{ m.classList.remove('hidden'); m.classList.add('flex'); links(); }); close.addEventListener('click', ()=>{ m.classList.add('hidden'); m.classList.remove('flex'); }); })();
+            (function(){ const m = document.getElementById(''addSourceModal''); const open = document.getElementById(''btnAddSource''); const close = document.getElementById(''modalClose''); const input = document.getElementById(''modalUrl''); const wf = document.getElementById(''modalIngestWorkflow''); const iss = document.getElementById(''modalIngestIssue''); const overlay = m ? m.querySelector(''.absolute'') : null; function links(){ const v = encodeURIComponent(input.value || ''''); const user = (location.host.split(''.'')[0]||''''); if(wf) wf.href = `https://github.com/${user}/ai-intel-pipeline/actions/workflows/ingest_manual.yml`; if(iss) iss.href = `https://github.com/${user}/ai-intel-pipeline/issues/new?labels=ingest&title=${encodeURIComponent(''Ingest source'')}&body=${encodeURIComponent(''Paste URL here: '')}${v}`; } function show(){ if(!m) return; m.classList.remove(''hidden''); m.classList.add(''flex''); links(); } function hide(){ if(!m) return; m.classList.add(''hidden''); m.classList.remove(''flex''); } input?.addEventListener(''input'', links); open?.addEventListener(''click'', show); close?.addEventListener(''click'', hide); overlay?.addEventListener(''click'', hide); document.addEventListener(''keydown'', (e)=>{ if(e.key===''Escape'') hide(); }); })();
 
       
       // Ask AI (stub)
