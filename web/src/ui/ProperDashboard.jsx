@@ -99,52 +99,75 @@ const KeyInsights = ({ items }) => {
   const insights = generateInsights()
   
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.3 }}
-      className="w-full max-w-4xl mx-auto"
+    <div 
+      className="w-full max-w-4xl mx-auto animate-fadeInUp"
+      style={{ animationDelay: '0.3s', animationFillMode: 'both' }}
     >
-      <Card className="border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-background">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-3">
-            <div className="p-2 bg-amber-500 rounded-lg">
-              <BarChart3 className="h-5 w-5 text-background" />
+      <div className="insight-card" style={{ padding: '24px' }}>
+        <div style={{ marginBottom: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+            <div style={{ 
+              padding: '8px', 
+              background: 'var(--orange)', 
+              borderRadius: '8px',
+              boxShadow: '0 4px 6px -1px rgba(247, 147, 22, 0.3)'
+            }}>
+              <BarChart3 className="h-5 w-5" style={{ color: '#ffffff' }} />
             </div>
             <div>
-              <h3 className="text-xl font-bold">Key Insights</h3>
-              <CardDescription className="text-muted-foreground">
+              <h3 style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>Key Insights</h3>
+              <p style={{ 
+                color: 'var(--muted-foreground)', 
+                fontSize: '14px', 
+                margin: 0 
+              }}>
                 AI-Generated Intelligence from Your Data
-              </CardDescription>
+              </p>
             </div>
-          </CardTitle>
-        </CardHeader>
+          </div>
+        </div>
         
-        <CardContent className="space-y-3">
-          {insights.map((insight) => (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {insights.map((insight, index) => (
             <Collapsible
               key={insight.id}
               open={expandedInsight === insight.id}
               onOpenChange={() => setExpandedInsight(expandedInsight === insight.id ? null : insight.id)}
             >
-              <Card className="border-amber-500/10 hover:bg-amber-500/5 transition-colors">
+              <div className="card hover-lift" style={{ 
+                background: 'linear-gradient(135deg, var(--card) 0%, rgba(247, 147, 22, 0.03) 100%)',
+                border: '1px solid rgba(247, 147, 22, 0.15)',
+                animationDelay: `${0.1 + index * 0.1}s`,
+                animationFillMode: 'both'
+              }}>
                 <CollapsibleTrigger asChild>
-                  <div className="p-4 cursor-pointer">
-                    <div className="flex items-start gap-3">
-                      <insight.icon className="h-6 w-6 text-amber-500 mt-1" />
-                      <div className="flex-1">
-                        <p className="font-medium text-foreground">{insight.insight}</p>
-                        <div className="flex items-center gap-4 mt-2">
-                          <Badge variant="secondary" className="text-xs">
+                  <div style={{ padding: '16px', cursor: 'pointer' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <insight.icon style={{ 
+                        width: '24px', 
+                        height: '24px', 
+                        color: 'var(--orange)', 
+                        marginTop: '2px',
+                        filter: 'drop-shadow(0 2px 4px rgba(247, 147, 22, 0.3))'
+                      }} />
+                      <div style={{ flex: 1 }}>
+                        <p style={{ 
+                          fontWeight: '500', 
+                          color: 'var(--foreground)', 
+                          margin: '0 0 8px 0',
+                          lineHeight: '1.4'
+                        }}>{insight.insight}</p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                          <Badge variant="secondary" style={{ fontSize: '11px' }}>
                             📊 Confidence: {insight.confidence}%
                           </Badge>
-                          <Badge variant="outline" className="text-xs">
+                          <Badge variant="outline" style={{ fontSize: '11px' }}>
                             <TrendingUp className="w-3 h-3 mr-1" />
                             Trending {insight.trend}
                           </Badge>
                         </div>
                       </div>
-                      <Button variant="ghost" size="icon" className="text-muted-foreground">
+                      <Button variant="ghost" size="icon" style={{ color: 'var(--muted-foreground)' }}>
                         {expandedInsight === insight.id ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                       </Button>
                     </div>
@@ -176,12 +199,12 @@ const KeyInsights = ({ items }) => {
                     </div>
                   </div>
                 </CollapsibleContent>
-              </Card>
+              </div>
             </Collapsible>
           ))}
-        </CardContent>
-      </Card>
-    </motion.div>
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -199,62 +222,96 @@ const PillarGrid = ({ report }) => {
   }
   
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.5 }}
-      className="w-full max-w-4xl mx-auto"
+    <div 
+      className="w-full max-w-4xl mx-auto animate-fadeInUp"
+      style={{ animationDelay: '0.5s', animationFillMode: 'both' }}
     >
-      <div className="text-center mb-6">
-        <h3 className="text-xl font-bold mb-2">📊 Explore by Pillar</h3>
-        <p className="text-muted-foreground">Discover insights organized by key domains</p>
+      <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+        <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '8px' }}>
+          📊 Explore by Pillar
+        </h3>
+        <p style={{ color: 'var(--muted-foreground)' }}>Discover insights organized by key domains</p>
       </div>
       
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+        gap: '16px' 
+      }}>
         {Object.entries(pillars)
           .sort(([,a], [,b]) => b - a)
-          .map(([pillar, count]) => {
-            const config = pillarConfigs[pillar] || { icon: BarChart3, color: 'bg-gray-500' }
-            const isActive = count > 10 // Simple heuristic for "active" status
+          .map(([pillar, count], index) => {
+            const config = pillarConfigs[pillar] || { icon: BarChart3, color: 'var(--muted)' }
+            const isActive = count > 10
+            const colorMap = {
+              'bg-pink-500': 'var(--pink)',
+              'bg-blue-500': 'var(--blue)',
+              'bg-purple-500': 'var(--primary)',
+              'bg-green-500': 'var(--green)',
+              'bg-orange-500': 'var(--orange)',
+              'bg-teal-500': 'var(--teal)',
+              'bg-slate-500': 'var(--muted)'
+            }
             
             return (
-              <motion.div
+              <div
                 key={pillar}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                className="pillar-card animate-fadeInUp hover-lift"
+                style={{ 
+                  animationDelay: `${0.6 + index * 0.1}s`,
+                  animationFillMode: 'both'
+                }}
               >
-                <Card className="cursor-pointer hover:bg-accent/50 transition-colors">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className={cn("p-2 rounded-lg", config.color)}>
-                        <config.icon className="h-4 w-4 text-background" />
-                      </div>
-                      {isActive && (
-                        <Badge variant="default" className="text-xs">
-                          <ArrowUpRight className="w-3 h-3 mr-1" />
-                          Active
-                        </Badge>
-                      )}
-                    </div>
-                    
-                    <h4 className="font-semibold text-sm mb-1">{pillar}</h4>
-                    <div className="flex items-center justify-between">
-                      <span className="text-2xl font-bold">{count}</span>
-                      <span className="text-xs text-muted-foreground">items</span>
-                    </div>
-                    
-                    {isActive && (
-                      <p className="text-xs text-green-600 mt-1">
-                        ↗ +{Math.floor(count * 0.2)} new
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
-              </motion.div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                  <div style={{ 
+                    padding: '8px', 
+                    borderRadius: '8px',
+                    background: colorMap[config.color] || config.color,
+                    boxShadow: `0 4px 6px -1px ${colorMap[config.color] || config.color}30`
+                  }}>
+                    <config.icon style={{ width: '16px', height: '16px', color: '#ffffff' }} />
+                  </div>
+                  {isActive && (
+                    <Badge variant="default" style={{ fontSize: '10px', padding: '2px 6px' }}>
+                      <ArrowUpRight className="w-3 h-3 mr-1" />
+                      Active
+                    </Badge>
+                  )}
+                </div>
+                
+                <h4 style={{ 
+                  fontWeight: '600', 
+                  fontSize: '14px', 
+                  marginBottom: '8px',
+                  color: 'var(--foreground)'
+                }}>{pillar}</h4>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ 
+                    fontSize: '24px', 
+                    fontWeight: 'bold',
+                    color: colorMap[config.color] || config.color
+                  }}>{count}</span>
+                  <span style={{ 
+                    fontSize: '12px', 
+                    color: 'var(--muted-foreground)' 
+                  }}>items</span>
+                </div>
+                
+                {isActive && (
+                  <p style={{ 
+                    fontSize: '12px', 
+                    color: 'var(--green)', 
+                    marginTop: '4px',
+                    margin: '4px 0 0 0'
+                  }}>
+                    ↗ +{Math.floor(count * 0.2)} new
+                  </p>
+                )}
+              </div>
             )
           })}
       </div>
-    </motion.div>
+    </div>
   )
 }
 
@@ -316,15 +373,16 @@ export default function ProperDashboard() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{ position: 'relative' }}>
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
-              <Input
+              <input
+                className="input"
                 placeholder="Search data..."
                 style={{ paddingLeft: '40px', width: '320px' }}
               />
             </div>
-            <Button style={{ background: 'var(--primary)', color: 'var(--primary-foreground)' }}>
+            <button className="button-primary hover-lift">
               <Plus className="h-4 w-4 mr-2" />
               Add Source
-            </Button>
+            </button>
           </div>
         </div>
       </header>
