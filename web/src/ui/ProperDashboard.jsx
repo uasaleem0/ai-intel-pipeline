@@ -398,28 +398,161 @@ export default function ProperDashboard() {
       {/* Main Content */}
       <main style={{
         transition: 'margin-left 0.3s ease-in-out',
-        marginLeft: sidebarOpen ? '280px' : '0'
+        marginLeft: sidebarOpen ? '280px' : '0',
+        minHeight: '100vh',
+        background: 'var(--background)'
       }}>
-        <div style={{ 
-          maxWidth: '1200px', 
-          margin: '0 auto', 
-          padding: '32px 24px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '32px'
+        {/* Top Actions Bar */}
+        <div style={{
+          background: 'var(--card)',
+          borderBottom: '1px solid var(--border)',
+          padding: '16px 24px'
         }}>
-          {/* Hero AI Interface */}
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <div style={{ 
+            maxWidth: '1400px', 
+            margin: '0 auto',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
+            <div>
+              <h1 style={{ 
+                fontSize: '24px', 
+                fontWeight: '700', 
+                color: 'var(--foreground)', 
+                margin: '0 0 4px 0'
+              }}>AI Intelligence Dashboard</h1>
+              <p style={{ 
+                fontSize: '14px', 
+                color: 'var(--muted-foreground)', 
+                margin: 0 
+              }}>Monitor and explore your AI data pipeline</p>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <select style={{
+                padding: '8px 12px',
+                borderRadius: '6px',
+                border: '1px solid var(--border)',
+                background: 'var(--card)',
+                color: 'var(--foreground)',
+                fontSize: '14px'
+              }}>
+                <option>Last 7 days</option>
+                <option>Last 30 days</option>
+                <option>All time</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* 2x2 Grid Layout */}
+        <div style={{ 
+          maxWidth: '1400px', 
+          margin: '0 auto', 
+          padding: '24px',
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gridTemplateRows: 'auto auto',
+          gap: '24px',
+          minHeight: 'calc(100vh - 160px)'
+        }}>
+          {/* Top Left: AI Interface + Quick Stats */}
+          <div className="card" style={{ 
+            padding: '24px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '20px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{
+                padding: '8px',
+                background: 'var(--primary)',
+                borderRadius: '8px'
+              }}>
+                <Bot style={{ width: '20px', height: '20px', color: 'white' }} />
+              </div>
+              <div>
+                <h3 style={{ 
+                  fontSize: '18px', 
+                  fontWeight: '600', 
+                  margin: 0, 
+                  color: 'var(--foreground)'
+                }}>AI Assistant</h3>
+                <p style={{ 
+                  fontSize: '14px', 
+                  color: 'var(--muted-foreground)', 
+                  margin: 0 
+                }}>Ask questions about your data</p>
+              </div>
+            </div>
             <AIInterface data={report} />
           </div>
-          
-          {/* Key Insights */}
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
+
+          {/* Top Right: Key Insights */}
+          <div className="card" style={{ padding: '24px' }}>
             <KeyInsights items={items} />
           </div>
-          
-          {/* Pillar Grid */}
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
+
+          {/* Bottom Left: Quick Actions */}
+          <div className="card" style={{ padding: '24px' }}>
+            <div style={{ marginBottom: '20px' }}>
+              <h3 style={{ 
+                fontSize: '18px', 
+                fontWeight: '600', 
+                margin: '0 0 4px 0', 
+                color: 'var(--foreground)'
+              }}>Quick Actions</h3>
+              <p style={{ 
+                fontSize: '14px', 
+                color: 'var(--muted-foreground)', 
+                margin: 0 
+              }}>Common tasks and operations</p>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <button className="pillar-card" style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '12px',
+                padding: '16px',
+                textAlign: 'left'
+              }}>
+                <Plus style={{ width: '20px', height: '20px', color: 'var(--primary)' }} />
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: '500', color: 'var(--foreground)' }}>Add New Source</div>
+                  <div style={{ fontSize: '12px', color: 'var(--muted-foreground)' }}>Connect a new data source</div>
+                </div>
+              </button>
+              <button className="pillar-card" style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '12px',
+                padding: '16px',
+                textAlign: 'left'
+              }}>
+                <Search style={{ width: '20px', height: '20px', color: 'var(--blue)' }} />
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: '500', color: 'var(--foreground)' }}>Advanced Search</div>
+                  <div style={{ fontSize: '12px', color: 'var(--muted-foreground)' }}>Find specific items or patterns</div>
+                </div>
+              </button>
+              <button className="pillar-card" style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '12px',
+                padding: '16px',
+                textAlign: 'left'
+              }}>
+                <Settings style={{ width: '20px', height: '20px', color: 'var(--muted-foreground)' }} />
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: '500', color: 'var(--foreground)' }}>Configure Pipeline</div>
+                  <div style={{ fontSize: '12px', color: 'var(--muted-foreground)' }}>Adjust ingestion settings</div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* Bottom Right: Pillar Grid */}
+          <div className="card" style={{ padding: '24px' }}>
             <PillarGrid report={report} />
           </div>
         </div>

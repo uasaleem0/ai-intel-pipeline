@@ -1,21 +1,23 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { 
   ChevronRight, ChevronDown, Database, Activity, 
-  Clock, BarChart3, Github, Youtube, Rss,
-  Palette, Bot, Zap, Settings, Workflow, Target
+  Clock, BarChart3, Github, Youtube, Rss, Home,
+  Palette, Bot, Zap, Settings, Workflow, Target,
+  Search, Lightbulb, Globe, HelpCircle, User
 } from 'lucide-react'
 import { Button } from './ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Badge } from './ui/badge'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
 import { Separator } from './ui/separator'
 import { cn } from '../lib/utils'
 
 const Sidebar = ({ isOpen, data, onPillarClick, onSourceClick }) => {
-  const [openSections, setOpenSections] = React.useState({
-    pillars: true,
-    sources: true
+  const [activeItem, setActiveItem] = useState('dashboard')
+  const [openSections, setOpenSections] = useState({
+    pillars: false,
+    sources: false
   })
 
   const toggleSection = (section) => {
@@ -24,6 +26,21 @@ const Sidebar = ({ isOpen, data, onPillarClick, onSourceClick }) => {
       [section]: !prev[section]
     }))
   }
+
+  // Main navigation following the "product spine" principle
+  const mainNavItems = [
+    { id: 'dashboard', icon: Home, label: 'Dashboard', active: activeItem === 'dashboard' },
+    { id: 'insights', icon: Lightbulb, label: 'Key Insights', badge: '4' },
+    { id: 'pillars', icon: BarChart3, label: 'Explore Pillars', count: Object.keys(data?.pillars || {}).length },
+    { id: 'sources', icon: Globe, label: 'Data Sources', count: Object.keys(data?.by_source || {}).length },
+    { id: 'search', icon: Search, label: 'Search' }
+  ]
+
+  // Bottom section - low frequency items
+  const bottomNavItems = [
+    { id: 'settings', icon: Settings, label: 'Settings' },
+    { id: 'help', icon: HelpCircle, label: 'Help Center' }
+  ]
 
   const pillarIcons = {
     'AI UI/UX': Palette,
@@ -35,17 +52,13 @@ const Sidebar = ({ isOpen, data, onPillarClick, onSourceClick }) => {
     'Hygienic Workflow': BarChart3
   }
 
-  const sourceIcons = {
-    github: Github,
-    youtube: Youtube,
-    rss: Rss
-  }
-
-  const systemHealth = {
-    items: data?.counts?.items || 0,
-    lastRun: 'All systems operational',
-    runs: '47 runs (7d)',
-    status: 'healthy'
+  const handleNavClick = (item) => {
+    setActiveItem(item.id)
+    if (item.id === 'pillars') {
+      setOpenSections(prev => ({ ...prev, pillars: !prev.pillars }))
+    } else if (item.id === 'sources') {
+      setOpenSections(prev => ({ ...prev, sources: !prev.sources }))
+    }
   }
 
   return (
@@ -59,152 +72,257 @@ const Sidebar = ({ isOpen, data, onPillarClick, onSourceClick }) => {
         duration: 0.3,
         ease: 'easeInOut'
       }}
-      className={cn(
-        "fixed left-0 top-16 h-[calc(100vh-4rem)] bg-card border-r border-border overflow-hidden z-40",
-        !isOpen && "pointer-events-none"
-      )}
+      style={{
+        position: 'fixed',
+        left: 0,
+        top: 0,
+        height: '100vh',
+        background: 'var(--card)',
+        borderRight: '1px solid var(--border)',
+        overflow: 'hidden',
+        zIndex: 50
+      }}
+      className={!isOpen ? "pointer-events-none" : ""}
     >
-      <div className="h-full overflow-y-auto">
-        <div className="p-4 space-y-6">
-          
-          {/* Pillars Section */}
-          <div className="space-y-2">
-            <Collapsible 
-              open={openSections.pillars} 
-              onOpenChange={() => toggleSection('pillars')}
-            >
-              <CollapsibleTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-between p-0 h-auto font-semibold text-foreground hover:text-primary"
-                >
-                  <span className="flex items-center gap-2">
-                    <BarChart3 className="h-4 w-4" />
-                    Pillars
-                  </span>
-                  {openSections.pillars ? (
-                    <ChevronDown className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
-                </Button>
-              </CollapsibleTrigger>
-              
-              <CollapsibleContent className="space-y-1 mt-2">
-                {Object.entries(data?.pillars || {})
-                  .sort(([,a], [,b]) => b - a)
-                  .map(([pillar, count]) => {
-                    const Icon = pillarIcons[pillar] || BarChart3
-                    return (
-                      <Button
-                        key={pillar}
-                        variant="ghost"
-                        className="w-full justify-start p-2 h-auto text-sm hover:bg-accent hover:text-accent-foreground"
-                        onClick={() => onPillarClick?.(pillar)}
-                      >
-                        <Icon className="h-4 w-4 mr-2 text-muted-foreground" />
-                        <div className="flex-1 text-left">
-                          <div className="font-medium">{pillar}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {count} items
-                          </div>
-                        </div>
-                        {count > 15 && (
-                          <Badge variant="secondary" className="text-xs">
-                            Active
-                          </Badge>
-                        )}
-                      </Button>
-                    )
-                  })}
-              </CollapsibleContent>
-            </Collapsible>
+      <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        
+        {/* Header with Profile */}
+        <div style={{ 
+          padding: '20px', 
+          borderBottom: '1px solid var(--border)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <Avatar>
+              <AvatarFallback style={{ 
+                background: 'var(--primary)', 
+                color: 'var(--primary-foreground)',
+                fontWeight: '600'
+              }}>AI</AvatarFallback>
+            </Avatar>
+            <div style={{ flex: 1 }}>
+              <p style={{ 
+                fontSize: '14px', 
+                fontWeight: '600', 
+                color: 'var(--foreground)', 
+                margin: 0 
+              }}>Intelligence Hub</p>
+              <p style={{ 
+                fontSize: '12px', 
+                color: 'var(--muted-foreground)', 
+                margin: 0 
+              }}>AI Data Pipeline</p>
+            </div>
+            <Button variant="ghost" size="icon">
+              <ChevronDown className="h-4 w-4" />
+            </Button>
           </div>
+        </div>
 
-          <Separator />
-
-          {/* Sources Section */}
-          <div className="space-y-2">
-            <Collapsible 
-              open={openSections.sources} 
-              onOpenChange={() => toggleSection('sources')}
-            >
-              <CollapsibleTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-between p-0 h-auto font-semibold text-foreground hover:text-primary"
-                >
-                  <span className="flex items-center gap-2">
-                    <Database className="h-4 w-4" />
-                    Sources
-                  </span>
-                  {openSections.sources ? (
-                    <ChevronDown className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
-                </Button>
-              </CollapsibleTrigger>
+        {/* Main Navigation */}
+        <div style={{ flex: 1, padding: '16px 0' }}>
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '0 12px' }}>
+            {mainNavItems.map((item) => {
+              const Icon = item.icon
+              const isActive = item.active
               
-              <CollapsibleContent className="space-y-1 mt-2">
-                {Object.entries(data?.by_source || {})
-                  .sort(([,a], [,b]) => b - a)
-                  .map(([source, count]) => {
-                    const Icon = sourceIcons[source.toLowerCase()] || Database
-                    return (
-                      <Button
-                        key={source}
-                        variant="ghost"
-                        className="w-full justify-start p-2 h-auto text-sm hover:bg-accent hover:text-accent-foreground"
-                        onClick={() => onSourceClick?.(source)}
-                      >
-                        <Icon className="h-4 w-4 mr-2 text-muted-foreground" />
-                        <div className="flex-1 text-left">
-                          <div className="font-medium capitalize">{source}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {count} items
-                          </div>
-                        </div>
-                      </Button>
-                    )
-                  })}
-              </CollapsibleContent>
-            </Collapsible>
-          </div>
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavClick(item)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '12px 16px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: isActive ? 'var(--primary)' : 'transparent',
+                    color: isActive ? 'var(--primary-foreground)' : 'var(--foreground)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    textAlign: 'left',
+                    width: '100%',
+                    position: 'relative'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActive) {
+                      e.target.style.background = 'var(--accent)'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) {
+                      e.target.style.background = 'transparent'
+                    }
+                  }}
+                >
+                  {/* Active indicator */}
+                  {isActive && (
+                    <div style={{
+                      position: 'absolute',
+                      left: 0,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      width: '3px',
+                      height: '20px',
+                      background: 'var(--primary-foreground)',
+                      borderRadius: '0 2px 2px 0'
+                    }} />
+                  )}
+                  
+                  <Icon style={{ width: '20px', height: '20px' }} />
+                  <span style={{ fontSize: '14px', fontWeight: '500', flex: 1 }}>
+                    {item.label}
+                  </span>
+                  
+                  {/* Badges and counts */}
+                  {item.badge && (
+                    <Badge style={{ 
+                      background: 'var(--orange)', 
+                      color: 'white', 
+                      fontSize: '10px',
+                      padding: '2px 6px'
+                    }}>
+                      {item.badge}
+                    </Badge>
+                  )}
+                  {item.count > 0 && (
+                    <span style={{
+                      fontSize: '12px',
+                      color: isActive ? 'var(--primary-foreground)' : 'var(--muted-foreground)'
+                    }}>
+                      {item.count}
+                    </span>
+                  )}
+                </button>
+              )
+            })}
+          </nav>
 
-          {/* System Health - At Bottom */}
-          <div className="mt-auto">
-            <Separator className="mb-4" />
-            <Card className="border-muted">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Activity className={cn(
-                    "h-4 w-4",
-                    systemHealth.status === 'healthy' ? "text-green-500" : "text-destructive"
-                  )} />
-                  System Health
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0 space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Items</span>
-                  <Badge variant="secondary">{systemHealth.items}</Badge>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Status</span>
-                  <Badge variant="default" className="bg-green-500/10 text-green-500 border-green-500/20">
-                    Operational
-                  </Badge>
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  <div className="flex items-center gap-1 mb-1">
-                    <Clock className="h-3 w-3" />
-                    Last run: 2h ago
+          {/* Collapsible Sections */}
+          {(openSections.pillars || openSections.sources) && (
+            <div style={{ marginTop: '16px', padding: '0 12px' }}>
+              {openSections.pillars && (
+                <div style={{ marginBottom: '16px' }}>
+                  <h4 style={{ 
+                    fontSize: '12px', 
+                    fontWeight: '600', 
+                    color: 'var(--muted-foreground)', 
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    margin: '0 0 8px 16px'
+                  }}>Pillars</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    {Object.entries(data?.pillars || {})
+                      .sort(([,a], [,b]) => b - a)
+                      .slice(0, 6)
+                      .map(([pillar, count]) => {
+                        const Icon = pillarIcons[pillar] || BarChart3
+                        return (
+                          <button
+                            key={pillar}
+                            onClick={() => onPillarClick?.(pillar)}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '10px',
+                              padding: '8px 16px',
+                              borderRadius: '6px',
+                              border: 'none',
+                              background: 'transparent',
+                              color: 'var(--foreground)',
+                              cursor: 'pointer',
+                              transition: 'background-color 0.2s ease',
+                              width: '100%',
+                              textAlign: 'left'
+                            }}
+                            onMouseEnter={(e) => e.target.style.background = 'var(--accent)'}
+                            onMouseLeave={(e) => e.target.style.background = 'transparent'}
+                          >
+                            <Icon style={{ width: '16px', height: '16px', color: 'var(--muted-foreground)' }} />
+                            <span style={{ fontSize: '13px', flex: 1 }}>{pillar}</span>
+                            <span style={{ 
+                              fontSize: '11px', 
+                              color: 'var(--muted-foreground)',
+                              background: 'var(--muted)',
+                              padding: '2px 6px',
+                              borderRadius: '10px'
+                            }}>
+                              {count}
+                            </span>
+                          </button>
+                        )
+                      })}
                   </div>
-                  <div>47 runs (past 7 days)</div>
                 </div>
-              </CardContent>
-            </Card>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Bottom Navigation - Low Frequency Items */}
+        <div style={{ 
+          padding: '16px 12px', 
+          borderTop: '1px solid var(--border)',
+          marginTop: 'auto'
+        }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {bottomNavItems.map((item) => {
+              const Icon = item.icon
+              return (
+                <button
+                  key={item.id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '10px 16px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: 'transparent',
+                    color: 'var(--muted-foreground)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    width: '100%',
+                    textAlign: 'left'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.background = 'var(--accent)'
+                    e.target.style.color = 'var(--foreground)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.background = 'transparent'
+                    e.target.style.color = 'var(--muted-foreground)'
+                  }}
+                >
+                  <Icon style={{ width: '18px', height: '18px' }} />
+                  <span style={{ fontSize: '14px', fontWeight: '500' }}>
+                    {item.label}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+          
+          {/* System Status */}
+          <div style={{ 
+            marginTop: '16px',
+            padding: '12px',
+            background: 'var(--muted)',
+            borderRadius: '8px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+              <Activity style={{ width: '14px', height: '14px', color: 'var(--green)' }} />
+              <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--foreground)' }}>
+                System Operational
+              </span>
+            </div>
+            <p style={{ 
+              fontSize: '11px', 
+              color: 'var(--muted-foreground)', 
+              margin: 0 
+            }}>
+              {data?.counts?.items || 0} items • Last run 2h ago
+            </p>
           </div>
         </div>
       </div>
