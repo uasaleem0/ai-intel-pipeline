@@ -80,7 +80,7 @@ def generate_status(vault_root: Path, index_csv: Path) -> Dict:
     except Exception:
         pass
 
-    return {
+    data = {
         "counts": {
             "items": len(item_folders),
             "evidence": ev_pass + ev_fail,
@@ -95,13 +95,21 @@ def generate_status(vault_root: Path, index_csv: Path) -> Dict:
         "pillars": pillar_counts,
         "top_items": top_items,
     }
+    return data
 
 
 def write_report(vault_root: Path, index_csv: Path) -> Path:
     data = generate_status(vault_root, index_csv)
     out_dir = vault_root / "status"
     out_dir.mkdir(parents=True, exist_ok=True)
-    # Save JSON
+    # Augment with recommendations for consumers
+    try:
+        from ..config import load_profile
+        recs_for_json = rec_top(vault_root, index_csv, Path("vault/model"), load_profile(), top_k=8)
+        data["recommendations"] = recs_for_json
+    except Exception:
+        data["recommendations"] = []
+    # Save JSON (dashboard data)
     (out_dir / "report.json").write_text(json.dumps(data, indent=2), encoding="utf-8")
     # Save Markdown
     lines = []
@@ -197,41 +205,178 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
         "run_url": run_url,
     })
     hist_path.write_text(json.dumps(hist[-50:], indent=2), encoding="utf-8")
-    # Dashboard HTML
-    dash = []
-    dash.append("<html><head><meta charset='utf-8'><title>AI Intel Dashboard</title><style>body{font-family:Arial,sans-serif;margin:24px} .row{margin:8px 0} .bar{background:#eee;border-radius:4px;overflow:hidden;height:10px} .bar>span{display:block;height:10px;background:#4f46e5} table{border-collapse:collapse;width:100%} th,td{border:1px solid #ddd;padding:8px} th{background:#f6f6f6;text-align:left}</style></head><body>")
-    dash.append("<h1>AI Intel Dashboard</h1>")
-    dash.append(f"<p><b>Items:</b> {c['items']} | <b>Evidence:</b> {c['evidence']} (pass {c['evidence_pass']}/{c['evidence_fail']} fail) | <b>Avg confidence:</b> {c['avg_confidence']}</p>")
-    dash.append(f"<p><b>Transcripts:</b> {c['transcripts']} (fallback {c['transcripts_fallback']})</p>")
-    # Helpers
-    def bars(title, d):
-        if not d:
-            return f"<h3>{title}</h3><p>—</p>"
-        total = sum(d.values())
-        html = [f"<h3>{title}</h3>"]
-        for k,v in sorted(d.items(), key=lambda kv: kv[1], reverse=True):
-            pct = int(100 * (v/total)) if total else 0
-            html.append(f"<div class='row'><div>{k}: {v} ({pct}%)</div><div class='bar'><span style='width:{pct}%'></span></div></div>")
-        return "\n".join(html)
-    dash.append(bars("By Source", data["by_source"]))
-    dash.append(bars("By Type", data["by_type"]))
-    dash.append(bars("Pillars", data["pillars"]))
-    # Top items table
-    dash.append("<h3>Top Items (Overall)</h3><table><tr><th>Title</th><th>Score</th><th>Link</th></tr>")
-    for t in data["top_items"]:
-        dash.append(f"<tr><td>{t['title']}</td><td>{t['overall']:.3f}</td><td><a href='{t['url']}'>open</a></td></tr>")
-    dash.append("</table>")
-    # Top recommendations table
-    try:
-        recs = rec_top(vault_root, index_csv, Path("vault/model"), load_profile(), top_k=5)
-        dash.append("<h3>Top Recommendations</h3><table><tr><th>Title</th><th>Score</th><th>Pillars</th><th>Link</th></tr>")
-        for r in recs:
-            dash.append(f"<tr><td>{r['title']}</td><td>{r['scores']['combined']:.3f}</td><td>{', '.join(r['pillars'])}</td><td><a href='{r['url']}'>open</a></td></tr>")
-        dash.append("</table>")
-    except Exception:
-        pass
-    dash.append("</body></html>")
-    html = "\n".join(dash)
+    # Dashboard HTML (dark mode + charts + search using pure JS)
+    # Load report.json and history.json dynamically; render charts via Chart.js CDN; style via Tailwind CDN.
+    html = f"""
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Intel Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lunr/lunr.min.js"></script>
+    <style>
+      :root {{ color-scheme: dark; }}
+      body {{ background: #0b0f19; color: #e5e7eb; }}
+      .card {{ background:#111827; border:1px solid #1f2937; border-radius:0.75rem; padding:1rem; }}
+      a {{ color:#60a5fa; }} a:hover {{ text-decoration: underline; }}
+      .pill {{ display:inline-block; background:#1f2937; padding:2px 8px; border-radius:999px; margin-right:6px; font-size:12px; }}
+      .kpi {{ font-size: 28px; font-weight: 700; }}
+      .kpi-label {{ color:#9ca3af; font-size:12px; text-transform:uppercase; letter-spacing: .06em; }}
+    </style>
+  </head>
+  <body class="min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 py-6">
+      <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold">AI Intel Dashboard</h1>
+        <div id="lastUpdated" class="text-sm text-gray-400"></div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="card"><div class="kpi" id="kpiItems">—</div><div class="kpi-label">Items</div></div>
+        <div class="card"><div class="kpi" id="kpiPass">—</div><div class="kpi-label">Evidence Pass</div></div>
+        <div class="card"><div class="kpi" id="kpiConfidence">—</div><div class="kpi-label">Avg Confidence</div></div>
+        <div class="card"><div class="kpi" id="kpiTranscripts">—</div><div class="kpi-label">Transcripts (fallback)</div></div>
+      </div>
+
+      <!-- Search and Filters -->
+      <div class="card mb-6">
+        <div class="flex flex-col md:flex-row gap-3 items-start md:items-center justify-between">
+          <input id="searchBox" placeholder="Search insights (title, summary, pillars)..." class="w-full md:w-1/2 bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700" />
+          <div>
+            <select id="pillarFilter" class="bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700">
+              <option value="">All Pillars</option>
+            </select>
+            <select id="sourceFilter" class="bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700 ml-2">
+              <option value="">All Sources</option>
+            </select>
+          </div>
+        </div>
+        <div id="searchResults" class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+      </div>
+
+      <!-- Charts -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="card"><h3 class="mb-2 font-semibold">By Source</h3><canvas id="chartSource"></canvas></div>
+        <div class="card"><h3 class="mb-2 font-semibold">By Type</h3><canvas id="chartType"></canvas></div>
+        <div class="card"><h3 class="mb-2 font-semibold">Pillars</h3><canvas id="chartPillars"></canvas></div>
+      </div>
+
+      <!-- Top Items & Recommendations -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div class="card">
+          <h3 class="mb-3 font-semibold">Top Items (Overall)</h3>
+          <div id="topItems"></div>
+        </div>
+        <div class="card">
+          <h3 class="mb-3 font-semibold">Top Recommendations</h3>
+          <div id="topRecs"></div>
+        </div>
+      </div>
+
+      <!-- Run History -->
+      <div class="card mb-6">
+        <h3 class="mb-3 font-semibold">Run History</h3>
+        <div id="history"></div>
+      </div>
+    </div>
+
+    <script>
+      async function loadJSON(path) {{
+        const res = await fetch(path + '?cache=' + Date.now());
+        return await res.json();
+      }}
+
+      function toList(el, items) {{
+        el.innerHTML = items.map(it => `<div class="mb-3"><div class="font-medium">${it.title}</div><div class="text-sm text-gray-400">score: ${(it.score || it.s || 0).toFixed ? (it.score || it.s).toFixed(3) : it.score || ''}</div><a href="${it.url}" target="_blank">Open</a></div>`).join('');
+      }}
+
+      function updateKPIs(rep) {{
+        const c = rep.counts;
+        document.getElementById('kpiItems').textContent = c.items;
+        document.getElementById('kpiPass').textContent = `${c.evidence_pass}/${c.evidence}`;
+        document.getElementById('kpiConfidence').textContent = c.avg_confidence.toFixed(2);
+        document.getElementById('kpiTranscripts').textContent = `${c.transcripts} (${c.transcripts_fallback})`;
+        const lu = new Date().toISOString().split('T')[0];
+        document.getElementById('lastUpdated').textContent = `Updated ${lu}`;
+      }}
+
+      function barChart(ctx, labels, data) {{
+        new Chart(ctx, {{ type:'bar', data: {{ labels, datasets:[{{ label:'Count', data, backgroundColor:'#60a5fa' }}] }}, options: {{ plugins:{{ legend:{{ display:false }} }}, scales:{{ x:{{ ticks:{{ color:'#9ca3af' }} }}, y:{{ ticks:{{ color:'#9ca3af' }}, beginAtZero:true }} }} }});
+      }}
+
+      function renderCharts(rep) {{
+        const sL = Object.keys(rep.by_source); const sV = Object.values(rep.by_source);
+        const tL = Object.keys(rep.by_type); const tV = Object.values(rep.by_type);
+        const pL = Object.keys(rep.pillars); const pV = Object.values(rep.pillars);
+        barChart(document.getElementById('chartSource'), sL, sV);
+        barChart(document.getElementById('chartType'), tL, tV);
+        barChart(document.getElementById('chartPillars'), pL, pV);
+      }}
+
+      function renderTopItems(rep) {{
+        const el = document.getElementById('topItems');
+        el.innerHTML = rep.top_items.map(t => (
+          `<div class='mb-3'><div class='font-medium'>${t.title}</div><div class='text-sm text-gray-400'>score: ${Number(t.overall||0).toFixed(3)}</div><a href='${t.url}' target='_blank'>Open</a></div>`
+        )).join('');
+      }}
+
+      function renderTopRecs(rep) {{
+        const el = document.getElementById('topRecs');
+        const recs = rep.recommendations || [];
+        el.innerHTML = recs.map(r => (
+          `<div class='mb-3'><div class='font-medium'>${r.title}</div><div class='text-sm text-gray-400'>score: ${Number(r.scores?.combined||0).toFixed(3)} | pillars: ${(r.pillars||[]).join(', ')}</div><a href='${r.url}' target='_blank'>Open</a></div>`
+        )).join('');
+      }}
+
+      function renderHistory(hist) {{
+        const el = document.getElementById('history');
+        el.innerHTML = hist.slice(-20).reverse().map(h => (
+          `<div class='mb-2 text-sm'>${new Date(h.ts).toLocaleString()} — items: ${h.items}, pass: ${h.evidence_pass}/${h.evidence_pass+h.evidence_fail}, conf: ${h.avg_confidence} ${h.run_url?`— <a target='_blank' href='${h.run_url}'>run</a>`:''}</div>`
+        )).join('');
+      }}
+
+      async function init() {{
+        const rep = await loadJSON('report.json');
+        updateKPIs(rep);
+        renderCharts(rep);
+        renderTopItems(rep);
+        renderTopRecs(rep);
+        let hist=[]; try {{ hist = await loadJSON('history.json'); }} catch(e){{}}
+        renderHistory(hist);
+        // Pillar + source filters
+        const pSel = document.getElementById('pillarFilter');
+        const sSel = document.getElementById('sourceFilter');
+        Object.keys(rep.pillars).forEach(k=>{{ const o=document.createElement('option'); o.value=k; o.textContent=k; pSel.appendChild(o); }});
+        Object.keys(rep.by_source).forEach(k=>{{ const o=document.createElement('option'); o.value=k; o.textContent=k; sSel.appendChild(o); }});
+        // Basic keyword search over top items + recs
+        const searchBox = document.getElementById('searchBox');
+        const results = document.getElementById('searchResults');
+        const data = (rep.top_items||[]).map(t=>({{title:t.title,url:t.url,text:t.title,pillars:[]}})).concat((rep.recommendations||[]).map(r=>({{title:r.title,url:r.url,text:r.summary||r.title,pillars:r.pillars||[], source:''}})));
+        function doSearch(){{
+          const q = searchBox.value.toLowerCase(); const pf = pSel.value; const sf = sSel.value;
+          const out = data.filter(d=>{
+            const okQ = !q || (d.title?.toLowerCase().includes(q) || (d.text||'').toLowerCase().includes(q));
+            const okP = !pf || (d.pillars||[]).includes(pf);
+            const okS = !sf || (d.source||'')===sf;
+            return okQ && okP && okS;
+          }).slice(0,10);
+          results.innerHTML = out.map(d=> (
+            `<div class='card'><div class='font-medium'>${d.title}</div><a href='${d.url}' target='_blank'>Open</a></div>`
+          )).join('');
+        }}
+        searchBox.addEventListener('input', doSearch);
+        pSel.addEventListener('change', doSearch);
+        sSel.addEventListener('change', doSearch);
+      }}
+      init();
+    </script>
+  </body>
+</html>
+"""
     (out_dir / "dashboard.html").write_text(html, encoding="utf-8")
     (out_dir / "index.html").write_text(html, encoding="utf-8")
     return out_path
