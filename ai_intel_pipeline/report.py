@@ -221,13 +221,13 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lunr/lunr.min.js"></script>
     <style>
-      :root {{ color-scheme: dark; }}
-      body {{ background: #0b0f19; color: #e5e7eb; }}
-      .card {{ background:#111827; border:1px solid #1f2937; border-radius:0.75rem; padding:1rem; }}
-      a {{ color:#60a5fa; }} a:hover {{ text-decoration: underline; }}
-      .pill {{ display:inline-block; background:#1f2937; padding:2px 8px; border-radius:999px; margin-right:6px; font-size:12px; }}
-      .kpi {{ font-size: 28px; font-weight: 700; }}
-      .kpi-label {{ color:#9ca3af; font-size:12px; text-transform:uppercase; letter-spacing: .06em; }}
+      :root { color-scheme: dark; }
+      body { background: #0b0f19; color: #e5e7eb; }
+      .card { background:#111827; border:1px solid #1f2937; border-radius:0.75rem; padding:1rem; }
+      a { color:#60a5fa; } a:hover { text-decoration: underline; }
+      .pill { display:inline-block; background:#1f2937; padding:2px 8px; border-radius:999px; margin-right:6px; font-size:12px; }
+      .kpi { font-size: 28px; font-weight: 700; }
+      .kpi-label { color:#9ca3af; font-size:12px; text-transform:uppercase; letter-spacing: .06em; }
     </style>
   </head>
   <body class="min-h-screen">
@@ -291,13 +291,13 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
       async function loadJSON(path) {
         const res = await fetch(path + '?cache=' + Date.now());
         return await res.json();
-      }}
+      }
 
-      function toList(el, items) {{
+      function toList(el, items) {
         el.innerHTML = items.map(it => `<div class="mb-3"><div class="font-medium">${it.title}</div><div class="text-sm text-gray-400">score: ${(it.score || it.s || 0).toFixed ? (it.score || it.s).toFixed(3) : it.score || ''}</div><a href="${it.url}" target="_blank">Open</a></div>`).join('');
-      }}
+      }
 
-      function updateKPIs(rep) {{
+      function updateKPIs(rep) {
         const c = rep.counts;
         document.getElementById('kpiItems').textContent = c.items;
         document.getElementById('kpiPass').textContent = `${c.evidence_pass}/${c.evidence}`;
@@ -305,61 +305,61 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
         document.getElementById('kpiTranscripts').textContent = `${c.transcripts} (${c.transcripts_fallback})`;
         const lu = new Date().toISOString().split('T')[0];
         document.getElementById('lastUpdated').textContent = `Updated ${lu}`;
-      }}
+      }
 
-      function barChart(ctx, labels, data) {{
-        new Chart(ctx, {{ type:'bar', data: {{ labels, datasets:[{{ label:'Count', data, backgroundColor:'#60a5fa' }}] }}, options: {{ plugins:{{ legend:{{ display:false }} }}, scales:{{ x:{{ ticks:{{ color:'#9ca3af' }} }}, y:{{ ticks:{{ color:'#9ca3af' }}, beginAtZero:true }} }} }});
-      }}
+      function barChart(ctx, labels, data) {
+        new Chart(ctx, { type:'bar', data: { labels, datasets:[{ label:'Count', data, backgroundColor:'#60a5fa' }] }, options: { plugins:{ legend:{ display:false } }, scales:{ x:{ ticks:{ color:'#9ca3af' } }, y:{ ticks:{ color:'#9ca3af' }, beginAtZero:true } } });
+      }
 
-      function renderCharts(rep) {{
+      function renderCharts(rep) {
         const sL = Object.keys(rep.by_source); const sV = Object.values(rep.by_source);
         const tL = Object.keys(rep.by_type); const tV = Object.values(rep.by_type);
         const pL = Object.keys(rep.pillars); const pV = Object.values(rep.pillars);
         barChart(document.getElementById('chartSource'), sL, sV);
         barChart(document.getElementById('chartType'), tL, tV);
         barChart(document.getElementById('chartPillars'), pL, pV);
-      }}
+      }
 
-      function renderTopItems(rep) {{
+      function renderTopItems(rep) {
         const el = document.getElementById('topItems');
         el.innerHTML = rep.top_items.map(t => (
           `<div class='mb-3'><div class='font-medium'>${t.title}</div><div class='text-sm text-gray-400'>score: ${Number(t.overall||0).toFixed(3)}</div><a href='${t.url}' target='_blank'>Open</a></div>`
         )).join('');
-      }}
+      }
 
-      function renderTopRecs(rep) {{
+      function renderTopRecs(rep) {
         const el = document.getElementById('topRecs');
         const recs = rep.recommendations || [];
         el.innerHTML = recs.map(r => (
           `<div class='mb-3'><div class='font-medium'>${r.title}</div><div class='text-sm text-gray-400'>score: ${Number(r.scores?.combined||0).toFixed(3)} | pillars: ${(r.pillars||[]).join(', ')}</div><a href='${r.url}' target='_blank'>Open</a></div>`
         )).join('');
-      }}
+      }
 
-      function renderHistory(hist) {{
+      function renderHistory(hist) {
         const el = document.getElementById('history');
         el.innerHTML = hist.slice(-20).reverse().map(h => (
           `<div class='mb-2 text-sm'>${new Date(h.ts).toLocaleString()} â€” items: ${h.items}, pass: ${h.evidence_pass}/${h.evidence_pass+h.evidence_fail}, conf: ${h.avg_confidence} ${h.run_url?`â€” <a target='_blank' href='${h.run_url}'>run</a>`:''}</div>`
         )).join('');
-      }}
+      }
 
-      async function init() {{
+      async function init() {
         const rep = await loadJSON('report.json');
         updateKPIs(rep);
         renderCharts(rep);
         renderTopItems(rep);
         renderTopRecs(rep);
-        let hist=[]; try {{ hist = await loadJSON('history.json'); }} catch(e){{}}
+        let hist=[]; try { hist = await loadJSON('history.json'); } catch(e){}
         renderHistory(hist);
         // Pillar + source filters
         const pSel = document.getElementById('pillarFilter');
         const sSel = document.getElementById('sourceFilter');
-        Object.keys(rep.pillars).forEach(k=>{{ const o=document.createElement('option'); o.value=k; o.textContent=k; pSel.appendChild(o); }});
-        Object.keys(rep.by_source).forEach(k=>{{ const o=document.createElement('option'); o.value=k; o.textContent=k; sSel.appendChild(o); }});
+        Object.keys(rep.pillars).forEach(k=>{ const o=document.createElement('option'); o.value=k; o.textContent=k; pSel.appendChild(o); });
+        Object.keys(rep.by_source).forEach(k=>{ const o=document.createElement('option'); o.value=k; o.textContent=k; sSel.appendChild(o); });
         // Basic keyword search over top items + recs
         const searchBox = document.getElementById('searchBox');
         const results = document.getElementById('searchResults');
-        const data = (rep.top_items||[]).map(t=>({{title:t.title,url:t.url,text:t.title,pillars:[]}})).concat((rep.recommendations||[]).map(r=>({{title:r.title,url:r.url,text:r.summary||r.title,pillars:r.pillars||[], source:''}})));
-        function doSearch(){{
+        const data = (rep.top_items||[]).map(t=>({title:t.title,url:t.url,text:t.title,pillars:[]})).concat((rep.recommendations||[]).map(r=>({title:r.title,url:r.url,text:r.summary||r.title,pillars:r.pillars||[], source:''})));
+        function doSearch(){
           const q = searchBox.value.toLowerCase(); const pf = pSel.value; const sf = sSel.value;
           const out = data.filter(d=>{
             const okQ = !q || (d.title?.toLowerCase().includes(q) || (d.text||'').toLowerCase().includes(q));
@@ -370,11 +370,11 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
           results.innerHTML = out.map(d=> (
             `<div class='card'><div class='font-medium'>${d.title}</div><a href='${d.url}' target='_blank'>Open</a></div>`
           )).join('');
-        }}
+        }
         searchBox.addEventListener('input', doSearch);
         pSel.addEventListener('change', doSearch);
         sSel.addEventListener('change', doSearch);
-      }}
+      }
       init();
     </script>
   </body>
@@ -383,4 +383,5 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
     (out_dir / "dashboard.html").write_text(html, encoding="utf-8")
     (out_dir / "index.html").write_text(html, encoding="utf-8")
     return out_path
+
 
