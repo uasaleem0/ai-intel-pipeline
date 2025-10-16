@@ -367,6 +367,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
       .is-collapsed #sidebar { display:none; }
       .seg button { border:1px solid #374151; padding:.35rem .6rem; border-radius:.5rem; background:#0f172a; color:#cbd5e1; }
       .seg button.active { background:#4b5563; color:white; border-color:#334155; }
+      details { display:block; width:100%; }
     </style>
   </head>
   <body class="min-h-screen">
@@ -554,6 +555,34 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
       // Modal wiring
       (function(){ const m = document.getElementById('addSourceModal'); const open = document.getElementById('btnAddSource'); const close = document.getElementById('modalClose'); const input = document.getElementById('modalUrl'); const wf = document.getElementById('modalIngestWorkflow'); const iss = document.getElementById('modalIngestIssue'); function links(){ const v = encodeURIComponent(input.value || ''); const user = (location.host.split('.')[0]||''); wf.href = `https://github.com/${user}/ai-intel-pipeline/actions/workflows/ingest_manual.yml`; iss.href = `https://github.com/${user}/ai-intel-pipeline/issues/new?labels=ingest&title=${encodeURIComponent('Ingest source')}&body=${encodeURIComponent('Paste URL here: ')}${v}`; } input.addEventListener('input', links); open.addEventListener('click', ()=>{ m.classList.remove('hidden'); m.classList.add('flex'); links(); }); close.addEventListener('click', ()=>{ m.classList.add('hidden'); m.classList.remove('flex'); }); })();
 
+      
+      // Ask AI (stub)
+      (function(){
+        let repCache=null;
+        async function ensureRep(){ if(repCache) return repCache; try { repCache = await loadJSON('report.json'); return repCache; } catch(e){ return null; } }
+        async function ask(){
+          const rep = await ensureRep();
+          const q = (document.getElementById('askInput').value||'').trim();
+          if(!q){ showToast('Please enter a question', 'error'); return; }
+          const mi = rep && rep.model_index || {doc_count:0};
+          if(!mi.doc_count){
+            document.getElementById('askOutput').innerHTML = '<div class="text-gray-400">RAG not ready: build embeddings via Actions (index-model) to enable AI Q&A.</div>';
+            showToast('Vector index not available yet', 'info');
+            return;
+          }
+          document.getElementById('askOutput').innerHTML = '<div class="text-gray-400">Thinking with your indexed data...</div>';
+          // Placeholder until RAG backend is wired. We will call a client-side RAG runner here.
+          setTimeout(()=>{
+            document.getElementById('askOutput').innerHTML = '<div class="text-gray-400">RAG is not enabled on this page yet. Once your vector index is published to Pages, answers will appear here with citations.</div>';
+          }, 600);
+        }
+        const btn = document.getElementById('askBtn'); const settings = document.getElementById('askSettings');
+        btn?.addEventListener('click', ask);
+        settings?.addEventListener('click', ()=>{
+          showToast('Configure RAG backend first; BYOK will be added here', 'info');
+        });
+      })();
+
       init();
     </script>
   </body>
@@ -561,6 +590,77 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
 """
     (out_dir / "dashboard.html").write_text(html, encoding="utf-8")
     (out_dir / "index.html").write_text(html, encoding="utf-8")
+    \
+    items_html = """
+<!doctype html>
+<html lang=\"en\" class=\"dark\">
+  <head>
+    <meta charset=\"utf-8\" />
+    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
+    <title>AI Intel · Items</title>
+    <script src=\"https://cdn.tailwindcss.com\"></script>
+    <script src=\"https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js\"></script>
+    <style>:root{color-scheme:dark} body{background:#0b0f19;color:#e5e7eb} .card{background:#111827;border:1px solid #1f2937;border-radius:.75rem;padding:1rem} .pill{display:inline-block;background:#1f2937;padding:2px 8px;border-radius:999px;margin-right:6px;font-size:12px}</style>
+  </head>
+  <body class=\"min-h-screen\">
+    <div class=\"max-w-7xl mx-auto px-4 py-6\">
+      <div class=\"flex items-center justify-between mb-4\"><a href=\"index.html\" class=\"text-sm text-gray-400\">← Dashboard</a><div class=\"font-bold\">All Items</div><div></div></div>
+      <div class=\"card mb-4\">
+        <div class=\"flex flex-wrap gap-2 items-center\">
+          <input id=\"q\" class=\"bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700\" placeholder=\"Search\" />
+          <select id=\"days\" class=\"bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700\"><option value=\"7\">7d</option><option value=\"30\" selected>30d</option><option value=\"90\">90d</option><option value=\"all\">All</option></select>
+          <select id=\"source\" class=\"bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700\"><option value=\"\">All sources</option><option>github</option><option>youtube</option><option>vendor</option></select>
+          <select id=\"pillar\" class=\"bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700\"><option value=\"\">All pillars</option></select>
+        </div>
+      </div>
+      <div id=\"table\" class=\"card\"></div>
+    </div>
+    <script>
+      async function loadJSON(p){ const r = await fetch(p+'?cache='+Date.now()); return await r.json(); }
+      function withinRange(d, days){ if(days==='all') return true; const cut = dayjs().subtract(Number(days),'day'); return dayjs(d).isAfter(cut); }
+      function getParam(k){ const u=new URLSearchParams(location.search); return u.get(k)||''; }
+      function setParams(params){ const u=new URLSearchParams(location.search); Object.entries(params).forEach(([k,v])=>{ if(v) u.set(k,v); else u.delete(k); }); history.replaceState(null,'','?'+u.toString()); }
+      function render(items){ const el = document.getElementById('table'); const q=document.getElementById('q').value.toLowerCase(); const days=document.getElementById('days').value; const src=document.getElementById('source').value; const pil=document.getElementById('pillar').value; let list = items.filter(it=> withinRange(it.date, days)); if(q){ list=list.filter(it=> (it.title||'').toLowerCase().includes(q) || (it.tldr||'').toLowerCase().includes(q) || (it.why||'').toLowerCase().includes(q) || (it.pillars||[]).join(' ').toLowerCase().includes(q)); } if(src){ list=list.filter(it=> (it.source_type||'')===src); } if(pil){ list=list.filter(it=> (it.pillars||[]).includes(pil)); } list = list.sort((a,b)=>(b.overall||0)-(a.overall||0)); const rows = list.slice(0,200).map(it=> `<tr><td class='py-2 pr-3 align-top'><a class='hover:underline' href='${it.url}' target='_blank'>${it.title}</a><div class='text-xs text-gray-400 mt-1'>${(it.source_type||'')} · ${new Date(it.date).toLocaleDateString()} · score ${(Number(it.overall||0)).toFixed(3)}</div><div class='mt-1'>${(it.pillars||[]).map(p=>`<span class='pill'>${p}</span>`).join('')}</div></td><td class='py-2 pr-3 align-top text-sm'>${it.tldr||''}${it.why?`<div class='mt-1 text-gray-300'><span class='text-gray-400'>Why:</span> ${it.why}</div>`:''}${(it.apply_steps||[]).length?`<div class='mt-1 text-gray-300'><span class='text-gray-400'>Apply:</span><ul class='list-disc ml-5'>${it.apply_steps.map(s=>`<li>${s}</li>`).join('')}</ul></div>`:''}</td><td class='py-2 align-top text-xs'>${it.verdict||''}${it.confidence!=null?`<div>conf ${Number(it.confidence).toFixed(2)}</div>`:''}</td></tr>`).join(''); el.innerHTML = `<table class='w-full text-sm'><thead><tr class='text-left text-gray-400'><th class='py-2 pr-3'>Item</th><th class='py-2 pr-3'>Summary</th><th class='py-2'>Quality</th></tr></thead><tbody>${rows||"<tr><td colspan='3' class='text-gray-400 py-6'>No items match.</td></tr>"}</tbody></table>`; }
+      async function init(){ const rep = await loadJSON('report.json'); const items = await loadJSON('items.json'); const pilSel = document.getElementById('pillar'); Object.keys(rep.pillars||{}).forEach(k=>{ const o=document.createElement('option'); o.value=k; o.textContent=k; pilSel.appendChild(o); }); const qp = { q: getParam('q'), source: getParam('source'), pillar: getParam('pillar'), days: getParam('days')||'30' }; document.getElementById('q').value = qp.q; document.getElementById('source').value = qp.source; document.getElementById('pillar').value = qp.pillar; document.getElementById('days').value = qp.days; ['q','source','pillar','days'].forEach(id=> document.getElementById(id).addEventListener('input', ()=>{ setParams({ q: q.value, source: source.value, pillar: pillar.value, days: days.value }); render(items); })); render(items); }
+      init();
+    </script>
+  </body>
+</html>
+"""
+    (out_dir / 'items.html').write_text(items_html, encoding='utf-8')
+
+\
+    browse_html = """
+<!doctype html>
+<html lang=\"en\" class=\"dark\">
+  <head>
+    <meta charset=\"utf-8\" />
+    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
+    <title>AI Intel · Browse</title>
+    <script src=\"https://cdn.tailwindcss.com\"></script>
+    <style>:root{color-scheme:dark} body{background:#0b0f19;color:#e5e7eb} .card{background:#111827;border:1px solid #1f2937;border-radius:.75rem;padding:1rem} .chip{display:inline-block;padding:.35rem .65rem;border-radius:9999px;background:#0f172a;border:1px solid #1f2937;margin:.25rem;cursor:pointer}</style>
+  </head>
+  <body class=\"min-h-screen\">
+    <div class=\"max-w-7xl mx-auto px-4 py-6\">
+      <div class=\"flex items-center justify-between mb-4\"><a href=\"index.html\" class=\"text-sm text-gray-400\">← Dashboard</a><div class=\"font-bold\">Browse</div><div></div></div>
+      <div class=\"card mb-4\">
+        <h3 class=\"mb-2 font-semibold\">By Source</h3>
+        <div id=\"sources\" class=\"mb-4\"></div>
+        <h3 class=\"mb-2 font-semibold\">By Pillar</h3>
+        <div id=\"pillars\"></div>
+      </div>
+    </div>
+    <script>
+      async function loadJSON(p){ const r = await fetch(p+'?cache='+Date.now()); return await r.json(); }
+      function tag(label, href){ const a=document.createElement('a'); a.className='chip'; a.href=href; a.textContent=label; return a; }
+      async function init(){ const rep = await loadJSON('report.json'); const s=document.getElementById('sources'); const p=document.getElementById('pillars'); Object.entries(rep.by_source||{}).sort((a,b)=>b[1]-a[1]).forEach(([k,v])=> s.appendChild(tag(`${k} (${v})`, `items.html?source=${encodeURIComponent(k)}&days=30`))); Object.entries(rep.pillars||{}).sort((a,b)=>b[1]-a[1]).slice(0,12).forEach(([k,v])=> p.appendChild(tag(`${k} (${v})`, `items.html?pillar=${encodeURIComponent(k)}&days=30`))); }
+      init();
+    </script>
+  </body>
+</html>
+"""
+    (out_dir / 'browse.html').write_text(browse_html, encoding='utf-8')
+
     return out_path
 
 
