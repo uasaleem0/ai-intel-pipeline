@@ -471,104 +471,112 @@ export default function ProperDashboard() {
         transition: 'margin-left 0.3s ease-in-out',
         marginLeft: sidebarOpen ? '280px' : '0',
         minHeight: '100vh',
-        background: 'var(--background)'
+        background: `
+          radial-gradient(ellipse at top left, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+          radial-gradient(ellipse at top right, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+          radial-gradient(ellipse at bottom left, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
+          linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%)
+        `,
+        position: 'relative',
+        overflow: 'hidden'
       }}>
-        {/* Top Actions Bar */}
+
+        {/* Animated Background Particles */}
         <div style={{
-          background: 'var(--card)',
-          borderBottom: '1px solid var(--border)',
-          padding: '16px 24px'
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+          overflow: 'hidden'
         }}>
-          <div style={{ 
-            maxWidth: '1400px', 
-            margin: '0 auto',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}>
-            <div>
-              <h1 style={{ 
-                fontSize: '24px', 
-                fontWeight: '700', 
-                color: 'var(--foreground)', 
-                margin: '0 0 4px 0'
-              }}>AI Intelligence Dashboard</h1>
-              <p style={{ 
-                fontSize: '14px', 
-                color: 'var(--muted-foreground)', 
-                margin: 0 
-              }}>Monitor and explore your AI data pipeline</p>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
-              <select style={{
-                padding: '8px 12px',
-                borderRadius: '6px',
-                border: '1px solid var(--border)',
-                background: 'var(--card)',
-                color: 'var(--foreground)',
-                fontSize: '14px',
-                whiteSpace: 'nowrap'
-              }}>
-                <option>Last 7 days</option>
-                <option>Last 30 days</option>
-                <option>All time</option>
-              </select>
-              <button className="button-primary" style={{ 
-                whiteSpace: 'nowrap',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                minWidth: 'max-content',
-                flexShrink: 0
-              }}>
-                <Plus style={{ width: '14px', height: '14px', flexShrink: 0 }} />
-                <span style={{ flexShrink: 0 }}>Add Source</span>
-              </button>
-            </div>
-          </div>
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={i}
+              style={{
+                position: 'absolute',
+                width: `${Math.random() * 4 + 2}px`,
+                height: `${Math.random() * 4 + 2}px`,
+                background: `hsl(${Math.random() * 60 + 240}, 70%, 60%)`,
+                borderRadius: '50%',
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animation: `float ${Math.random() * 10 + 15}s ease-in-out infinite`,
+                animationDelay: `${Math.random() * 10}s`,
+                opacity: 0.6
+              }}
+            />
+          ))}
         </div>
 
-        {/* Single Column Layout */}
+        {/* Single Full-Width Column Layout */}
         <div style={{ 
-          maxWidth: '1200px', 
+          position: 'relative',
+          zIndex: 1,
+          maxWidth: '1400px', 
           margin: '0 auto', 
-          padding: '24px',
+          padding: '32px 24px',
           display: 'flex',
           flexDirection: 'column',
-          gap: '32px'
+          gap: '40px'
         }}>
-          {/* AI Assistant - Nearly Full Width */}
-          <div style={{ width: '100%' }}>
+          {/* AI Assistant - Full Width Hero */}
+          <div 
+            className="animate-fadeInUp" 
+            style={{ 
+              width: '100%',
+              animationDelay: '0.2s',
+              animationFillMode: 'both'
+            }}
+          >
             <AIInterface data={report} />
           </div>
 
-          {/* Key Insights */}
-          <div style={{ width: '100%' }}>
+          {/* Key Insights - Full Width */}
+          <div 
+            className="animate-fadeInUp" 
+            style={{ 
+              width: '100%',
+              animationDelay: '0.4s',
+              animationFillMode: 'both'
+            }}
+          >
             <KeyInsights items={items} />
           </div>
 
-          {/* Bottom Section - Pillars and Quick Actions */}
-          <div style={{ 
-            display: 'grid',
-            gridTemplateColumns: '2fr 1fr',
-            gap: '24px',
-            '@media (max-width: 768px)': {
-              gridTemplateColumns: '1fr'
-            }
-          }}>
+          {/* Bottom Section - Enhanced Layout */}
+          <div 
+            className="animate-fadeInUp"
+            style={{ 
+              display: 'grid',
+              gridTemplateColumns: '2fr 1fr',
+              gap: '32px',
+              animationDelay: '0.6s',
+              animationFillMode: 'both'
+            }}
+          >
             {/* Pillar Grid */}
-            <div className="card" style={{ padding: '24px' }}>
+            <div className="card hover-lift" style={{ 
+              padding: '32px',
+              background: 'linear-gradient(135deg, var(--card) 0%, rgba(139, 92, 246, 0.02) 100%)',
+              border: '1px solid rgba(139, 92, 246, 0.1)'
+            }}>
               <PillarGrid report={report} />
             </div>
 
-            {/* Quick Actions */}
-            <div className="card" style={{ padding: '24px' }}>
-              <div style={{ marginBottom: '20px' }}>
+            {/* Quick Actions - Enhanced */}
+            <div className="card hover-lift" style={{ 
+              padding: '32px',
+              background: 'linear-gradient(135deg, var(--card) 0%, rgba(59, 130, 246, 0.02) 100%)',
+              border: '1px solid rgba(59, 130, 246, 0.1)'
+            }}>
+              <div style={{ marginBottom: '24px' }}>
                 <h3 style={{ 
-                  fontSize: '18px', 
-                  fontWeight: '600', 
-                  margin: '0 0 4px 0', 
-                  color: 'var(--foreground)'
+                  fontSize: '20px', 
+                  fontWeight: '700', 
+                  margin: '0 0 8px 0', 
+                  color: 'var(--foreground)',
+                  background: 'linear-gradient(135deg, var(--foreground) 0%, var(--blue) 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent'
                 }}>Quick Actions</h3>
                 <p style={{ 
                   fontSize: '14px', 
@@ -576,44 +584,71 @@ export default function ProperDashboard() {
                   margin: 0 
                 }}>Common tasks and operations</p>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <button className="pillar-card" style={{ 
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <button className="pillar-card hover-lift" style={{ 
                   display: 'flex', 
                   alignItems: 'center', 
-                  gap: '12px',
-                  padding: '16px',
-                  textAlign: 'left'
+                  gap: '16px',
+                  padding: '20px',
+                  textAlign: 'left',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  background: 'linear-gradient(135deg, var(--card) 0%, rgba(139, 92, 246, 0.05) 100%)'
                 }}>
-                  <Plus style={{ width: '20px', height: '20px', color: 'var(--primary)' }} />
+                  <div style={{
+                    padding: '12px',
+                    background: 'var(--primary)',
+                    borderRadius: '12px',
+                    boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)'
+                  }}>
+                    <Plus style={{ width: '20px', height: '20px', color: 'white' }} />
+                  </div>
                   <div>
-                    <div style={{ fontSize: '14px', fontWeight: '500', color: 'var(--foreground)' }}>Add New Source</div>
-                    <div style={{ fontSize: '12px', color: 'var(--muted-foreground)' }}>Connect a new data source</div>
+                    <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--foreground)', marginBottom: '4px' }}>Add New Source</div>
+                    <div style={{ fontSize: '13px', color: 'var(--muted-foreground)' }}>Connect a new data source</div>
                   </div>
                 </button>
-                <button className="pillar-card" style={{ 
+                <button className="pillar-card hover-lift" style={{ 
                   display: 'flex', 
                   alignItems: 'center', 
-                  gap: '12px',
-                  padding: '16px',
-                  textAlign: 'left'
+                  gap: '16px',
+                  padding: '20px',
+                  textAlign: 'left',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  background: 'linear-gradient(135deg, var(--card) 0%, rgba(59, 130, 246, 0.05) 100%)'
                 }}>
-                  <Search style={{ width: '20px', height: '20px', color: 'var(--blue)' }} />
+                  <div style={{
+                    padding: '12px',
+                    background: 'var(--blue)',
+                    borderRadius: '12px',
+                    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
+                  }}>
+                    <Search style={{ width: '20px', height: '20px', color: 'white' }} />
+                  </div>
                   <div>
-                    <div style={{ fontSize: '14px', fontWeight: '500', color: 'var(--foreground)' }}>Advanced Search</div>
-                    <div style={{ fontSize: '12px', color: 'var(--muted-foreground)' }}>Find specific items or patterns</div>
+                    <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--foreground)', marginBottom: '4px' }}>Advanced Search</div>
+                    <div style={{ fontSize: '13px', color: 'var(--muted-foreground)' }}>Find specific items or patterns</div>
                   </div>
                 </button>
-                <button className="pillar-card" style={{ 
+                <button className="pillar-card hover-lift" style={{ 
                   display: 'flex', 
                   alignItems: 'center', 
-                  gap: '12px',
-                  padding: '16px',
-                  textAlign: 'left'
+                  gap: '16px',
+                  padding: '20px',
+                  textAlign: 'left',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  background: 'linear-gradient(135deg, var(--card) 0%, rgba(107, 114, 128, 0.05) 100%)'
                 }}>
-                  <Settings style={{ width: '20px', height: '20px', color: 'var(--muted-foreground)' }} />
+                  <div style={{
+                    padding: '12px',
+                    background: 'var(--muted-foreground)',
+                    borderRadius: '12px',
+                    boxShadow: '0 4px 12px rgba(107, 114, 128, 0.3)'
+                  }}>
+                    <Settings style={{ width: '20px', height: '20px', color: 'var(--background)' }} />
+                  </div>
                   <div>
-                    <div style={{ fontSize: '14px', fontWeight: '500', color: 'var(--foreground)' }}>Configure Pipeline</div>
-                    <div style={{ fontSize: '12px', color: 'var(--muted-foreground)' }}>Adjust ingestion settings</div>
+                    <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--foreground)', marginBottom: '4px' }}>Configure Pipeline</div>
+                    <div style={{ fontSize: '13px', color: 'var(--muted-foreground)' }}>Adjust ingestion settings</div>
                   </div>
                 </button>
               </div>
