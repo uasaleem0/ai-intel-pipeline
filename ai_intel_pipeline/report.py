@@ -207,7 +207,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
     hist_path.write_text(json.dumps(hist[-50:], indent=2), encoding="utf-8")
     # Dashboard HTML (dark mode + charts + search using pure JS)
     # Load report.json and history.json dynamically; render charts via Chart.js CDN; style via Tailwind CDN.
-    html = f"""
+    html = """
 <!doctype html>
 <html lang="en" class="dark">
   <head>
