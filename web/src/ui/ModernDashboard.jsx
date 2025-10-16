@@ -1,16 +1,17 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
-  Menu, Search, Plus, Send, Bot, ChevronDown, ChevronUp, ExternalLink, 
-  Sparkles, TrendingUp, Database, Clock, Users, Code, Zap, Settings,
-  Activity, ArrowUpRight, Eye, BarChart3
+  Menu, Search, Plus, ChevronDown, ChevronUp, ExternalLink, 
+  TrendingUp, BarChart3, Lightbulb, ArrowUpRight
 } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { Badge } from '../components/ui/badge'
-import { Avatar, AvatarFallback } from '../components/ui/avatar'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../components/ui/collapsible'
+import AIInterface from '../components/AIInterface'
+import Sidebar from '../components/Sidebar'
+import { cn } from '../lib/utils'
 
 // Hook for data fetching
 function useData() {

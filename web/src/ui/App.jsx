@@ -1,7 +1,7 @@
 import React from 'react'
-import ModernDashboard from './ModernDashboard.jsx'
+import ProperDashboard from './ProperDashboard.jsx'
 
 export default function App(){
-  return <ModernDashboard />
+  return <ProperDashboard />
 }
 
