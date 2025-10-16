@@ -260,20 +260,130 @@ const KeyInsights = ({ items }) => {
                         </div>
                       </div>
                       
+                      {/* Next Steps */}
+                      {insight.nextSteps && (
+                        <div>
+                          <h5 style={{ 
+                            fontSize: '13px', 
+                            fontWeight: '600', 
+                            color: 'var(--foreground)', 
+                            margin: '0 0 12px 0',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px'
+                          }}>
+                            🎯 Step-by-Step Implementation
+                          </h5>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            {insight.nextSteps.map((step, stepIndex) => (
+                              <div key={stepIndex} style={{
+                                display: 'flex',
+                                alignItems: 'flex-start',
+                                gap: '12px',
+                                padding: '10px 12px',
+                                background: 'var(--accent)',
+                                borderRadius: '8px',
+                                border: '1px solid var(--border)'
+                              }}>
+                                <div style={{
+                                  width: '20px',
+                                  height: '20px',
+                                  borderRadius: '50%',
+                                  background: 'var(--primary)',
+                                  color: 'white',
+                                  fontSize: '11px',
+                                  fontWeight: '600',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  flexShrink: 0,
+                                  marginTop: '1px'
+                                }}>
+                                  {stepIndex + 1}
+                                </div>
+                                <span style={{
+                                  fontSize: '13px',
+                                  color: 'var(--foreground)',
+                                  lineHeight: '1.4',
+                                  fontWeight: '500'
+                                }}>{step}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
                       <div>
-                        <p style={{ fontSize: '12px', fontWeight: '600', marginBottom: '8px', color: 'var(--muted-foreground)' }}>Related Sources:</p>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                        <h5 style={{ 
+                          fontSize: '13px', 
+                          fontWeight: '600', 
+                          color: 'var(--foreground)', 
+                          margin: '0 0 12px 0',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}>
+                          📚 Related Sources & Research
+                        </h5>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                           {insight.sources.map((source, i) => (
-                            <Button
-                              key={i}
-                              variant="outline"
-                              size="sm"
-                              style={{ fontSize: '11px', height: '28px' }}
-                              onClick={() => window.open(source.url, '_blank')}
+                            <div key={i} style={{
+                              background: 'var(--muted)',
+                              padding: '14px',
+                              borderRadius: '8px',
+                              border: '1px solid var(--border)',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = 'var(--accent)'
+                              e.currentTarget.style.transform = 'translateY(-1px)'
+                              e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)'
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'var(--muted)'
+                              e.currentTarget.style.transform = 'translateY(0)'
+                              e.currentTarget.style.boxShadow = 'none'
+                            }}
+                            onClick={() => window.open(source.url, '_blank')}
                             >
-                              <ExternalLink style={{ width: '12px', height: '12px', marginRight: '4px' }} />
-                              {source.title?.slice(0, 30)}...
-                            </Button>
+                              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                                <ExternalLink style={{ 
+                                  width: '16px', 
+                                  height: '16px', 
+                                  color: 'var(--primary)', 
+                                  marginTop: '2px', 
+                                  flexShrink: 0 
+                                }} />
+                                <div style={{ flex: 1 }}>
+                                  <p style={{
+                                    fontSize: '13px',
+                                    fontWeight: '600',
+                                    color: 'var(--foreground)',
+                                    margin: '0 0 4px 0',
+                                    lineHeight: '1.3'
+                                  }}>{source.title}</p>
+                                  <p style={{
+                                    fontSize: '12px',
+                                    color: 'var(--muted-foreground)',
+                                    margin: '0 0 6px 0',
+                                    lineHeight: '1.4'
+                                  }}>
+                                    {source.pillar ? `From your ${source.pillar} research collection` : 'Referenced material from your AI intelligence pipeline'}
+                                  </p>
+                                  <div style={{
+                                    fontSize: '11px',
+                                    color: 'var(--primary)',
+                                    fontWeight: '500',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '4px'
+                                  }}>
+                                    → Click to view source
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
                           ))}
                         </div>
                       </div>
@@ -424,12 +534,26 @@ export default function ProperDashboard() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <button
-              className="button-primary"
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              style={{ padding: '8px 12px', fontSize: '14px' }}
+              style={{ 
+                background: 'transparent',
+                border: 'none',
+                padding: '8px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                color: 'var(--muted-foreground)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.color = 'var(--foreground)'
+                e.target.style.background = 'var(--muted)'
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.color = 'var(--muted-foreground)'
+                e.target.style.background = 'transparent'
+              }}
             >
-              <Menu className="h-4 w-4 mr-2" />
-              Menu
+              <Menu className="h-5 w-5" />
             </button>
             <h1 style={{ 
               fontSize: '20px', 
@@ -452,7 +576,6 @@ export default function ProperDashboard() {
               />
             </div>
             <button className="button-primary" style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>
-              <Plus className="h-4 w-4 mr-2" />
               Add Source
             </button>
           </div>

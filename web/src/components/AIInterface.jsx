@@ -98,16 +98,49 @@ const AIInterface = ({ data }) => {
           inset: 0,
           background: `
             linear-gradient(-45deg, 
-              rgba(139, 92, 246, 0.1) 0%, 
-              rgba(59, 130, 246, 0.08) 25%,
-              rgba(16, 185, 129, 0.05) 50%,
-              rgba(59, 130, 246, 0.08) 75%,
-              rgba(139, 92, 246, 0.1) 100%
+              rgba(139, 92, 246, 0.2) 0%, 
+              rgba(59, 130, 246, 0.15) 25%,
+              rgba(16, 185, 129, 0.1) 50%,
+              rgba(59, 130, 246, 0.15) 75%,
+              rgba(139, 92, 246, 0.2) 100%
             )
           `,
           pointerEvents: 'none',
-          animation: 'colorShift 6s ease-in-out infinite',
+          animation: 'colorShift 4s ease-in-out infinite',
           backgroundSize: '400% 400%'
+        }} />
+        
+        {/* Animated Floating Particles */}
+        {[...Array(8)].map((_, i) => (
+          <div
+            key={i}
+            style={{
+              position: 'absolute',
+              width: `${Math.random() * 6 + 3}px`,
+              height: `${Math.random() * 6 + 3}px`,
+              background: `hsl(${Math.random() * 60 + 240}, 70%, ${Math.random() * 30 + 50}%)`,
+              borderRadius: '50%',
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animation: `float ${Math.random() * 6 + 8}s ease-in-out infinite`,
+              animationDelay: `${Math.random() * 4}s`,
+              opacity: 0.7,
+              pointerEvents: 'none',
+              filter: 'blur(0.5px)'
+            }}
+          />
+        ))}
+        
+        {/* Pulsing Glow Ring */}
+        <div style={{
+          position: 'absolute',
+          inset: '-2px',
+          background: 'linear-gradient(45deg, transparent, rgba(139, 92, 246, 0.3), transparent, rgba(59, 130, 246, 0.3), transparent)',
+          borderRadius: '18px',
+          animation: 'pulse 3s ease-in-out infinite',
+          pointerEvents: 'none',
+          filter: 'blur(2px)',
+          opacity: 0.8
         }} />
         
         <div style={{ position: 'relative', zIndex: 1 }}>

@@ -75,12 +75,12 @@ const Sidebar = ({ isOpen, data, onPillarClick, onSourceClick }) => {
       style={{
         position: 'fixed',
         left: 0,
-        top: 0,
-        height: '100vh',
+        top: '64px',
+        height: 'calc(100vh - 64px)',
         background: 'var(--card)',
         borderRight: '1px solid var(--border)',
         overflow: 'hidden',
-        zIndex: 50
+        zIndex: 40
       }}
       className={!isOpen ? "pointer-events-none" : ""}
     >
