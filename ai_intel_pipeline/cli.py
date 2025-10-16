@@ -169,7 +169,7 @@ def feedback(
     """Apply feedback to policy weights (accept/reject)."""
     vault_root = Path("vault/ai-intel")
     policy_path = Path("config/policy/weights.json")
-    apply_feedback(item_id=item_id, decision=decision, vault_root=vault_root, policy_path=policy_path)
+    (__import__('ai_intel_pipeline.feedback', fromlist=['apply_feedback']).apply_feedback)(item_id=item_id, decision=decision, vault_root=vault_root, policy_path=policy_path)
     Console().print("Feedback recorded.")
 
 
@@ -191,4 +191,5 @@ def ingest_url(
     from .pipeline import run_ingest_url as _run
     item_id = _run(url=url, settings=settings, vault=vault, index=index, dry_run=dry_run)
     console.print(f"Ingested item: {item_id}")
+
 
