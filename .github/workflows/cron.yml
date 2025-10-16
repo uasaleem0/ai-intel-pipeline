@@ -74,8 +74,19 @@ jobs:
             const fs = require('fs');
             const html = fs.readFileSync('vault/ai-intel/status/email.html', 'utf8');
             core.setOutput('html', html);
+      - name: Check SMTP secrets
+        id: smtp
+        shell: bash
+        run: |
+          ok=true
+          [ -n "${{ secrets.SMTP_SERVER }}" ] || ok=false
+          [ -n "${{ secrets.SMTP_USERNAME }}" ] || ok=false
+          [ -n "${{ secrets.SMTP_PASSWORD }}" ] || ok=false
+          [ -n "${{ secrets.TO_EMAIL }}" ] || ok=false
+          [ -n "${{ secrets.FROM_EMAIL }}" ] || ok=false
+          echo "enabled=${ok}" >> "$GITHUB_OUTPUT"
       - name: Send daily email
-        if: ${{ secrets.SMTP_SERVER && secrets.SMTP_USERNAME && secrets.SMTP_PASSWORD && secrets.TO_EMAIL && secrets.FROM_EMAIL }}
+        if: steps.smtp.outputs.enabled == 'true'
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: ${{ secrets.SMTP_SERVER }}
