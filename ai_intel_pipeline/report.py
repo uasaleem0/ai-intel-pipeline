@@ -102,13 +102,54 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
     data = generate_status(vault_root, index_csv)
     out_dir = vault_root / "status"
     out_dir.mkdir(parents=True, exist_ok=True)
-    # Augment with recommendations for consumers
+    # Augment with recommendations for consumers, enriched with TL;DR and apply steps
+    def _enrich_summary(item_id: str) -> Dict:
+        month = f"{item_id[:4]}-{item_id[4:6]}"
+        s_path = out_dir.parent / "items" / month / item_id / "summary.md"
+        out = {"tldr": "", "apply_steps": []}
+        try:
+            if s_path.exists():
+                txt = s_path.read_text(encoding="utf-8")
+                lines = [l.rstrip() for l in txt.splitlines()]
+                if "TL;DR" in lines:
+                    i = lines.index("TL;DR") + 1
+                    buf = []
+                    while i < len(lines) and lines[i] and not lines[i].endswith(":"):
+                        buf.append(lines[i])
+                        i += 1
+                    out["tldr"] = " ".join(buf)[:300]
+                if "Apply steps" in lines:
+                    j = lines.index("Apply steps") + 1
+                    steps = []
+                    while j < len(lines) and lines[j]:
+                        steps.append(lines[j])
+                        j += 1
+                    out["apply_steps"] = steps
+        except Exception:
+            pass
+        return out
+
     try:
         from ..config import load_profile
         recs_for_json = rec_top(vault_root, index_csv, Path("vault/model"), load_profile(), top_k=8)
+        for r in recs_for_json:
+            iid = r.get("item_id")
+            if iid:
+                enr = _enrich_summary(iid)
+                r.update(enr)
         data["recommendations"] = recs_for_json
     except Exception:
         data["recommendations"] = []
+
+    # Enrich top items with TL;DR and apply steps into top_items_detail
+    top_items_detail = []
+    for t in data.get("top_items", []):
+        iid = t.get("item_id")
+        rec = dict(t)
+        if iid:
+            rec.update(_enrich_summary(iid))
+        top_items_detail.append(rec)
+    data["top_items_detail"] = top_items_detail
     # Save JSON (dashboard data)
     (out_dir / "report.json").write_text(json.dumps(data, indent=2), encoding="utf-8")
     # Save Markdown
