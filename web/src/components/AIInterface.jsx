@@ -70,7 +70,7 @@ const AIInterface = ({ data }) => {
   ]
 
   return (
-    <div style={{ width: '100%', maxWidth: '95%', margin: '0 auto' }}>
+    <div style={{ width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
       <div className="card ai-glow" style={{ 
         position: 'relative',
         overflow: 'hidden',
@@ -92,21 +92,22 @@ const AIInterface = ({ data }) => {
         `,
         borderRadius: '16px'
       }}>
-        {/* Animated gradient overlay */}
+        {/* Animated Moving Gradient Overlay */}
         <div style={{
           position: 'absolute',
           inset: 0,
           background: `
-            linear-gradient(45deg, 
-              transparent 0%, 
-              rgba(139, 92, 246, 0.1) 25%,
-              rgba(59, 130, 246, 0.1) 50%,
-              rgba(139, 92, 246, 0.1) 75%,
-              transparent 100%
+            linear-gradient(-45deg, 
+              rgba(139, 92, 246, 0.1) 0%, 
+              rgba(59, 130, 246, 0.08) 25%,
+              rgba(16, 185, 129, 0.05) 50%,
+              rgba(59, 130, 246, 0.08) 75%,
+              rgba(139, 92, 246, 0.1) 100%
             )
           `,
           pointerEvents: 'none',
-          animation: 'pulse 4s ease-in-out infinite'
+          animation: 'colorShift 6s ease-in-out infinite',
+          backgroundSize: '400% 400%'
         }} />
         
         <div style={{ position: 'relative', zIndex: 1 }}>
@@ -182,12 +183,12 @@ const AIInterface = ({ data }) => {
             <div style={{ 
               display: 'flex', 
               flexDirection: 'column', 
-              gap: '20px', 
-              marginBottom: '24px', 
-              minHeight: '400px',
-              maxHeight: '500px', 
+              gap: '16px', 
+              marginBottom: '20px', 
+              height: '280px',
               overflowY: 'auto',
-              paddingRight: '8px'
+              paddingRight: '8px',
+              scrollbarWidth: 'thin'
             }}>
               <AnimatePresence mode="popLayout">
                 {messages.map((message) => (
@@ -224,11 +225,14 @@ const AIInterface = ({ data }) => {
                       maxWidth: '80%',
                       alignItems: message.type === 'user' ? 'flex-end' : 'flex-start'
                     }}>
-                      <div className="card" style={{
+                      <div style={{
                         padding: '12px 16px',
                         background: message.type === 'user' ? 'var(--primary)' : 'var(--muted)',
                         border: message.type === 'user' ? '1px solid var(--primary)' : '1px solid var(--border)',
-                        color: message.type === 'user' ? 'var(--primary-foreground)' : 'var(--foreground)'
+                        borderRadius: 'var(--radius)',
+                        boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.2)',
+                        color: message.type === 'user' ? 'var(--primary-foreground)' : 'var(--foreground)',
+                        cursor: 'default'
                       }}>
                         <p style={{ fontSize: '14px', lineHeight: '1.4', margin: 0 }}>{message.content}</p>
                       </div>
@@ -317,21 +321,34 @@ const AIInterface = ({ data }) => {
             )}
 
             {/* Input Form */}
-            <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '8px' }}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask anything about your AI intelligence data..."
                 disabled={isLoading}
                 className="input"
-                style={{ flex: 1, background: 'var(--input)', border: '1px solid var(--input-border)' }}
-                autoFocus
+                style={{ 
+                  flex: 1, 
+                  background: 'var(--input)', 
+                  border: '1px solid var(--input-border)',
+                  height: '44px',
+                  minHeight: '44px',
+                  maxHeight: '44px',
+                  resize: 'none',
+                  overflow: 'hidden'
+                }}
               />
               <button
                 type="submit" 
                 disabled={!input.trim() || isLoading}
                 className="button-primary"
-                style={{ padding: '10px', aspectRatio: '1' }}
+                style={{ 
+                  padding: '10px', 
+                  height: '44px',
+                  width: '44px',
+                  flexShrink: 0
+                }}
               >
                 <Send style={{ width: '16px', height: '16px' }} />
               </button>

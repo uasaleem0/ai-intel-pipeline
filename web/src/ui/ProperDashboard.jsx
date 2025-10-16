@@ -115,18 +115,28 @@ const KeyInsights = ({ items }) => {
   const insights = generateInsights()
   
   return (
-    <div 
-      className="w-full max-w-4xl mx-auto animate-fadeInUp"
-      style={{ animationDelay: '0.3s', animationFillMode: 'both' }}
-    >
-      <div className="insight-card" style={{ padding: '24px' }}>
+    <div style={{ 
+      width: '100%', 
+      maxWidth: '1200px', 
+      margin: '0 auto',
+      animationDelay: '0.3s', 
+      animationFillMode: 'both' 
+    }} className="animate-fadeInUp">
+      <div style={{ 
+        padding: '24px',
+        background: 'linear-gradient(135deg, var(--card) 0%, rgba(139, 92, 246, 0.03) 100%)',
+        border: '1px solid rgba(139, 92, 246, 0.2)',
+        borderRadius: 'var(--radius)',
+        boxShadow: '0 8px 25px -5px rgba(0, 0, 0, 0.3), 0 0 20px rgba(139, 92, 246, 0.1)',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+      }}>
         <div style={{ marginBottom: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
             <div style={{ 
               padding: '8px', 
-              background: 'var(--orange)', 
+              background: 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #6366f1 100%)', 
               borderRadius: '8px',
-              boxShadow: '0 4px 6px -1px rgba(247, 147, 22, 0.3)'
+              boxShadow: '0 4px 6px -1px rgba(139, 92, 246, 0.4)'
             }}>
               <BarChart3 className="h-5 w-5" style={{ color: '#ffffff' }} />
             </div>
@@ -151,8 +161,8 @@ const KeyInsights = ({ items }) => {
               onOpenChange={() => setExpandedInsight(expandedInsight === insight.id ? null : insight.id)}
             >
               <div className="card hover-lift" style={{ 
-                background: 'linear-gradient(135deg, var(--card) 0%, rgba(247, 147, 22, 0.03) 100%)',
-                border: '1px solid rgba(247, 147, 22, 0.15)',
+                background: 'linear-gradient(135deg, var(--card) 0%, rgba(139, 92, 246, 0.02) 100%)',
+                border: '1px solid rgba(139, 92, 246, 0.15)',
                 animationDelay: `${0.1 + index * 0.1}s`,
                 animationFillMode: 'both'
               }}>
@@ -162,9 +172,9 @@ const KeyInsights = ({ items }) => {
                       <insight.icon style={{ 
                         width: '24px', 
                         height: '24px', 
-                        color: 'var(--orange)', 
+                        color: 'var(--primary)', 
                         marginTop: '2px',
-                        filter: 'drop-shadow(0 2px 4px rgba(247, 147, 22, 0.3))'
+                        filter: 'drop-shadow(0 2px 4px rgba(139, 92, 246, 0.3))'
                       }} />
                       <div style={{ flex: 1 }}>
                         <p style={{ 
@@ -184,7 +194,7 @@ const KeyInsights = ({ items }) => {
                           <Badge style={{ 
                             fontSize: '10px', 
                             padding: '2px 6px',
-                            background: insight.impact === 'High' ? 'var(--orange)' : insight.impact === 'Medium' ? 'var(--blue)' : 'var(--muted)',
+                            background: insight.impact === 'High' ? 'var(--primary)' : insight.impact === 'Medium' ? 'var(--blue)' : 'var(--muted)',
                             color: 'white',
                             border: 'none'
                           }}>
@@ -402,61 +412,29 @@ export default function ProperDashboard() {
   }
   
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: 'var(--background)', color: 'var(--foreground)' }}>
-      {/* Navigation Header */}
-      <header style={{ 
-        position: 'sticky', 
-        top: 0, 
-        zIndex: 50, 
-        width: '100%', 
-        borderBottom: '1px solid var(--border)',
-        backgroundColor: 'var(--background)',
-        backdropFilter: 'blur(8px)'
-      }}>
-        <div style={{ 
-          maxWidth: '1200px', 
-          margin: '0 auto', 
-          padding: '0 24px',
-          display: 'flex', 
-          height: '64px', 
-          alignItems: 'center', 
-          justifyContent: 'space-between' 
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-            <h1 style={{ 
-              fontSize: '20px', 
-              fontWeight: 'bold',
-              background: 'linear-gradient(to right, var(--primary), rgba(139, 92, 246, 0.6))',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
-            }}>
-              AI Intel Pipeline
-            </h1>
-          </div>
-          
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ position: 'relative' }}>
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
-              <input
-                className="input"
-                placeholder="Search data..."
-                style={{ paddingLeft: '40px', width: '320px' }}
-              />
-            </div>
-            <button className="button-primary hover-lift">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Source
-            </button>
-          </div>
-        </div>
-      </header>
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--background)', color: 'var(--foreground)', position: 'relative' }}>
+      {/* Floating Sidebar Toggle */}
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        style={{
+          position: 'fixed',
+          top: '24px',
+          left: sidebarOpen ? '304px' : '24px',
+          zIndex: 60,
+          background: 'var(--primary)',
+          color: 'white',
+          border: 'none',
+          borderRadius: '12px',
+          padding: '12px',
+          boxShadow: '0 8px 20px rgba(139, 92, 246, 0.4)',
+          cursor: 'pointer',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          backdropFilter: 'blur(10px)'
+        }}
+        className="hover-lift"
+      >
+        <Menu style={{ width: '20px', height: '20px' }} />
+      </button>
 
       {/* Sidebar */}
       <Sidebar 
