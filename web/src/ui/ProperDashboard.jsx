@@ -401,236 +401,98 @@ export default function ProperDashboard() {
   const { report, items } = useData()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   
-  const handlePillarClick = (pillar) => {
-    console.log('Navigate to pillar:', pillar)
-    // TODO: Implement navigation to pillar view
-  }
-  
-  const handleSourceClick = (source) => {
-    console.log('Navigate to source:', source)
-    // TODO: Implement navigation to source view
-  }
-  
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: 'var(--background)', color: 'var(--foreground)', position: 'relative' }}>
-      {/* Floating Sidebar Toggle */}
-      <button
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        style={{
-          position: 'fixed',
-          top: '24px',
-          left: sidebarOpen ? '304px' : '24px',
-          zIndex: 60,
-          background: 'var(--primary)',
-          color: 'white',
-          border: 'none',
-          borderRadius: '12px',
-          padding: '12px',
-          boxShadow: '0 8px 20px rgba(139, 92, 246, 0.4)',
-          cursor: 'pointer',
-          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          backdropFilter: 'blur(10px)'
-        }}
-        className="hover-lift"
-      >
-        <Menu style={{ width: '20px', height: '20px' }} />
-      </button>
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--background)', color: 'var(--foreground)' }}>
+      {/* Navigation Header - RESTORED */}
+      <header style={{ 
+        position: 'sticky', 
+        top: 0, 
+        zIndex: 50, 
+        width: '100%', 
+        borderBottom: '1px solid var(--border)',
+        backgroundColor: 'var(--background)',
+        backdropFilter: 'blur(8px)'
+      }}>
+        <div style={{ 
+          maxWidth: '1200px', 
+          margin: '0 auto', 
+          padding: '0 24px',
+          display: 'flex', 
+          height: '64px', 
+          alignItems: 'center', 
+          justifyContent: 'space-between' 
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <button
+              className="button-primary"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              style={{ padding: '8px 12px', fontSize: '14px' }}
+            >
+              <Menu className="h-4 w-4 mr-2" />
+              Menu
+            </button>
+            <h1 style={{ 
+              fontSize: '20px', 
+              fontWeight: 'bold',
+              background: 'linear-gradient(to right, var(--primary), rgba(139, 92, 246, 0.6))',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}>
+              AI Intel Pipeline
+            </h1>
+          </div>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ position: 'relative' }}>
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
+              <input
+                className="input"
+                placeholder="Search data..."
+                style={{ paddingLeft: '40px', width: '320px' }}
+              />
+            </div>
+            <button className="button-primary" style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Source
+            </button>
+          </div>
+        </div>
+      </header>
 
       {/* Sidebar */}
       <Sidebar 
         isOpen={sidebarOpen} 
         data={report} 
-        onPillarClick={handlePillarClick}
-        onSourceClick={handleSourceClick}
+        onPillarClick={() => setSidebarOpen(false)}
+        onSourceClick={() => setSidebarOpen(false)}
       />
 
       {/* Main Content */}
       <main style={{
         transition: 'margin-left 0.3s ease-in-out',
-        marginLeft: sidebarOpen ? '280px' : '0',
-        minHeight: '100vh',
-        background: `
-          radial-gradient(ellipse at top left, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
-          radial-gradient(ellipse at top right, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
-          radial-gradient(ellipse at bottom left, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
-          linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%)
-        `,
-        position: 'relative',
-        overflow: 'hidden'
+        marginLeft: sidebarOpen ? '280px' : '0'
       }}>
-
-        {/* Animated Background Particles */}
-        <div style={{
-          position: 'absolute',
-          inset: 0,
-          pointerEvents: 'none',
-          overflow: 'hidden'
-        }}>
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={i}
-              style={{
-                position: 'absolute',
-                width: `${Math.random() * 4 + 2}px`,
-                height: `${Math.random() * 4 + 2}px`,
-                background: `hsl(${Math.random() * 60 + 240}, 70%, 60%)`,
-                borderRadius: '50%',
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animation: `float ${Math.random() * 10 + 15}s ease-in-out infinite`,
-                animationDelay: `${Math.random() * 10}s`,
-                opacity: 0.6
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Single Full-Width Column Layout */}
         <div style={{ 
-          position: 'relative',
-          zIndex: 1,
-          maxWidth: '1400px', 
+          maxWidth: '1200px', 
           margin: '0 auto', 
           padding: '32px 24px',
           display: 'flex',
           flexDirection: 'column',
-          gap: '40px'
+          gap: '32px'
         }}>
-          {/* AI Assistant - Full Width Hero */}
-          <div 
-            className="animate-fadeInUp" 
-            style={{ 
-              width: '100%',
-              animationDelay: '0.2s',
-              animationFillMode: 'both'
-            }}
-          >
+          {/* Hero AI Interface */}
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
             <AIInterface data={report} />
           </div>
-
-          {/* Key Insights - Full Width */}
-          <div 
-            className="animate-fadeInUp" 
-            style={{ 
-              width: '100%',
-              animationDelay: '0.4s',
-              animationFillMode: 'both'
-            }}
-          >
+          
+          {/* Key Insights */}
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
             <KeyInsights items={items} />
           </div>
-
-          {/* Bottom Section - Enhanced Layout */}
-          <div 
-            className="animate-fadeInUp"
-            style={{ 
-              display: 'grid',
-              gridTemplateColumns: '2fr 1fr',
-              gap: '32px',
-              animationDelay: '0.6s',
-              animationFillMode: 'both'
-            }}
-          >
-            {/* Pillar Grid */}
-            <div className="card hover-lift" style={{ 
-              padding: '32px',
-              background: 'linear-gradient(135deg, var(--card) 0%, rgba(139, 92, 246, 0.02) 100%)',
-              border: '1px solid rgba(139, 92, 246, 0.1)'
-            }}>
-              <PillarGrid report={report} />
-            </div>
-
-            {/* Quick Actions - Enhanced */}
-            <div className="card hover-lift" style={{ 
-              padding: '32px',
-              background: 'linear-gradient(135deg, var(--card) 0%, rgba(59, 130, 246, 0.02) 100%)',
-              border: '1px solid rgba(59, 130, 246, 0.1)'
-            }}>
-              <div style={{ marginBottom: '24px' }}>
-                <h3 style={{ 
-                  fontSize: '20px', 
-                  fontWeight: '700', 
-                  margin: '0 0 8px 0', 
-                  color: 'var(--foreground)',
-                  background: 'linear-gradient(135deg, var(--foreground) 0%, var(--blue) 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent'
-                }}>Quick Actions</h3>
-                <p style={{ 
-                  fontSize: '14px', 
-                  color: 'var(--muted-foreground)', 
-                  margin: 0 
-                }}>Common tasks and operations</p>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <button className="pillar-card hover-lift" style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '16px',
-                  padding: '20px',
-                  textAlign: 'left',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  background: 'linear-gradient(135deg, var(--card) 0%, rgba(139, 92, 246, 0.05) 100%)'
-                }}>
-                  <div style={{
-                    padding: '12px',
-                    background: 'var(--primary)',
-                    borderRadius: '12px',
-                    boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)'
-                  }}>
-                    <Plus style={{ width: '20px', height: '20px', color: 'white' }} />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--foreground)', marginBottom: '4px' }}>Add New Source</div>
-                    <div style={{ fontSize: '13px', color: 'var(--muted-foreground)' }}>Connect a new data source</div>
-                  </div>
-                </button>
-                <button className="pillar-card hover-lift" style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '16px',
-                  padding: '20px',
-                  textAlign: 'left',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  background: 'linear-gradient(135deg, var(--card) 0%, rgba(59, 130, 246, 0.05) 100%)'
-                }}>
-                  <div style={{
-                    padding: '12px',
-                    background: 'var(--blue)',
-                    borderRadius: '12px',
-                    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
-                  }}>
-                    <Search style={{ width: '20px', height: '20px', color: 'white' }} />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--foreground)', marginBottom: '4px' }}>Advanced Search</div>
-                    <div style={{ fontSize: '13px', color: 'var(--muted-foreground)' }}>Find specific items or patterns</div>
-                  </div>
-                </button>
-                <button className="pillar-card hover-lift" style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '16px',
-                  padding: '20px',
-                  textAlign: 'left',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  background: 'linear-gradient(135deg, var(--card) 0%, rgba(107, 114, 128, 0.05) 100%)'
-                }}>
-                  <div style={{
-                    padding: '12px',
-                    background: 'var(--muted-foreground)',
-                    borderRadius: '12px',
-                    boxShadow: '0 4px 12px rgba(107, 114, 128, 0.3)'
-                  }}>
-                    <Settings style={{ width: '20px', height: '20px', color: 'var(--background)' }} />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--foreground)', marginBottom: '4px' }}>Configure Pipeline</div>
-                    <div style={{ fontSize: '13px', color: 'var(--muted-foreground)' }}>Adjust ingestion settings</div>
-                  </div>
-                </button>
-              </div>
-            </div>
+          
+          {/* Pillar Grid - ONLY */}
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <PillarGrid report={report} />
           </div>
         </div>
       </main>

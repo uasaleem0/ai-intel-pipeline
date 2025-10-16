@@ -304,17 +304,39 @@ const AIInterface = ({ data }) => {
                 className="mb-6"
               >
                 <p className="text-sm text-muted-foreground mb-3">Try asking:</p>
-                <div className="flex flex-wrap gap-2">
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                   {suggestedQueries.map((query, index) => (
-                    <Button
+                    <button
                       key={index}
-                      variant="outline"
-                      size="sm"
-                      className="text-xs"
                       onClick={() => setInput(query)}
+                      className="hover-lift"
+                      style={{
+                        padding: '6px 12px',
+                        fontSize: '12px',
+                        background: 'var(--muted)',
+                        border: '1px solid var(--border)',
+                        borderRadius: 'calc(var(--radius) - 2px)',
+                        color: 'var(--foreground)',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.background = 'var(--primary)'
+                        e.target.style.color = 'var(--primary-foreground)'
+                        e.target.style.borderColor = 'var(--primary)'
+                        e.target.style.transform = 'translateY(-2px) scale(1.05)'
+                        e.target.style.boxShadow = '0 8px 16px rgba(139, 92, 246, 0.3)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.background = 'var(--muted)'
+                        e.target.style.color = 'var(--foreground)'
+                        e.target.style.borderColor = 'var(--border)'
+                        e.target.style.transform = 'translateY(0) scale(1)'
+                        e.target.style.boxShadow = 'none'
+                      }}
                     >
                       {query}
-                    </Button>
+                    </button>
                   ))}
                 </div>
               </motion.div>
