@@ -2,7 +2,7 @@
 
 on:
   schedule:
-    - cron: "0 8 * * *" # daily at 08:00 UTC (â‰ˆ 09:00 BST)
+    - cron: "0 8 * * *"
   workflow_dispatch: {}
 
 jobs:
@@ -33,20 +33,9 @@ jobs:
       - name: Build embeddings index
         run: |
           python -m ai_intel_pipeline index-model
-      
-      - name: Copy UI files to status
-        shell: bash
+      - name: Generate status report (JSON)
         run: |
-          mkdir -p vault/ai-intel/status
-          cp -r ui/* vault/ai-intel/status/
-          echo '{' > vault/ai-intel/status/build.json
-          echo '  "sha": "'${GITHUB_SHA}'",' >> vault/ai-intel/status/build.json
-          echo '  "run_id": "'${GITHUB_RUN_ID}'",' >> vault/ai-intel/status/build.json
-          echo '  "ts": "'$(date -u +%FT%TZ)'"' >> vault/ai-intel/status/build.json
-          echo '}' >> vault/ai-intel/status/build.json
-      - name: Export RAG JSONL
-        run: |
-          python -m ai_intel_pipeline export
+          python -m ai_intel_pipeline report
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -56,36 +45,28 @@ jobs:
         run: |
           npm install --no-audit --no-fund
           npm run build
-      - name: Copy web UI to status
+      - name: Copy web UI + data to status
         shell: bash
         run: |
+          set -e
           mkdir -p vault/ai-intel/status
           cp -r web/dist/* vault/ai-intel/status/
-          echo '{' > vault/ai-intel/status/build.json
-          echo '  "sha": "'${GITHUB_SHA}'",' >> vault/ai-intel/status/build.json
-          echo '  "run_id": "'${GITHUB_RUN_ID}'",' >> vault/ai-intel/status/build.json
-          echo '  "ts": "'$(date -u +%FT%TZ)'"' >> vault/ai-intel/status/build.json
-          echo '}' >> vault/ai-intel/status/build.json
-      - name: Upload digest artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: weekly-digest
-          path: vault/digests/weekly/
-      - name: Upload vault snapshot
-        uses: actions/upload-artifact@v4
-        with:
-          name: vault-snapshot
-          path: vault/
-      - name: Upload model index
-        uses: actions/upload-artifact@v4
-        with:
-          name: model-index
-          path: vault/model/
-      - name: Upload status report
-        uses: actions/upload-artifact@v4
-        with:
-          name: status-report
-          path: vault/ai-intel/status/
+          # Ensure JSON data exists in Pages root
+          for f in report.json items.json history.json; do
+            if [ -f "vault/ai-intel/status/$f" ]; then
+              echo "found $f"
+            else
+              # Try copy from vault root if report wrote elsewhere
+              if [ -f "vault/ai-intel/status/$f" ]; then
+                echo "found $f in status"
+              else
+                echo "{}" > "vault/ai-intel/status/$f"
+              fi
+            fi
+          done
+          # Build tag and file index
+          printf '{\n  "sha": "%s",\n  "run_id": "%s",\n  "ts": "%s"\n}\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$(date -u +%FT%TZ)" > vault/ai-intel/status/build.json
+          (cd vault/ai-intel/status && find . -maxdepth 2 -type f | sort) > vault/ai-intel/status/files.txt
       - name: Upload Pages artifact (dashboard)
         uses: actions/upload-pages-artifact@v3
         with:
@@ -93,41 +74,6 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deploy
         uses: actions/deploy-pages@v4
-      - name: Read email body
-        id: read_email
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const html = fs.readFileSync('vault/ai-intel/status/email.html', 'utf8');
-            core.setOutput('html', html);
-      - name: Check SMTP secrets
-        id: smtp
-        shell: bash
-        run: |
-          ok=true
-          [ -n "${{ secrets.SMTP_SERVER }}" ] || ok=false
-          [ -n "${{ secrets.SMTP_USERNAME }}" ] || ok=false
-          [ -n "${{ secrets.SMTP_PASSWORD }}" ] || ok=false
-          [ -n "${{ secrets.TO_EMAIL }}" ] || ok=false
-          [ -n "${{ secrets.FROM_EMAIL }}" ] || ok=false
-          echo "enabled=${ok}" >> "$GITHUB_OUTPUT"
-      - name: Send daily email
-        if: steps.smtp.outputs.enabled == 'true'
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: ${{ secrets.SMTP_SERVER }}
-          server_port: ${{ secrets.SMTP_PORT }}
-          username: ${{ secrets.SMTP_USERNAME }}
-          password: ${{ secrets.SMTP_PASSWORD }}
-          subject: AI Intel Daily Report
-          to: ${{ secrets.TO_EMAIL }}
-          from: ${{ secrets.FROM_EMAIL }}
-          content_type: text/html
-          body: ${{ steps.read_email.outputs.html }}
-          attachments: |
-            vault/ai-intel/status/report.md
-            vault/digests/weekly/*.md
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
