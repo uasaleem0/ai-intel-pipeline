@@ -510,9 +510,57 @@ const PillarGrid = ({ report }) => {
 export default function ProperDashboard() {
   const { report, items } = useData()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [mouseTrail, setMouseTrail] = useState([])
+  
+  // Mouse trail effect
+  React.useEffect(() => {
+    let trailTimer
+    const handleMouseMove = (e) => {
+      const newTrail = {
+        id: Date.now(),
+        x: e.clientX,
+        y: e.clientY,
+        timestamp: Date.now()
+      }
+      
+      setMouseTrail(prev => [...prev.slice(-8), newTrail])
+      
+      // Clean up old trail points
+      clearTimeout(trailTimer)
+      trailTimer = setTimeout(() => {
+        setMouseTrail(prev => prev.filter(point => Date.now() - point.timestamp < 1000))
+      }, 100)
+    }
+    
+    document.addEventListener('mousemove', handleMouseMove)
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      clearTimeout(trailTimer)
+    }
+  }, [])
   
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: 'var(--background)', color: 'var(--foreground)' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--background)', color: 'var(--foreground)', position: 'relative' }}>
+      {/* Mouse Trail */}
+      {mouseTrail.map((point, index) => (
+        <div
+          key={point.id}
+          style={{
+            position: 'fixed',
+            left: point.x - 4,
+            top: point.y - 4,
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            background: `radial-gradient(circle, rgba(139, 92, 246, ${0.8 - index * 0.1}) 0%, transparent 70%)`,
+            pointerEvents: 'none',
+            zIndex: 9999,
+            animation: `breathe 0.5s ease-out`,
+            transform: `scale(${1 - index * 0.1})`,
+            filter: 'blur(0.5px)'
+          }}
+        />
+      ))}
       {/* Navigation Header - RESTORED */}
       <header style={{ 
         position: 'sticky', 

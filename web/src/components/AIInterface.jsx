@@ -137,10 +137,21 @@ const AIInterface = ({ data }) => {
           inset: '-2px',
           background: 'linear-gradient(45deg, transparent, rgba(139, 92, 246, 0.3), transparent, rgba(59, 130, 246, 0.3), transparent)',
           borderRadius: '18px',
-          animation: 'pulse 3s ease-in-out infinite',
+          animation: 'breathe 4s ease-in-out infinite',
           pointerEvents: 'none',
           filter: 'blur(2px)',
           opacity: 0.8
+        }} />
+        
+        {/* Magnetic Field Effect */}
+        <div style={{
+          position: 'absolute',
+          inset: '-8px',
+          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%)',
+          borderRadius: '24px',
+          animation: 'magneticPull 6s ease-in-out infinite',
+          pointerEvents: 'none',
+          opacity: 0.6
         }} />
         
         <div style={{ position: 'relative', zIndex: 1 }}>
@@ -156,8 +167,13 @@ const AIInterface = ({ data }) => {
                 padding: '12px',
                 background: 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #6366f1 100%)',
                 borderRadius: '20px',
-                boxShadow: '0 8px 25px rgba(139, 92, 246, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-                animation: 'float 3s ease-in-out infinite'
+                boxShadow: `
+                  0 8px 25px rgba(139, 92, 246, 0.6), 
+                  0 0 50px rgba(139, 92, 246, 0.3),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                  inset 0 -1px 0 rgba(0, 0, 0, 0.1)
+                `,
+                animation: 'float 3s ease-in-out infinite, buttonGlow 2s ease-in-out infinite'
               }}>
                 <Sparkles style={{ width: '28px', height: '28px', color: 'white' }} />
                 <div style={{
