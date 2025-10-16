@@ -368,12 +368,16 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
       .seg button { border:1px solid #374151; padding:.35rem .6rem; border-radius:.5rem; background:#0f172a; color:#cbd5e1; }
       .seg button.active { background:#4b5563; color:white; border-color:#334155; }
       details { display:block; width:100%; }
+          body:not(.is-collapsed) #toggleSidebar{ display:none !important; }
+      @media (min-width:768px){ body.is-collapsed #toggleSidebar{ display:inline-flex !important; } }
+      .is-collapsed #sidebar { display:none !important; }
     </style>
   </head>
   <body class="min-h-screen">
     <div class="min-h-screen flex">
       <aside id="sidebar" class="hidden md:flex flex-col h-screen w-64 shrink-0 bg-[#0d1220] border-r border-gray-800 p-4 overflow-y-auto">
         <div class="text-lg font-semibold mb-4">AI Intel</div>
+        <button id="closeSidebar" class="md:hidden px-2 py-1 rounded bg-gray-800 border border-gray-700 mb-3">×</button>
         <nav class="space-y-1">
           <a class="sidebar-link active" href="#overview" data-nav="overview">Overview</a>
           <a class="sidebar-link" href="items.html">Items</a>
@@ -398,15 +402,10 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
       <div class="flex-1 min-w-0 flex flex-col">
         <header class="sticky top-0 z-10 backdrop-blur bg-[#0b0f19]/70 border-b border-gray-800">
           <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
-            <button id="toggleSidebar" aria-label="Toggle sidebar" class="px-2 py-1 rounded bg-gray-800 border border-gray-700">&#9776;</button>
+            <button id="toggleSidebar" style="display:none" aria-label="Toggle sidebar" class="px-2 py-1 rounded bg-gray-800 border border-gray-700">&#9776;</button>
             <div class="text-2xl md:text-3xl font-extrabold mr-auto">AI Intel Dashboard</div>
             <input id="globalSearch" placeholder="Search" class="w-56 md:w-96 bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700" />
-            <div class="seg hidden sm:flex items-center gap-1 ml-2" id="dateSeg">
-              <button data-days="7">7d</button>
-              <button class="active" data-days="30">30d</button>
-              <button data-days="90">90d</button>
-              <button data-days="all">All</button>
-            </div>
+            
             <button id="btnAddSource" class="ml-2 px-3 py-2 rounded bg-blue-600 hover:bg-blue-500">Add Source</button>
             <div id="lastUpdated" class="text-xs text-gray-400 ml-3"></div><div id="buildStamp" class="text-xs text-gray-500 ml-2"></div>
           </div>
@@ -478,8 +477,8 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
             <div id="itemsTable" class="text-sm"></div>
           </section>
 
-          <details id="analytics" class="card w-full">
-            <summary class="cursor-pointer font-semibold">Analytics</summary>
+          <div id="analytics" class="card">
+            <button id="analyticsToggle" class="text-sm text-gray-300 underline">Analytics</button><div id="analyticsPanel" class="hidden mt-3">
             <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 mt-3">
               <div class="card"><h3 class="mb-2 font-semibold">By Source</h3><canvas id="chartSource"></canvas></div>
               <div class="card"><h3 class="mb-2 font-semibold">By Type</h3><canvas id="chartType"></canvas></div>
@@ -489,7 +488,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
               <div class="card"><h3 class="mb-2 font-semibold">Trend: Items / day</h3><canvas id="chartTrendItems"></canvas></div>
               <div class="card"><h3 class="mb-2 font-semibold">Run History</h3><div id="history" class="text-sm"></div></div>
             </div>
-          </details>
+          </div>
         </main>
       </div>
     </div>
@@ -531,46 +530,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
 
       function renderCharts(rep){ const sL = Object.keys(rep.by_source), sV = Object.values(rep.by_source); const tL = Object.keys(rep.by_type), tV = Object.values(rep.by_type); const pL = Object.keys(rep.pillars), pV = Object.values(rep.pillars); barChart(document.getElementById('chartSource'), sL, sV); barChart(document.getElementById('chartType'), tL, tV); barChart(document.getElementById('chartPillars'), pL, pV); }
 
-      function updateHealth(rep, hist){ const c = rep.counts; const last = hist && hist.length ? hist[hist.length-1] : null; const runs30 = (hist||[]).filter(h => dayjs(h.ts).isAfter(dayjs().subtract(30,'day'))).length; document.getElementById('healthItems').textContent = `Items: ${c.items}`; const passRate = c.evidence ? (c.evidence_pass/c.evidence) : 0; document.getElementById('healthPassRate').textContent = `Pass rate: ${(passRate*100).toFixed(1)}%`; document.getElementById('healthRuns30d').textContent = `Runs (30d): ${runs30}`; if(last){ const lu = new Date(last.ts).toLocaleString(); const run = last.run_url ? ` - `+ `<a target='_blank' href='${last.run_url}'>run</a>` : ''; const status = last.status ? ` (${last.status})` : ''; document.getElementById('healthLastRun').innerHTML = `Last run: ${lu}${status}${run}`; } }
-
-      function renderForYou(rep){ const el = document.getElementById('forYou'); const recs = (rep.recommendations||[]).slice(0,3); if(!recs.length){ el.innerHTML = '<div class="text-gray-400">No recommendations yet.</div>'; return; } el.innerHTML = recs.map(r => (`<div><div class='font-medium'>${r.title}</div><div class='text-xs text-gray-400 mb-1'>score: ${Number(r.scores?.combined||0).toFixed(3)} · pillars: ${(r.pillars||[]).join(', ')}</div>${r.tldr?`<div class='mb-1'>${r.tldr}</div>`:''}<a href='${r.url}' target='_blank'>Open</a></div>`)).join(''); }
-
-      function renderWhatChanged(hist){ const el = document.getElementById('whatChanged'); if(!hist || hist.length<2){ el.textContent = 'Not enough history yet.'; return; } const last = hist[hist.length-1], prev = hist[hist.length-2]; const itemsDelta = last.items - prev.items; const passRate = last.evidence ? (last.evidence_pass/last.evidence) : 0; const prevPass = prev.evidence ? (prev.evidence_pass/prev.evidence) : 0; const passDelta = (passRate - prevPass) * 100; el.innerHTML = `<ul class='list-disc ml-5'><li>${itemsDelta>=0?'+':''}${itemsDelta} items vs previous run</li><li>Pass rate ${(passRate*100).toFixed(1)}% (${passDelta>=0?'+':''}${passDelta.toFixed(1)}pp)</li><li>See Analytics for source/pillar shifts</li></ul>`; }
-
-      function chip(label, onclick){ const d=document.createElement('span'); d.className='chip'; d.textContent=label; d.onclick=onclick; return d; }
-
-      function renderBrowse(rep, items){ const bs = document.getElementById('browseSources'); const bp = document.getElementById('browsePillars'); bs.innerHTML=''; bp.innerHTML=''; const srcs = Object.entries(rep.by_source||{}); srcs.sort((a,b)=>b[1]-a[1]); srcs.forEach(([k,v])=> bs.appendChild(chip(`${k} (${v})`, ()=>applyFilter({sourceType:k})))); const pillars = Object.entries(rep.pillars||{}); pillars.sort((a,b)=>b[1]-a[1]); pillars.slice(0,5).forEach(([k,v])=> bp.appendChild(chip(`${k} (${v})`, ()=>applyFilter({pillar:k})))); }
-
-      let currentDays='30', currentQuery='', currentPillar='', currentSourceType='';
-      function applyFilter({pillar=null, sourceType=null}={}){ if(pillar!==null) currentPillar=pillar; if(sourceType!==null) currentSourceType=sourceType; document.querySelector('[data-nav="items"]').click(); renderItems(window.__items, currentDays, currentQuery, currentPillar, currentSourceType); showActiveFilters(); }
-      function clearFilters(){ currentPillar=''; currentSourceType=''; showActiveFilters(); renderItems(window.__items, currentDays, currentQuery, currentPillar, currentSourceType); }
-      function showActiveFilters(){ const el=document.getElementById('activeFilters'); const parts=[]; if(currentPillar) parts.push(`Pillar: ${currentPillar}`); if(currentSourceType) parts.push(`Source: ${currentSourceType}`); el.innerHTML = parts.length? parts.join(' · ') + ` · <button class='underline' onclick='clearFilters()'>Clear</button>` : ''; }
-
-      function renderItems(items, days, q, pillar, sourceType){ const el = document.getElementById('itemsTable'); let list = items.filter(it=>!days || withinRange(it.date, days)); if(q){ const ql=q.toLowerCase(); list = list.filter(it=> (it.title||'').toLowerCase().includes(ql) || (it.tldr||'').toLowerCase().includes(ql) || (it.why||'').toLowerCase().includes(ql) || (it.pillars||[]).join(' ').toLowerCase().includes(ql)); } if(pillar){ list = list.filter(it=> (it.pillars||[]).includes(pillar)); } if(sourceType){ const st = sourceType.toLowerCase(); list = list.filter(it=> (it.source_type||'').toLowerCase()===st); } list = list.sort((a,b)=>(b.overall||0)-(a.overall||0)); const rows = list.slice(0,30).map(it=>{ const pills = (it.pillars||[]).map(p=>`<span class='pill'>${p}</span>`).join(''); const id = `row_${it.item_id}`; return `<div class='border-b border-gray-800 py-2'><div class='flex items-center justify-between gap-3'><div class='min-w-0'><div class='font-medium truncate'>${it.title}</div><div class='text-xs text-gray-400'>${(it.source_type||it.source||'')} | ${new Date(it.date).toLocaleDateString()} | score ${Number(it.overall||0).toFixed(3)}</div><div class='mt-1'>${pills}</div></div><div class='flex items-center gap-2'><a class='text-sm' href='${it.url}' target='_blank'>Open</a><button class='text-sm px-2 py-1 rounded bg-gray-800 border border-gray-700' onclick="const d=document.getElementById('${id}'); d.classList.toggle('hidden');">Details</button></div></div><div id='${id}' class='hidden mt-2 text-sm'>${it.tldr?`<div class='mb-2'><span class='text-gray-400'>TL;DR:</span> ${it.tldr}</div>`:''}${it.why?`<div class='mb-2'><span class='text-gray-400'>Why it matters:</span> ${it.why}</div>`:''}${(it.apply_steps||[]).length?`<div class='mb-2'><div class='text-gray-400'>Apply steps:</div><ul class='list-disc ml-5'>${it.apply_steps.map(s=>`<li>${s}</li>`).join('')}</ul></div>`:''}</div></div>` }).join(''); el.innerHTML = rows || `<div class='text-gray-400'>No items in this range. Try changing filters.</div>`; }
-
-      function updateAQ(items){ const now30 = dayjs().subtract(30,'day'); const unreviewed = items.filter(it=> (!it.verdict) && (!it.confidence || it.confidence<0.5) && dayjs(it.date).isAfter(now30)).length; const needsEv = items.filter(it=> (it.verdict==='fail' || (it.confidence!=null && it.confidence<0.5))).length; const ready = items.filter(it=> (Number(it.overall||0)>=0.6) && (Number(it.credibility||0)>=0.7) && (Number(it.actionability||0)>=0.6) && (it.verdict==='pass' || (it.confidence!=null && it.confidence>=0.6))).length; document.getElementById('aqUnreviewedCount').textContent = unreviewed; document.getElementById('aqEvidenceCount').textContent = needsEv; document.getElementById('aqReadyCount').textContent = ready; document.getElementById('aqUnreviewed').onclick = ()=>{ applyFilter({}); currentQuery=''; currentPillar=''; currentSourceType=''; renderItems(window.__items, '30', '', '', ''); }; document.getElementById('aqEvidence').onclick = ()=>{ applyFilter({}); currentQuery=''; renderItems(window.__items, currentDays, '', '', ''); const el=document.getElementById('itemsTable'); el.scrollIntoView({behavior:'smooth'}); }; document.getElementById('aqReady').onclick = ()=>{ applyFilter({}); currentQuery=''; renderItems(window.__items, currentDays, '', '', ''); const el=document.getElementById('itemsTable'); el.scrollIntoView({behavior:'smooth'}); } }
-
-      function wireNav(){ document.querySelectorAll('[data-nav]').forEach(a=>{ a.addEventListener('click', (e)=>{ document.querySelectorAll('[data-nav]').forEach(x=>x.classList.remove('active')); a.classList.add('active'); const id = a.getAttribute('data-nav'); const sec = document.getElementById(id); if(sec){ sec.scrollIntoView({behavior:'smooth'}); } }); }); }
-
-      function wireSeg(){ document.querySelectorAll('#dateSeg button').forEach(btn=>{ btn.addEventListener('click', ()=>{ document.querySelectorAll('#dateSeg button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); currentDays = btn.getAttribute('data-days'); const cut = currentDays==='all'? null : dayjs().subtract(Number(currentDays),'day'); const fl = (window.__items||[]).filter(it => !cut || dayjs(it.date).isAfter(cut)); (function(){ try { const itemsCount = fl.length; let passCount=0, failCount=0, confSum=0, confN=0; fl.forEach(it=>{ const v=(it.verdict||'').toLowerCase(); if(v==='pass') passCount++; else if(v==='fail') failCount++; const c=Number(it.confidence); if(!Number.isNaN(c)){ confSum+=c; confN++; } }); const evidence = passCount + failCount; const k=(id)=>document.getElementById(id); if(k('kpiItems')) k('kpiItems').textContent = itemsCount; if(k('kpiPass')) k('kpiPass').textContent = evidence? ${passCount}/ : '—'; if(k('kpiConfidence')) k('kpiConfidence').textContent = confN? (confSum/confN).toFixed(2) : '—'; } catch(e){} })(); updateAQ(fl); renderItems(window.__items||[], currentDays, currentQuery, currentPillar, currentSourceType); }); }); }); }); }); }); }
-
-      function wireSidebarToggle(){ const btn=document.getElementById("toggleSidebar"); const sb=document.getElementById("sidebar"); if(!btn||!sb) return; btn.addEventListener("click", ()=>{ document.body.classList.toggle("is-collapsed"); sb.classList.toggle("hidden"); }); } document.body.classList.toggle('is-collapsed'); }); } } document.body.classList.toggle('is-collapsed'); }); } } document.body.classList.toggle('is-collapsed'); }); }); } else { sb.classList.add('hidden'); } }); }
-
-      async function init(){
-        const [rep, hist, items] = await Promise.all([
-          loadJSON('report.json'),
-          (async()=>{ try{ return await loadJSON('history.json'); }catch(e){ return []; } })(),
-          (async()=>{ try{ return await loadJSON('items.json'); }catch(e){ return []; } })(),
-        ]);
-        window.__items = items;
-        const last = hist && hist.length ? hist[hist.length-1] : null; const prev = hist && hist.length>1 ? hist[hist.length-2] : null; if(last){ const lu = new Date(last.ts).toLocaleString(); const run = last.run_url ? ` - <a target='_blank' href='${last.run_url}'>run</a>` : ''; document.getElementById('lastUpdated').innerHTML = `Updated ${lu}${run}`; try{ document.getElementById('buildStamp').textContent = `Build: ${lu}` }catch(e){}; }
-        updateHealth(rep, hist||[]);
-        // Populate sidebar Pillars/Sources
-        try {
-          const sP = document.getElementById('sbPillars');
-          const sS = document.getElementById('sbSources');
-          if (sP) {
-            const pillars = Object.entries(rep.pillars||{}).sort((a,b)=>b[1]-a[1]).slice(0,10);
+      function updateHealth(rep, hist){ try { const c = rep.counts||{}; const last = (hist&&hist.length)? hist[hist.length-1] : null; const runs30 = (hist||[]).filter(h => dayjs(h.ts).isAfter(dayjs().subtract(30,'day'))).length; const items = c.items || 0; const pass = c.evidence_pass || 0; const ev = (c.evidence !== undefined) ? c.evidence : ((c.evidence_pass||0)+(c.evidence_fail||0)); const passRate = ev ? (pass/ev) : 0; const set=(id,txt)=>{ const el=document.getElementById(id); if(el) el.textContent = txt; }; set('healthItems', `Items: ${items}`); set('healthPassRate', `Pass rate: ${(passRate*100).toFixed(1)}%`); set('healthRuns30d', `Runs (30d): ${runs30}`); const lr = document.getElementById('healthLastRun'); if(lr){ if(last){ const lu = new Date(last.ts).toLocaleString(); const run = last.run_url ? ' - ' + `<a target='_blank' href='${last.run_url}'>run</a>` : ''; const status = last.status ? ` (${last.status})` : ''; lr.innerHTML = `Last run: ${lu}${status}${run}`; } else { lr.textContent = 'Last run: —'; } } } catch(e){} }).sort((a,b)=>b[1]-a[1]).slice(0,10);
             sP.innerHTML = pillars.map(([k,v])=>`<a class='sidebar-link' href='items.html?pillar=${encodeURIComponent(k)}&days=30'>${k} <span class="text-gray-500">(${v})</span></a>`).join('');
           }
           if (sS) {
@@ -583,7 +543,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
         renderWhatChanged(hist||[]);
         renderBrowse(rep, items);
         const fl = filterByDays(items, currentDays); updateKPIsFromItems(fl); renderItems(items, currentDays, currentQuery, currentPillar, currentSourceType); updateAQ(fl);
-        wireNav(); wireSeg(); wireSidebarToggle();
+        wireNav();  wireSidebarToggle();
         const search = document.getElementById('globalSearch'); search.addEventListener('input', ()=>{ currentQuery = search.value || ''; renderItems(items, currentDays, currentQuery, currentPillar, currentSourceType); });
       }
 
@@ -635,7 +595,10 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
     <title>AI Intel · Items</title>
     <script src=\"https://cdn.tailwindcss.com\"></script>
     <script src=\"https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js\"></script>
-    <style>:root{color-scheme:dark} body{background:#0b0f19;color:#e5e7eb} .card{background:#111827;border:1px solid #1f2937;border-radius:.75rem;padding:1rem} .pill{display:inline-block;background:#1f2937;padding:2px 8px;border-radius:999px;margin-right:6px;font-size:12px}</style>
+    <style>:root{color-scheme:dark} body{background:#0b0f19;color:#e5e7eb} .card{background:#111827;border:1px solid #1f2937;border-radius:.75rem;padding:1rem} .pill{display:inline-block;background:#1f2937;padding:2px 8px;border-radius:999px;margin-right:6px;font-size:12px}      body:not(.is-collapsed) #toggleSidebar{ display:none !important; }
+      @media (min-width:768px){ body.is-collapsed #toggleSidebar{ display:inline-flex !important; } }
+      .is-collapsed #sidebar { display:none !important; }
+    </style>
   </head>
   <body class=\"min-h-screen\">
     <div class=\"max-w-7xl mx-auto px-4 py-6\">
@@ -673,7 +636,10 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
     <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
     <title>AI Intel · Browse</title>
     <script src=\"https://cdn.tailwindcss.com\"></script>
-    <style>:root{color-scheme:dark} body{background:#0b0f19;color:#e5e7eb} .card{background:#111827;border:1px solid #1f2937;border-radius:.75rem;padding:1rem} .chip{display:inline-block;padding:.35rem .65rem;border-radius:9999px;background:#0f172a;border:1px solid #1f2937;margin:.25rem;cursor:pointer}</style>
+    <style>:root{color-scheme:dark} body{background:#0b0f19;color:#e5e7eb} .card{background:#111827;border:1px solid #1f2937;border-radius:.75rem;padding:1rem} .chip{display:inline-block;padding:.35rem .65rem;border-radius:9999px;background:#0f172a;border:1px solid #1f2937;margin:.25rem;cursor:pointer}      body:not(.is-collapsed) #toggleSidebar{ display:none !important; }
+      @media (min-width:768px){ body.is-collapsed #toggleSidebar{ display:inline-flex !important; } }
+      .is-collapsed #sidebar { display:none !important; }
+    </style>
   </head>
   <body class=\"min-h-screen\">
     <div class=\"max-w-7xl mx-auto px-4 py-6\">
@@ -706,7 +672,10 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
     <title>AI Intel · Items</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
-    <style>:root{color-scheme:dark} body{background:#0b0f19;color:#e5e7eb} .card{background:#111827;border:1px solid #1f2937;border-radius:.75rem;padding:1rem} .pill{display:inline-block;background:#1f2937;padding:2px 8px;border-radius:999px;margin-right:6px;font-size:12px}</style>
+    <style>:root{color-scheme:dark} body{background:#0b0f19;color:#e5e7eb} .card{background:#111827;border:1px solid #1f2937;border-radius:.75rem;padding:1rem} .pill{display:inline-block;background:#1f2937;padding:2px 8px;border-radius:999px;margin-right:6px;font-size:12px}      body:not(.is-collapsed) #toggleSidebar{ display:none !important; }
+      @media (min-width:768px){ body.is-collapsed #toggleSidebar{ display:inline-flex !important; } }
+      .is-collapsed #sidebar { display:none !important; }
+    </style>
   </head>
   <body class="min-h-screen">
     <div class="max-w-7xl mx-auto px-4 py-6">
@@ -743,7 +712,10 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>AI Intel · Browse</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>:root{color-scheme:dark} body{background:#0b0f19;color:#e5e7eb} .card{background:#111827;border:1px solid #1f2937;border-radius:.75rem;padding:1rem} .chip{display:inline-block;padding:.35rem .65rem;border-radius:9999px;background:#0f172a;border:1px solid #1f2937;margin:.25rem;cursor:pointer}</style>
+    <style>:root{color-scheme:dark} body{background:#0b0f19;color:#e5e7eb} .card{background:#111827;border:1px solid #1f2937;border-radius:.75rem;padding:1rem} .chip{display:inline-block;padding:.35rem .65rem;border-radius:9999px;background:#0f172a;border:1px solid #1f2937;margin:.25rem;cursor:pointer}      body:not(.is-collapsed) #toggleSidebar{ display:none !important; }
+      @media (min-width:768px){ body.is-collapsed #toggleSidebar{ display:inline-flex !important; } }
+      .is-collapsed #sidebar { display:none !important; }
+    </style>
   </head>
   <body class="min-h-screen">
     <div class="max-w-7xl mx-auto px-4 py-6">
