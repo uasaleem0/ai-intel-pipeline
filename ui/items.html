@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Intel · Items</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-mode="items">
+    <div id="errorBanner" style="display:none;position:fixed;top:0;left:0;right:0;background:#7f1d1d;color:#fff;padding:8px 12px;z-index:9999"></div>
+    <header class="header"><a href="index.html" class="btn">← Dashboard</a><div class="header-title">All Items</div></header>
+    <div class="container">
+      <div class="card">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input id="q" placeholder="Search" style="flex:1;min-width:240px;background:#0b1220;color:#e5e7eb;border:1px solid #374151;border-radius:8px;padding:8px 10px" />
+          <select id="filterSource" class="btn"><option value="">All sources</option><option>github</option><option>youtube</option><option>vendor</option></select>
+          <select id="filterPillar" class="btn"><option value="">All pillars</option></select>
+        </div>
+      </div>
+      <div class="card" id="itemsTable"></div>
+    </div>
+    <script src="app.js"></script>
+  </body>
+  </html>
+

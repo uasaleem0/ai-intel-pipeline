@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Intel Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="" data-mode="dashboard">
+    <div id="errorBanner" style="display:none;position:fixed;top:0;left:0;right:0;background:#7f1d1d;color:#fff;padding:8px 12px;z-index:9999"></div>
+    <div class="page">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-title">AI Intel</div>
+          <button id="collapseSidebarDesktop" class="sidebar-collapse" title="Collapse">»»</button>
+        </div>
+        <nav>
+          <a class="sidebar-link" href="#overview">Overview</a>
+          <a class="sidebar-link" href="items.html">Items</a>
+          <a class="sidebar-link" href="browse.html">Browse</a>
+        </nav>
+        <div class="sidebar-section-title">Pillars</div>
+        <div id="sbPillars"></div>
+        <div class="sidebar-section-title">Sources</div>
+        <div id="sbSources"></div>
+        <div style="flex:1"></div>
+      </aside>
+      <main class="content">
+        <header class="header">
+          <button id="burger" class="burger">☰</button>
+          <div class="header-title">AI Intel Dashboard</div>
+          <div id="buildTag" class="" style="font-size:12px;color:#9ca3af"></div>
+        </header>
+        <div class="container">
+          <div class="row row-2" id="overview">
+            <section class="card ask-accent">
+              <h3 class="card-title">Ask AI (Using Your Data)</h3>
+              <div style="color:#d1d5db;font-size:14px;margin-bottom:8px">Query your indexed intel — answers will cite sources (RAG).</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <input id="askInput" placeholder="Ask a question about your indexed AI intel..." style="flex:1;min-width:240px;background:#0b1220;color:#e5e7eb;border:1px solid #374151;border-radius:8px;padding:8px 10px" />
+                <button id="askBtn" class="btn btn-primary">Ask</button>
+                <button id="askSettings" class="btn">Settings</button>
+              </div>
+              <div id="askOutput" style="margin-top:8px;font-size:14px;color:#e5e7eb"></div>
+            </section>
+            <section class="card">
+              <h3 class="card-title">System Health</h3>
+              <div id="healthLastRun" style="margin-bottom:6px">Last run: —</div>
+              <div id="healthItems" style="margin-bottom:6px">Items: —</div>
+              <div id="healthPassRate" style="margin-bottom:6px">Pass rate: —</div>
+              <div id="healthRuns" style="margin-bottom:6px">Runs: —</div>
+            </section>
+          </div>
+
+          <section class="card">
+            <h3 class="card-title">Action Queue</h3>
+            <div class="row row-3">
+              <div class="card"><div class="card-title">Unreviewed</div><div id="aqUnreviewedCount" style="font-size:24px;font-weight:700">—</div></div>
+              <div class="card"><div class="card-title">Needs Evidence Review</div><div id="aqEvidenceCount" style="font-size:24px;font-weight:700">—</div></div>
+              <div class="card"><div class="card-title">Ready to Apply</div><div id="aqReadyCount" style="font-size:24px;font-weight:700">—</div></div>
+            </div>
+          </section>
+
+          <section class="card">
+            <h3 class="card-title">Top Items</h3>
+            <div id="itemsFeed" class="row"></div>
+          </section>
+
+          <section class="card">
+            <button id="analyticsToggle" class="btn" style="background:#0f172a">Analytics</button>
+            <div id="analyticsPanel" class="hidden" style="margin-top:10px;color:#9ca3af">(Charts hidden in this minimal build; enable Chart.js later without blocking UI.)</div>
+          </section>
+        </div>
+        <footer class="footer">
+          Data from report.json/items.json · <a target="_blank" href="items.html">Items</a> · <a target="_blank" href="browse.html">Browse</a>
+        </footer>
+      </main>
+    </div>
+    <script src="app.js"></script>
+  </body>
+  </html>
+
