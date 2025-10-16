@@ -14,6 +14,7 @@ from .apply.pr import apply_to_repo_from_item
 from .model.embedder import build_embeddings
 from .model.recommend import recommend
 from .report import write_report
+from .feedback import apply_feedback
 
 app = typer.Typer(add_completion=False, help="AI Intel Pipeline CLI")
 console = Console()
@@ -162,8 +163,33 @@ def report():
     console.print(f"Status report written to {out}")
 
 
+@app.command()
+def feedback(
+    item_id: str = typer.Option(..., help="Item ID"),
+    decision: str = typer.Option(..., help="accept or reject"),
+):
+    """Apply feedback to policy weights (accept/reject)."""
+    vault_root = Path("vault/ai-intel")
+    policy_path = Path("config/policy/weights.json")
+    apply_feedback(item_id=item_id, decision=decision, vault_root=vault_root, policy_path=policy_path)
+    Console().print("Feedback recorded.")
+
+
 if __name__ == "__main__":
     try:
         app()
     except KeyboardInterrupt:
         sys.exit(130)
+
+@app.command("ingest-url")
+def ingest_url(
+    url: str = typer.Option(..., help="Source URL (YouTube or GitHub)"),
+    dry_run: bool = typer.Option(False, help="Do not call external APIs"),
+):
+    """Manually ingest a single source URL (YouTube or GitHub)."""
+    settings = load_settings()
+    vault = Vault(root=Path("vault/ai-intel"))
+    index = Index(index_path=Path("vault/index.csv"))
+    from .pipeline import run_ingest_url as _run
+    item_id = _run(url=url, settings=settings, vault=vault, index=index, dry_run=dry_run)
+    console.print(f"Ingested item: {item_id}")
