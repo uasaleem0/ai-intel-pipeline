@@ -47,6 +47,25 @@ jobs:
       - name: Export RAG JSONL
         run: |
           python -m ai_intel_pipeline export
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Build web UI
+        working-directory: web
+        run: |
+          npm ci || npm i
+          npm run build
+      - name: Copy web UI to status
+        shell: bash
+        run: |
+          mkdir -p vault/ai-intel/status
+          cp -r web/dist/* vault/ai-intel/status/
+          echo '{' > vault/ai-intel/status/build.json
+          echo '  "sha": "'${GITHUB_SHA}'",' >> vault/ai-intel/status/build.json
+          echo '  "run_id": "'${GITHUB_RUN_ID}'",' >> vault/ai-intel/status/build.json
+          echo '  "ts": "'$(date -u +%FT%TZ)'"' >> vault/ai-intel/status/build.json
+          echo '}' >> vault/ai-intel/status/build.json
       - name: Upload digest artifact
         uses: actions/upload-artifact@v4
         with:
