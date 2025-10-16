@@ -236,6 +236,17 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
         <h1 class="text-2xl font-bold">AI Intel Dashboard</h1>
         <div id="lastUpdated" class="text-sm text-gray-400"></div>
       </div>
+      <div class="card mb-6">
+        <h3 class="mb-3 font-semibold">Add Source</h3>
+        <div class="flex flex-col md:flex-row gap-3 items-start md:items-center">
+          <input id="manualUrl" placeholder="Paste YouTube or GitHub URL" class="w-full md:w-2/3 bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700" />
+          <div class="flex gap-2">
+            <a id="ingestWorkflow" target="_blank" class="px-4 py-2 rounded bg-blue-600 hover:bg-blue-500">Open Ingest Workflow</a>
+            <a id="ingestIssue" target="_blank" class="px-4 py-2 rounded bg-gray-700 hover:bg-gray-600">Open Ingest Issue</a>
+          </div>
+        </div>
+        <p class="text-xs text-gray-400 mt-2">Issue method auto-triggers ingestion. Workflow method requires a quick click in GitHub Actions.</p>
+      </div>
 
       <!-- KPIs -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -376,6 +387,21 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
         sSel.addEventListener('change', doSearch);
       }
       init();
+      // Manual add source link wiring (non-blocking)
+      (function(){
+        const input = document.getElementById('manualUrl');
+        const wf = document.getElementById('ingestWorkflow');
+        const iss = document.getElementById('ingestIssue');
+        if (!input || !wf || !iss) return;
+        function updateLinks(){
+          const v = encodeURIComponent(input.value || '');
+          const user = (location.host.split('.')[0]||'');
+          wf.href = `https://github.com/${user}/ai-intel-pipeline/actions/workflows/ingest_manual.yml`;
+          iss.href = `https://github.com/${user}/ai-intel-pipeline/issues/new?labels=ingest&title=${encodeURIComponent('Ingest source')}&body=${encodeURIComponent('Paste URL here: ')}${v}`;
+        }
+        input.addEventListener('input', updateLinks);
+        updateLinks();
+      })();
     </script>
   </body>
 </html>
