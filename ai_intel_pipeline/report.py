@@ -4,6 +4,7 @@ import csv
 import json
 import os
 from datetime import datetime, timezone
+import shutil
 from pathlib import Path
 from typing import Dict, List
 from .model.recommend import recommend as rec_top
@@ -106,25 +107,34 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
     def _enrich_summary(item_id: str) -> Dict:
         month = f"{item_id[:4]}-{item_id[4:6]}"
         s_path = out_dir.parent / "items" / month / item_id / "summary.md"
-        out = {"tldr": "", "apply_steps": []}
+        out = {"tldr": "", "apply_steps": [], "why": "", "pillars": [], "source": "", "source_type": "", "type": "", "date": ""}
         try:
             if s_path.exists():
                 txt = s_path.read_text(encoding="utf-8")
                 lines = [l.rstrip() for l in txt.splitlines()]
-                if "TL;DR" in lines:
-                    i = lines.index("TL;DR") + 1
-                    buf = []
-                    while i < len(lines) and lines[i] and not lines[i].endswith(":"):
-                        buf.append(lines[i])
-                        i += 1
-                    out["tldr"] = " ".join(buf)[:300]
-                if "Apply steps" in lines:
-                    j = lines.index("Apply steps") + 1
-                    steps = []
-                    while j < len(lines) and lines[j]:
-                        steps.append(lines[j])
-                        j += 1
-                    out["apply_steps"] = steps
+                def _extract(name: str) -> str:
+                    if name in lines:
+                        i = lines.index(name) + 1
+                        buf = []
+                        while i < len(lines) and lines[i] and not lines[i].endswith(":"):
+                            buf.append(lines[i])
+                            i += 1
+                        return " ".join(buf)[:500]
+                    return ""
+                out["tldr"] = _extract("TL;DR")
+                apply_block = _extract("Apply steps")
+                out["apply_steps"] = [ln for ln in apply_block.split("\\n") if ln][:6]
+                out["why"] = _extract("Why it matters")
+        except Exception:
+            pass
+        try:
+            j_path = out_dir.parent / "items" / month / item_id / "item.json"
+            if j_path.exists():
+                meta = json.loads(j_path.read_text(encoding="utf-8"))
+                out["pillars"] = meta.get("pillars") or []
+                out["source_type"] = meta.get("source_type") or ""
+                out["type"] = meta.get("type") or ""
+                out["date"] = meta.get("date") or meta.get("date_published") or ""
         except Exception:
             pass
         return out
@@ -150,8 +160,86 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
             rec.update(_enrich_summary(iid))
         top_items_detail.append(rec)
     data["top_items_detail"] = top_items_detail
+    # Build items.json (for filtering/sorting in UI)
+    items = []
+    try:
+        if index_csv.exists():
+            with index_csv.open('r', encoding='utf-8') as f:
+                for r in csv.DictReader(f):
+                    iid = r.get('item_id')
+                    if not iid:
+                        continue
+                    meta = _enrich_summary(iid)
+                    item = {
+                        'item_id': iid,
+                        'title': r.get('title'),
+                        'url': r.get('url'),
+                        'source': r.get('source'),
+                        'type': r.get('type') or meta.get('type') or '',
+                        'source_type': meta.get('source_type') or '',
+                        'date': r.get('date') or meta.get('date') or '',
+                        'overall': float(r.get('overall') or 0) if r.get('overall') else 0.0,
+                        'credibility': float(r.get('credibility') or 0) if r.get('credibility') else 0.0,
+                        'relevance': float(r.get('relevance') or 0) if r.get('relevance') else 0.0,
+                        'actionability': float(r.get('actionability') or 0) if r.get('actionability') else 0.0,
+                        'pillars': meta.get('pillars') or [],
+                        'tldr': meta.get('tldr') or '',
+                        'why': meta.get('why') or '',
+                        'apply_steps': meta.get('apply_steps') or [],
+                    }
+                    items.append(item)
+    except Exception:
+        pass
+    (out_dir / 'items.json').write_text(json.dumps(items, indent=2), encoding='utf-8')
     # Save JSON (dashboard data)
+    # Derive daily history buckets (items, pass_rate, avg_conf where available)
+    try:
+        day_stats = {}
+        items_root = vault_root / 'items'
+        for day_dir in items_root.rglob('*'):
+            if not day_dir.is_dir():
+                continue
+        # Use items.json to build per-day counts quickly
+        _items_text = (out_dir / 'items.json').read_text(encoding='utf-8')
+        _items = json.loads(_items_text) if _items_text else []
+        for it in _items:
+            d = (it.get('date') or '')[:10]
+            if not d:
+                continue
+            s_ = day_stats.setdefault(d, {'items':0})
+            s_['items'] += 1
+        data['history_daily'] = [{'date':k, **v} for k,v in sorted(day_stats.items())]
+    except Exception:
+        data['history_daily'] = []
+    # Model index info
+    try:
+        mdir = Path('vault/model')
+        if mdir.exists():
+            files = list(mdir.rglob('*'))
+            data['model_index'] = {
+                'doc_count': len([x for x in files if x.is_file()]),
+                'last_built_ts': max([x.stat().st_mtime for x in files if x.is_file()]) if files else None,
+            }
+        else:
+            data['model_index'] = {'doc_count': 0, 'last_built_ts': None}
+    except Exception:
+        data['model_index'] = {'doc_count': 0, 'last_built_ts': None}
     (out_dir / "report.json").write_text(json.dumps(data, indent=2), encoding="utf-8")
+    # Surface useful artifacts alongside the dashboard when available
+    try:
+        if index_csv.exists():
+            shutil.copy2(index_csv, out_dir / "index.csv")
+    except Exception:
+        pass
+    try:
+        # Copy latest weekly digest markdown (if any) to status for easy linking
+        weekly_dir = vault_root.parent / "digests" / "weekly"
+        if weekly_dir.exists():
+            md_files = sorted([p for p in weekly_dir.glob("*.md")], key=lambda p: p.stat().st_mtime, reverse=True)
+            if md_files:
+                shutil.copy2(md_files[0], out_dir / "weekly-latest.md")
+    except Exception:
+        pass
     # Save Markdown
     lines = []
     lines.append("# AI Intel Daily Status\n")
@@ -174,7 +262,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
     # Top items
     lines.append("\n## Top Items (Overall)")
     for t in data["top_items"]:
-        lines.append(f"- {t['title']} â€” {t['overall']:.3f}")
+        lines.append(f"- {t['title']} — {t['overall']:.3f}")
         lines.append(f"  {t['url']}")
     # Top recommendations (embedding-based)
     try:
@@ -260,7 +348,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
     <title>AI Intel Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/lunr/lunr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
     <style>
       :root { color-scheme: dark; }
       body { background: #0b0f19; color: #e5e7eb; }
@@ -269,180 +357,261 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
       .pill { display:inline-block; background:#1f2937; padding:2px 8px; border-radius:999px; margin-right:6px; font-size:12px; }
       .kpi { font-size: 28px; font-weight: 700; }
       .kpi-label { color:#9ca3af; font-size:12px; text-transform:uppercase; letter-spacing: .06em; }
+      .sidebar-link { display:flex; align-items:center; gap:.75rem; padding:.5rem .75rem; border-radius:.5rem; color:#9ca3af; }
+      .sidebar-link:hover { background:#0f172a; color:#e5e7eb; }
+      .sidebar-link.active { background:#0f172a; color:#fff; border:1px solid #1f2937; }
     </style>
   </head>
   <body class="min-h-screen">
-    <div class="max-w-7xl mx-auto px-4 py-6">
-      <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-bold">AI Intel Dashboard</h1>
-        <div id="lastUpdated" class="text-sm text-gray-400"></div>
-      </div>
-      <div class="card mb-6">
-        <h3 class="mb-3 font-semibold">Add Source</h3>
-        <div class="flex flex-col md:flex-row gap-3 items-start md:items-center">
-          <input id="manualUrl" placeholder="Paste YouTube or GitHub URL" class="w-full md:w-2/3 bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700" />
-          <div class="flex gap-2">
-            <a id="ingestWorkflow" target="_blank" class="px-4 py-2 rounded bg-blue-600 hover:bg-blue-500">Open Ingest Workflow</a>
-            <a id="ingestIssue" target="_blank" class="px-4 py-2 rounded bg-gray-700 hover:bg-gray-600">Open Ingest Issue</a>
+    <div class="min-h-screen flex">
+      <aside class="hidden md:block w-60 shrink-0 bg-[#0d1220] border-r border-gray-800 p-4">
+        <div class="text-lg font-semibold mb-4">AI Intel</div>
+        <nav class="space-y-1">
+          <a class="sidebar-link active" href="#overview">Overview</a>
+          <a class="sidebar-link" href="#items">Items</a>
+          <a class="sidebar-link" href="#pillars">Pillars</a>
+          <a class="sidebar-link" href="#sources">Sources</a>
+          <a class="sidebar-link" href="#digests">Digests</a>
+          <a class="sidebar-link" href="#model">Model Index</a>
+        </nav>
+        <div class="mt-8 border-t border-gray-800 pt-4">
+          <a class="sidebar-link" href="#settings">Settings</a>
+          <a class="sidebar-link" href="#help">Help</a>
+        </div>
+      </aside>
+      <div class="flex-1 flex flex-col">
+        <header class="sticky top-0 z-10 backdrop-blur bg-[#0b0f19]/70 border-b border-gray-800">
+          <div class="max-w-7xl mx-auto px-4 py-3 grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
+            <div class="font-bold">AI Intel Dashboard</div>
+            <div class="flex items-center gap-2 justify-start md:justify-center">
+              <select id="dateRange" class="bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700">
+                <option value="7">Last 7 days</option>
+                <option value="30" selected>Last 30 days</option>
+                <option value="90">Last 90 days</option>
+                <option value="all">All time</option>
+              </select>
+              <input id="globalSearch" placeholder="Search (title, TL;DR, pillars)" class="w-48 md:w-72 bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700" />
+            </div>
+            <div class="flex items-center gap-2 justify-end">
+              <button id="btnAddSource" class="px-3 py-2 rounded bg-blue-600 hover:bg-blue-500">Add Source</button>
+              <div id="lastUpdated" class="text-xs text-gray-400"></div>
+            </div>
           </div>
-        </div>
-        <p class="text-xs text-gray-400 mt-2">Issue method auto-triggers ingestion. Workflow method requires a quick click in GitHub Actions.</p>
-      </div>
+        </header>
+        <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+          <div class="flex flex-wrap gap-3 text-xs text-gray-400"><a href="index.csv" class="px-2 py-1 rounded bg-gray-800 border border-gray-700 hover:bg-gray-700 text-gray-300">Download Index (CSV)</a><a href="weekly-latest.md" class="px-2 py-1 rounded bg-gray-800 border border-gray-700 hover:bg-gray-700 text-gray-300">Weekly Digest (Markdown)</a></div>
+          <section id="overview" class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div class="card lg:col-span-2">
+              <h3 class="mb-2 font-semibold">What Changed</h3>
+              <div id="whatChanged" class="text-sm text-gray-300">Loading...</div>
+            </div>
+            <div class="card">
+              <h3 class="mb-2 font-semibold">For You</h3>
+              <div id="forYou" class="space-y-3 text-sm"></div>
+            </div>
+          </section>
 
-      <!-- KPIs -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div class="card"><div class="kpi" id="kpiItems">â€”</div><div class="kpi-label">Items</div></div>
-        <div class="card"><div class="kpi" id="kpiPass">â€”</div><div class="kpi-label">Evidence Pass</div></div>
-        <div class="card"><div class="kpi" id="kpiConfidence">â€”</div><div class="kpi-label">Avg Confidence</div></div>
-        <div class="card"><div class="kpi" id="kpiTranscripts">â€”</div><div class="kpi-label">Transcripts (fallback)</div></div>
-      </div>
+          <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="card"><div class="kpi" id="kpiItems">-</div><div class="kpi-label">Items</div><div id="kpiItemsDelta" class="text-xs text-gray-400"></div></div>
+            <div class="card"><div class="kpi" id="kpiPass">-</div><div class="kpi-label">Evidence Pass</div><div id="kpiPassRate" class="text-xs text-gray-400"></div></div>
+            <div class="card"><div class="kpi" id="kpiConfidence">-</div><div class="kpi-label">Avg Confidence</div></div>
+            <div class="card"><div class="kpi" id="kpiTranscripts">-</div><div class="kpi-label">Transcripts (fallback)</div></div>
+          </section>
 
-      <!-- Search and Filters -->
-      <div class="card mb-6">
-        <div class="flex flex-col md:flex-row gap-3 items-start md:items-center justify-between">
-          <input id="searchBox" placeholder="Search insights (title, summary, pillars)..." class="w-full md:w-1/2 bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700" />
-          <div>
-            <select id="pillarFilter" class="bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700">
-              <option value="">All Pillars</option>
-            </select>
-            <select id="sourceFilter" class="bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700 ml-2">
-              <option value="">All Sources</option>
-            </select>
-          </div>
-        </div>
-        <div id="searchResults" class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3"></div>
-      </div>
+          <section class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+            <div class="card"><h3 class="mb-2 font-semibold">By Source</h3><canvas id="chartSource"></canvas></div>
+            <div class="card"><h3 class="mb-2 font-semibold">By Type</h3><canvas id="chartType"></canvas></div>
+            <div class="card"><h3 class="mb-2 font-semibold">Pillars</h3><canvas id="chartPillars"></canvas></div>
+          </section>
 
-      <!-- Charts -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div class="card"><h3 class="mb-2 font-semibold">By Source</h3><canvas id="chartSource"></canvas></div>
-        <div class="card"><h3 class="mb-2 font-semibold">By Type</h3><canvas id="chartType"></canvas></div>
-        <div class="card"><h3 class="mb-2 font-semibold">Pillars</h3><canvas id="chartPillars"></canvas></div>
-      </div>
+          <section class="card">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-semibold">Top Items</h3>
+              <div class="text-xs text-gray-400">Range applies to list; charts show totals.</div>
+            </div>
+            <div id="itemsTable" class="text-sm"></div>
+          </section>
 
-      <!-- Top Items & Recommendations -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <div class="card">
-          <h3 class="mb-3 font-semibold">Top Items (Overall)</h3>
-          <div id="topItems"></div>
-        </div>
-        <div class="card">
-          <h3 class="mb-3 font-semibold">Top Recommendations</h3>
-          <div id="topRecs"></div>
-        </div>
-      </div>
-
-      <!-- Run History -->
-      <div class="card mb-6">
-        <h3 class="mb-3 font-semibold">Run History</h3>
-        <div id="history"></div>
+          <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="card"><h3 class="mb-2 font-semibold">Trend: Items / day</h3><canvas id="chartTrendItems"></canvas></div>
+            <div class="card"><h3 class="mb-2 font-semibold">Run History</h3><div id="history" class="text-sm"></div></div>
+          </section>
+        </main>
       </div>
     </div>
 
+    <!-- Add Source Modal -->
+    <div id="addSourceModal" class="hidden fixed inset-0 z-50 items-center justify-center">
+      <div class="absolute inset-0 bg-black/60"></div>
+      <div class="relative z-10 w-[90%] max-w-lg card">
+        <h3 class="mb-3 font-semibold">Add Source</h3>
+        <input id="modalUrl" placeholder="Paste YouTube or GitHub URL" class="w-full bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700 mb-3" />
+        <div class="flex gap-2">
+          <a id="modalIngestWorkflow" target="_blank" class="px-4 py-2 rounded bg-blue-600 hover:bg-blue-500">Open Ingest Workflow</a>
+          <a id="modalIngestIssue" target="_blank" class="px-4 py-2 rounded bg-gray-700 hover:bg-gray-600">Open Ingest Issue</a>
+          <button id="modalClose" class="ml-auto px-3 py-2 rounded bg-gray-800 border border-gray-700">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toasts -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 space-y-2 z-50"></div>
+
     <script>
+      function showToast(msg, variant='info'){
+        const c = document.getElementById('toastContainer');
+        const el = document.createElement('div');
+        const color = variant==='success' ? 'bg-green-600' : variant==='error' ? 'bg-red-600' : 'bg-gray-700';
+        el.className = `px-3 py-2 rounded text-white shadow ${color}`;
+        el.textContent = msg;
+        c.appendChild(el);
+        setTimeout(()=>{ el.remove(); }, 3000);
+      }
+
       async function loadJSON(path) {
         const res = await fetch(path + '?cache=' + Date.now());
         return await res.json();
       }
 
-      function toList(el, items) {
-        el.innerHTML = items.map(it => `<div class="mb-3"><div class="font-medium">${it.title}</div><div class="text-sm text-gray-400">score: ${(it.score || it.s || 0).toFixed ? (it.score || it.s).toFixed(3) : it.score || ''}</div><a href="${it.url}" target="_blank">Open</a></div>`).join('');
-      }
-
-      function updateKPIs(rep) {
-        const c = rep.counts;
-        document.getElementById('kpiItems').textContent = c.items;
-        document.getElementById('kpiPass').textContent = `${c.evidence_pass}/${c.evidence}`;
-        document.getElementById('kpiConfidence').textContent = c.avg_confidence.toFixed(2);
-        document.getElementById('kpiTranscripts').textContent = `${c.transcripts} (${c.transcripts_fallback})`;
-        const lu = new Date().toISOString().split('T')[0];
-        document.getElementById('lastUpdated').textContent = `Updated ${lu}`;
-      }
-
       function barChart(ctx, labels, data) {
-        new Chart(ctx, { type:'bar', data: { labels, datasets:[{ label:'Count', data, backgroundColor:'#60a5fa' }] }, options: { plugins:{ legend:{ display:false } }, scales:{ x:{ ticks:{ color:'#9ca3af' } }, y:{ ticks:{ color:'#9ca3af' }, beginAtZero:true } } });
+        new Chart(ctx, { type:'bar', data: { labels, datasets:[{ label:'Count', data, backgroundColor:'#60a5fa' }] }, options: { plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label:(ctx)=>` ${ctx.parsed.y}` } } }, scales:{ x:{ ticks:{ color:'#9ca3af' } }, y:{ ticks:{ color:'#9ca3af' }, beginAtZero:true, grid:{ color:'#1f2937' } } } });
       }
 
-      function renderCharts(rep) {
-        const sL = Object.keys(rep.by_source); const sV = Object.values(rep.by_source);
-        const tL = Object.keys(rep.by_type); const tV = Object.values(rep.by_type);
-        const pL = Object.keys(rep.pillars); const pV = Object.values(rep.pillars);
+      function lineChart(ctx, labels, data){
+        new Chart(ctx, { type:'line', data: { labels, datasets:[{ label:'Items', data, borderColor:'#60a5fa', backgroundColor:'#60a5fa22', fill:true, tension:.2 }] }, options: { plugins:{ legend:{ display:false } }, scales:{ x:{ ticks:{ color:'#9ca3af' } }, y:{ ticks:{ color:'#9ca3af' }, beginAtZero:true, grid:{ color:'#1f2937' } } } });
+      }
+
+      function renderCharts(rep){
+        const sL = Object.keys(rep.by_source), sV = Object.values(rep.by_source);
+        const tL = Object.keys(rep.by_type), tV = Object.values(rep.by_type);
+        const pL = Object.keys(rep.pillars), pV = Object.values(rep.pillars);
         barChart(document.getElementById('chartSource'), sL, sV);
         barChart(document.getElementById('chartType'), tL, tV);
         barChart(document.getElementById('chartPillars'), pL, pV);
       }
 
-      function renderTopItems(rep) {
-        const el = document.getElementById('topItems');
-        el.innerHTML = rep.top_items.map(t => (
-          `<div class='mb-3'><div class='font-medium'>${t.title}</div><div class='text-sm text-gray-400'>score: ${Number(t.overall||0).toFixed(3)}</div><a href='${t.url}' target='_blank'>Open</a></div>`
-        )).join('');
-      }
-
-      function renderTopRecs(rep) {
-        const el = document.getElementById('topRecs');
-        const recs = rep.recommendations || [];
-        el.innerHTML = recs.map(r => (
-          `<div class='mb-3'><div class='font-medium'>${r.title}</div><div class='text-sm text-gray-400'>score: ${Number(r.scores?.combined||0).toFixed(3)} | pillars: ${(r.pillars||[]).join(', ')}</div><a href='${r.url}' target='_blank'>Open</a></div>`
-        )).join('');
-      }
-
-      function renderHistory(hist) {
-        const el = document.getElementById('history');
-        el.innerHTML = hist.slice(-20).reverse().map(h => (
-          `<div class='mb-2 text-sm'>${new Date(h.ts).toLocaleString()} â€” items: ${h.items}, pass: ${h.evidence_pass}/${h.evidence_pass+h.evidence_fail}, conf: ${h.avg_confidence} ${h.run_url?`â€” <a target='_blank' href='${h.run_url}'>run</a>`:''}</div>`
-        )).join('');
-      }
-
-      async function init() {
-        const rep = await loadJSON('report.json');
-        updateKPIs(rep);
-        renderCharts(rep);
-        renderTopItems(rep);
-        renderTopRecs(rep);
-        let hist=[]; try { hist = await loadJSON('history.json'); } catch(e){}
-        renderHistory(hist);
-        // Pillar + source filters
-        const pSel = document.getElementById('pillarFilter');
-        const sSel = document.getElementById('sourceFilter');
-        Object.keys(rep.pillars).forEach(k=>{ const o=document.createElement('option'); o.value=k; o.textContent=k; pSel.appendChild(o); });
-        Object.keys(rep.by_source).forEach(k=>{ const o=document.createElement('option'); o.value=k; o.textContent=k; sSel.appendChild(o); });
-        // Basic keyword search over top items + recs
-        const searchBox = document.getElementById('searchBox');
-        const results = document.getElementById('searchResults');
-        const data = (rep.top_items||[]).map(t=>({title:t.title,url:t.url,text:t.title,pillars:[]})).concat((rep.recommendations||[]).map(r=>({title:r.title,url:r.url,text:r.summary||r.title,pillars:r.pillars||[], source:''})));
-        function doSearch(){
-          const q = searchBox.value.toLowerCase(); const pf = pSel.value; const sf = sSel.value;
-          const out = data.filter(d=>{
-            const okQ = !q || (d.title?.toLowerCase().includes(q) || (d.text||'').toLowerCase().includes(q));
-            const okP = !pf || (d.pillars||[]).includes(pf);
-            const okS = !sf || (d.source||'')===sf;
-            return okQ && okP && okS;
-          }).slice(0,10);
-          results.innerHTML = out.map(d=> (
-            `<div class='card'><div class='font-medium'>${d.title}</div><a href='${d.url}' target='_blank'>Open</a></div>`
-          )).join('');
+      function updateKPIs(rep, last=null, prev=null){
+        const c = rep.counts;
+        document.getElementById('kpiItems').textContent = c.items;
+        document.getElementById('kpiPass').textContent = `${c.evidence_pass}/${c.evidence}`;
+        document.getElementById('kpiConfidence').textContent = Number(c.avg_confidence||0).toFixed(2);
+        document.getElementById('kpiTranscripts').textContent = `${c.transcripts} (${c.transcripts_fallback})`;
+        if(last){
+          const passRate = last.evidence ? (last.evidence_pass/last.evidence) : 0;
+          const prevPass = prev && prev.evidence ? (prev.evidence_pass/prev.evidence) : 0;
+          const deltaItems = prev ? (last.items - prev.items) : 0;
+          const deltaPassPct = (passRate - prevPass)*100;
+          document.getElementById('kpiItemsDelta').textContent = `${deltaItems>=0?'+':''}${deltaItems} vs prev`;
+          document.getElementById('kpiPassRate').textContent = `Pass rate ${ (passRate*100).toFixed(1) }% (${deltaPassPct>=0?'+':''}${deltaPassPct.toFixed(1)}pp)`;
         }
-        searchBox.addEventListener('input', doSearch);
-        pSel.addEventListener('change', doSearch);
-        sSel.addEventListener('change', doSearch);
       }
-      init();
-      // Manual add source link wiring (non-blocking)
+
+      function renderForYou(rep){
+        const el = document.getElementById('forYou');
+        const recs = (rep.recommendations||[]).slice(0,3);
+        if(!recs.length){ el.innerHTML = '<div class="text-gray-400">No recommendations yet.</div>'; return; }
+        el.innerHTML = recs.map(r => (
+          `<div><div class='font-medium'>${r.title}</div><div class='text-xs text-gray-400 mb-1'>score: ${Number(r.scores?.combined||0).toFixed(3)} | pillars: ${(r.pillars||[]).join(', ')}</div>${r.tldr?`<div class='mb-1'>${r.tldr}</div>`:''}<a href='${r.url}' target='_blank'>Open</a></div>`
+        )).join('');
+      }
+
+      function renderWhatChanged(hist){
+        const el = document.getElementById('whatChanged');
+        if(!hist || hist.length<2){ el.textContent = 'Not enough history yet.'; return; }
+        const last = hist[hist.length-1], prev = hist[hist.length-2];
+        const itemsDelta = last.items - prev.items;
+        const passRate = last.evidence ? (last.evidence_pass/last.evidence) : 0;
+        const prevPass = prev.evidence ? (prev.evidence_pass/prev.evidence) : 0;
+        const passDelta = (passRate - prevPass) * 100;
+        el.innerHTML = `<ul class='list-disc ml-5'>
+          <li>${itemsDelta>=0?'+':''}${itemsDelta} items vs previous run</li>
+          <li>Pass rate ${(passRate*100).toFixed(1)}% (${passDelta>=0?'+':''}${passDelta.toFixed(1)}pp)</li>
+          <li>Top pillar: ${(Object.entries(hist[hist.length-1]).find(()=>false), 'see charts')}</li>
+        </ul>`;
+      }
+
+      function withinRange(d, days){
+        if(days==='all') return true;
+        const cutoff = dayjs().subtract(Number(days), 'day');
+        return dayjs(d).isAfter(cutoff);
+      }
+
+      function renderItems(items, days, q, pillar){
+        const el = document.getElementById('itemsTable');
+        let list = items.filter(it=>!days || withinRange(it.date, days));
+        if(q){ const ql=q.toLowerCase(); list = list.filter(it=> (it.title||'').toLowerCase().includes(ql) || (it.tldr||'').toLowerCase().includes(ql) || (it.why||'').toLowerCase().includes(ql) || (it.pillars||[]).join(' ').toLowerCase().includes(ql)); }
+        if(pillar){ list = list.filter(it=> (it.pillars||[]).includes(pillar)); }
+        list = list.sort((a,b)=>(b.overall||0)-(a.overall||0));
+        const rows = list.slice(0,20).map(it=>{
+          const pills = (it.pillars||[]).map(p=>`<span class='pill'>${p}</span>`).join('');
+          const id = `row_${it.item_id}`;
+          return `<div class='border-b border-gray-800 py-2'>
+            <div class='flex items-center justify-between gap-3'>
+              <div class='min-w-0'>
+                <div class='font-medium truncate'>${it.title}</div>
+                <div class='text-xs text-gray-400'>${(it.source_type||it.source||'').toString()} | ${new Date(it.date).toLocaleDateString()} | score ${Number(it.overall||0).toFixed(3)}</div>
+                <div class='mt-1'>${pills}</div>
+              </div>
+              <div class='flex items-center gap-2'>
+                <a class='text-sm' href='${it.url}' target='_blank'>Open</a>
+                <button class='text-sm px-2 py-1 rounded bg-gray-800 border border-gray-700' onclick="const d=document.getElementById('${id}'); d.classList.toggle('hidden');">Details</button>
+              </div>
+            </div>
+            <div id='${id}' class='hidden mt-2 text-sm'>
+              ${it.tldr?`<div class='mb-2'><span class='text-gray-400'>TL;DR:</span> ${it.tldr}</div>`:''}
+              ${it.why?`<div class='mb-2'><span class='text-gray-400'>Why it matters:</span> ${it.why}</div>`:''}
+              ${(it.apply_steps||[]).length?`<div class='mb-2'><div class='text-gray-400'>Apply steps:</div><ul class='list-disc ml-5'>${it.apply_steps.map(s=>`<li>${s}</li>`).join('')}</ul></div>`:''}
+            </div>
+          </div>`
+        }).join('');
+        el.innerHTML = rows || `<div class='text-gray-400'>No items in this range. Try changing filters.</div>`;
+      }
+
+      async function init(){
+        const [rep, hist, items] = await Promise.all([
+          loadJSON('report.json'),
+          (async()=>{ try{ return await loadJSON('history.json'); }catch(e){ return []; } })(),
+          (async()=>{ try{ return await loadJSON('items.json'); }catch(e){ return []; } })(),
+        ]);
+        const last = hist && hist.length ? hist[hist.length-1] : null;
+        const prev = hist && hist.length>1 ? hist[hist.length-2] : null;
+        if(last){
+          const lu = new Date(last.ts).toLocaleString();
+          const run = last.run_url ? ` - <a target='_blank' href='${last.run_url}'>run</a>` : '';
+          document.getElementById('lastUpdated').innerHTML = `Updated ${lu}${run}`;
+        }
+        updateKPIs(rep, last, prev);
+        renderCharts(rep);
+        renderForYou(rep);
+        renderWhatChanged(hist||[]);
+        const drSel = document.getElementById('dateRange');
+        const search = document.getElementById('globalSearch');
+        const doRender = ()=> renderItems(items, drSel.value, search.value || '', '');
+        drSel.addEventListener('change', doRender);
+        search.addEventListener('input', doRender);
+        doRender();
+      }
+
+      // Modal wiring
       (function(){
-        const input = document.getElementById('manualUrl');
-        const wf = document.getElementById('ingestWorkflow');
-        const iss = document.getElementById('ingestIssue');
-        if (!input || !wf || !iss) return;
-        function updateLinks(){
+        const m = document.getElementById('addSourceModal');
+        const open = document.getElementById('btnAddSource');
+        const close = document.getElementById('modalClose');
+        const input = document.getElementById('modalUrl');
+        const wf = document.getElementById('modalIngestWorkflow');
+        const iss = document.getElementById('modalIngestIssue');
+        function links(){
           const v = encodeURIComponent(input.value || '');
           const user = (location.host.split('.')[0]||'');
           wf.href = `https://github.com/${user}/ai-intel-pipeline/actions/workflows/ingest_manual.yml`;
           iss.href = `https://github.com/${user}/ai-intel-pipeline/issues/new?labels=ingest&title=${encodeURIComponent('Ingest source')}&body=${encodeURIComponent('Paste URL here: ')}${v}`;
         }
-        input.addEventListener('input', updateLinks);
-        updateLinks();
+        input.addEventListener('input', links);
+        open.addEventListener('click', ()=>{ m.classList.remove('hidden'); m.classList.add('flex'); links(); });
+        close.addEventListener('click', ()=>{ m.classList.add('hidden'); m.classList.remove('flex'); });
       })();
+
+      init();
     </script>
   </body>
 </html>
