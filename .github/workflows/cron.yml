@@ -54,7 +54,7 @@ jobs:
       - name: Build web UI
         working-directory: web
         run: |
-          npm ci || npm i
+          npm install --no-audit --no-fund
           npm run build
       - name: Copy web UI to status
         shell: bash
