@@ -376,8 +376,15 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
         <div class="text-lg font-semibold mb-4">AI Intel</div>
         <nav class="space-y-1">
           <a class="sidebar-link active" href="#overview" data-nav="overview">Overview</a>
-          <a class="sidebar-link" href="#items" data-nav="items">Items</a>
+          <a class="sidebar-link" href="items.html">Items</a>
+          <a class="sidebar-link" href="browse.html">Browse</a>
         </nav>
+        <div class="mt-4">
+          <div class="text-xs uppercase tracking-wider text-gray-500 mb-2">Pillars</div>
+          <div id="sbPillars" class="mb-4"></div>
+          <div class="text-xs uppercase tracking-wider text-gray-500 mb-2">Sources</div>
+          <div id="sbSources" class="mb-2"></div>
+        </div>
         <div class="mt-auto">
           <div class="text-xs uppercase tracking-wider text-gray-500 mb-2">System Health</div>
           <div class="card text-sm">
@@ -391,7 +398,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
       <div class="flex-1 min-w-0 flex flex-col">
         <header class="sticky top-0 z-10 backdrop-blur bg-[#0b0f19]/70 border-b border-gray-800">
           <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
-            <button id="toggleSidebar" class="px-2 py-1 rounded bg-gray-800 border border-gray-700">☰</button>
+            <button id="toggleSidebar" aria-label="Toggle sidebar" class="px-2 py-1 rounded bg-gray-800 border border-gray-700">&#9776;</button>
             <div class="text-2xl md:text-3xl font-extrabold mr-auto">AI Intel Dashboard</div>
             <input id="globalSearch" placeholder="Search" class="w-56 md:w-96 bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700" />
             <div class="seg hidden sm:flex items-center gap-1 ml-2" id="dateSeg">
@@ -401,7 +408,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
               <button data-days="all">All</button>
             </div>
             <button id="btnAddSource" class="ml-2 px-3 py-2 rounded bg-blue-600 hover:bg-blue-500">Add Source</button>
-            <a href="browse.html" class="hidden sm:inline text-sm text-gray-300 hover:underline">Browse</a><a href="items.html" class="hidden sm:inline text-sm text-gray-300 hover:underline ml-3">Items</a><div id="lastUpdated" class="text-xs text-gray-400 ml-3"></div><div id="buildStamp" class="text-xs text-gray-500 ml-2"></div>
+            <div id="lastUpdated" class="text-xs text-gray-400 ml-3"></div><div id="buildStamp" class="text-xs text-gray-500 ml-2"></div>
           </div>
         </header>
         <main class="max-w-7xl mx-auto px-4 py-6 space-y-6 min-w-0">
@@ -411,13 +418,13 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
           </div>
           <div class="text-xs text-gray-400">Quick links: <a class="underline" href="items.html">Items</a> · <a class="underline" href="browse.html">Browse</a></div>
 
-          <section id="ask" class="card">
-            <h3 class="mb-2 font-semibold">Ask AI (Using Your Data)</h3>
+          <section id="ask" class="card ring-1 ring-indigo-500/30 bg-gradient-to-r from-indigo-900/20 via-blue-900/20 to-cyan-900/20">
+            <h3 class="mb-2 font-semibold text-lg">Ask AI (Using Your Data)</h3>
             <div class="flex flex-col md:flex-row gap-2 items-start md:items-center">
               <input id="askInput" placeholder="Ask a question about your indexed AI intel..." class="w-full md:flex-1 bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700" />
               <div class="flex gap-2">
-                <button id="askBtn" class="px-3 py-2 rounded bg-gray-700 hover:bg-gray-600">Ask</button>
-                <button id="askSettings" class="px-3 py-2 rounded bg-gray-800 border border-gray-700">Settings</button>
+                <button id="askBtn" class="px-4 py-2 rounded bg-blue-600 hover:bg-blue-500 text-white">Ask</button>
+                <button id="askSettings" class="px-3 py-2 rounded bg-gray-900 border border-gray-700">Settings</button>
               </div>
             </div>
             <div id="askOutput" class="mt-3 text-sm text-gray-300"></div>
@@ -546,7 +553,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
 
       function wireSeg(){ document.querySelectorAll('#dateSeg button').forEach(btn=>{ btn.addEventListener('click', ()=>{ document.querySelectorAll('#dateSeg button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); currentDays = btn.getAttribute('data-days'); renderItems(window.__items, currentDays, currentQuery, currentPillar, currentSourceType); }); }); }
 
-      function wireSidebarToggle(){ const btn=document.getElementById('toggleSidebar'); const sb=document.getElementById('sidebar'); if(btn){ btn.addEventListener('click', ()=>{ if(sb){ sb.classList.toggle('hidden'); } document.body.classList.toggle('is-collapsed'); }); } } document.body.classList.toggle('is-collapsed'); }); }); } else { sb.classList.add('hidden'); } }); }
+      function wireSidebarToggle(){ const btn=document.getElementById('toggleSidebar'); const sb=document.getElementById('sidebar'); if(btn){ btn.addEventListener('click', ()=>{ if(sb){ sb.classList.toggle('hidden'); } document.body.classList.toggle('is-collapsed'); }); } } document.body.classList.toggle('is-collapsed'); }); } } document.body.classList.toggle('is-collapsed'); }); }); } else { sb.classList.add('hidden'); } }); }
 
       async function init(){
         const [rep, hist, items] = await Promise.all([
@@ -557,6 +564,20 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
         window.__items = items;
         const last = hist && hist.length ? hist[hist.length-1] : null; const prev = hist && hist.length>1 ? hist[hist.length-2] : null; if(last){ const lu = new Date(last.ts).toLocaleString(); const run = last.run_url ? ` - <a target='_blank' href='${last.run_url}'>run</a>` : ''; document.getElementById('lastUpdated').innerHTML = `Updated ${lu}${run}`; try{ document.getElementById('buildStamp').textContent = `Build: ${lu}` }catch(e){}; }
         updateHealth(rep, hist||[]);
+        // Populate sidebar Pillars/Sources
+        try {
+          const sP = document.getElementById('sbPillars');
+          const sS = document.getElementById('sbSources');
+          if (sP) {
+            const pillars = Object.entries(rep.pillars||{}).sort((a,b)=>b[1]-a[1]).slice(0,10);
+            sP.innerHTML = pillars.map(([k,v])=>`<a class='sidebar-link' href='items.html?pillar=${encodeURIComponent(k)}&days=30'>${k} <span class="text-gray-500">(${v})</span></a>`).join('');
+          }
+          if (sS) {
+            const srcs = Object.entries(rep.by_source||{}).sort((a,b)=>b[1]-a[1]);
+            sS.innerHTML = srcs.map(([k,v])=>`<a class='sidebar-link' href='items.html?source=${encodeURIComponent(k)}&days=30'>${k} <span class="text-gray-500">(${v})</span></a>`).join('');
+          }
+        } catch(e){}
+
         renderForYou(rep);
         renderWhatChanged(hist||[]);
         renderBrowse(rep, items);
