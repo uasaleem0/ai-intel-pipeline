@@ -1,72 +1,71 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-@layer base {
-  :root {
-    --background: 224 71% 4%;
-    --foreground: 213 31% 91%;
-
-    --card: 224 71% 4%;
-    --card-foreground: 213 31% 91%;
-
-    --popover: 224 71% 4%;
-    --popover-foreground: 213 31% 91%;
-
-    --primary: 262 83% 58%;
-    --primary-foreground: 210 20% 98%;
-
-    --secondary: 215 28% 17%;
-    --secondary-foreground: 210 20% 98%;
-
-    --muted: 215 28% 17%;
-    --muted-foreground: 217 11% 65%;
-
-    --accent: 215 28% 17%;
-    --accent-foreground: 210 20% 98%;
-
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 20% 98%;
-
-    --border: 215 28% 17%;
-    --input: 215 28% 17%;
-    --ring: 262 83% 58%;
-
-    --radius: 0.75rem;
-    
-    /* Custom colors for our AI theme */
-    --ai-primary: 262 83% 58%;
-    --ai-secondary: 217 91% 60%;
-    --gold: 45 93% 58%;
-    --gold-foreground: 26 83% 14%;
-  }
+/* Dark theme with proper gradients and styling */
+:root {
+  --background: #0a0a0a;
+  --foreground: #fafafa;
+  --card: #1a1a1a;
+  --card-foreground: #fafafa;
+  --popover: #1a1a1a;
+  --popover-foreground: #fafafa;
+  --primary: #8b5cf6;
+  --primary-foreground: #ffffff;
+  --secondary: #262626;
+  --secondary-foreground: #fafafa;
+  --muted: #262626;
+  --muted-foreground: #a3a3a3;
+  --accent: #262626;
+  --accent-foreground: #fafafa;
+  --destructive: #ef4444;
+  --destructive-foreground: #fafafa;
+  --border: #262626;
+  --input: #262626;
+  --ring: #8b5cf6;
+  --radius: 0.75rem;
 }
 
-@layer base {
-  * {
-    border-color: hsl(var(--border));
-  }
-  
-  body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-  }
-  
-  /* Custom scrollbar */
-  ::-webkit-scrollbar {
-    width: 8px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    background-color: hsl(var(--secondary));
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--muted-foreground));
-    border-radius: 9999px;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background-color: hsl(var(--accent-foreground));
-  }
+body {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+  min-height: 100vh;
+  color: #fafafa;
+  font-family: system-ui, -apple-system, sans-serif;
+  padding: 0;
+  margin: 0;
+}
+
+/* Custom component styles */
+.gradient-bg {
+  background: linear-gradient(135deg, 
+    rgba(139, 92, 246, 0.1) 0%, 
+    rgba(59, 130, 246, 0.05) 50%, 
+    rgba(139, 92, 246, 0.1) 100%
+  );
+}
+
+.ai-glow {
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 25px rgba(139, 92, 246, 0.4);
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #404040;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #525252;
 }

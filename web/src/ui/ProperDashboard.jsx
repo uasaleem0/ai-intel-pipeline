@@ -274,11 +274,27 @@ export default function ProperDashboard() {
   }
   
   return (
-    <div className="min-h-screen bg-background">
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--background)', color: 'var(--foreground)' }}>
       {/* Navigation Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center gap-4">
+      <header style={{ 
+        position: 'sticky', 
+        top: 0, 
+        zIndex: 50, 
+        width: '100%', 
+        borderBottom: '1px solid var(--border)',
+        backgroundColor: 'var(--background)',
+        backdropFilter: 'blur(8px)'
+      }}>
+        <div style={{ 
+          maxWidth: '1200px', 
+          margin: '0 auto', 
+          padding: '0 24px',
+          display: 'flex', 
+          height: '64px', 
+          alignItems: 'center', 
+          justifyContent: 'space-between' 
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <Button
               variant="ghost"
               size="icon"
@@ -286,20 +302,26 @@ export default function ProperDashboard() {
             >
               <Menu className="h-5 w-5" />
             </Button>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+            <h1 style={{ 
+              fontSize: '20px', 
+              fontWeight: 'bold',
+              background: 'linear-gradient(to right, var(--primary), rgba(139, 92, 246, 0.6))',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}>
               AI Intel Pipeline
             </h1>
           </div>
           
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ position: 'relative' }}>
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
               <Input
                 placeholder="Search data..."
-                className="pl-10 w-80"
+                style={{ paddingLeft: '40px', width: '320px' }}
               />
             </div>
-            <Button>
+            <Button style={{ background: 'var(--primary)', color: 'var(--primary-foreground)' }}>
               <Plus className="h-4 w-4 mr-2" />
               Add Source
             </Button>
@@ -316,25 +338,30 @@ export default function ProperDashboard() {
       />
 
       {/* Main Content */}
-      <main 
-        className={cn(
-          "transition-all duration-300 ease-in-out",
-          sidebarOpen ? "ml-[280px]" : "ml-0"
-        )}
-      >
-        <div className="container py-8 space-y-8">
+      <main style={{
+        transition: 'margin-left 0.3s ease-in-out',
+        marginLeft: sidebarOpen ? '280px' : '0'
+      }}>
+        <div style={{ 
+          maxWidth: '1200px', 
+          margin: '0 auto', 
+          padding: '32px 24px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '32px'
+        }}>
           {/* Hero AI Interface */}
-          <div className="flex justify-center">
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
             <AIInterface data={report} />
           </div>
           
           {/* Key Insights */}
-          <div className="flex justify-center">
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
             <KeyInsights items={items} />
           </div>
           
           {/* Pillar Grid */}
-          <div className="flex justify-center">
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
             <PillarGrid report={report} />
           </div>
         </div>
