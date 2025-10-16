@@ -70,87 +70,125 @@ const AIInterface = ({ data }) => {
   ]
 
   return (
-    <div style={{ width: '100%' }}>
+    <div style={{ width: '100%', maxWidth: '95%', margin: '0 auto' }}>
       <div className="card ai-glow" style={{ 
         position: 'relative',
         overflow: 'hidden',
-        background: 'linear-gradient(135deg, var(--card) 0%, rgba(139, 92, 246, 0.02) 50%, var(--card) 100%)',
-        border: '1px solid rgba(139, 92, 246, 0.2)',
+        background: `
+          linear-gradient(135deg, 
+            #1a1a2e 0%, 
+            #16213e 25%,
+            #0f3460 50%,
+            #533483 75%,
+            #1a1a2e 100%
+          )
+        `,
+        border: '1px solid rgba(139, 92, 246, 0.3)',
         boxShadow: `
-          0 20px 25px -5px rgba(0, 0, 0, 0.4),
-          0 10px 10px -5px rgba(0, 0, 0, 0.3),
-          0 0 40px rgba(139, 92, 246, 0.15)
-        `
+          0 25px 50px -12px rgba(0, 0, 0, 0.6),
+          0 0 0 1px rgba(139, 92, 246, 0.1),
+          0 0 60px rgba(139, 92, 246, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.05)
+        `,
+        borderRadius: '16px'
       }}>
-        {/* Enhanced glow effect */}
+        {/* Animated gradient overlay */}
         <div style={{
           position: 'absolute',
           inset: 0,
-          background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, transparent 30%, transparent 70%, rgba(139, 92, 246, 0.08) 100%)',
-          pointerEvents: 'none'
+          background: `
+            linear-gradient(45deg, 
+              transparent 0%, 
+              rgba(139, 92, 246, 0.1) 25%,
+              rgba(59, 130, 246, 0.1) 50%,
+              rgba(139, 92, 246, 0.1) 75%,
+              transparent 100%
+            )
+          `,
+          pointerEvents: 'none',
+          animation: 'pulse 4s ease-in-out infinite'
         }} />
         
         <div style={{ position: 'relative', zIndex: 1 }}>
-          {/* Enhanced Header */}
+          {/* ChatGPT-style Header */}
           <div style={{ 
-            padding: '20px',
-            borderBottom: '1px solid rgba(139, 92, 246, 0.15)',
-            background: 'linear-gradient(90deg, rgba(139, 92, 246, 0.03) 0%, transparent 100%)'
+            padding: '24px 24px 16px 24px',
+            borderBottom: '1px solid rgba(139, 92, 246, 0.2)',
+            background: 'linear-gradient(90deg, rgba(139, 92, 246, 0.05) 0%, rgba(59, 130, 246, 0.02) 100%)'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>
+              <div style={{
+                position: 'relative',
+                padding: '12px',
+                background: 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #6366f1 100%)',
+                borderRadius: '20px',
+                boxShadow: '0 8px 25px rgba(139, 92, 246, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+                animation: 'float 3s ease-in-out infinite'
+              }}>
+                <Sparkles style={{ width: '28px', height: '28px', color: 'white' }} />
                 <div style={{
-                  position: 'relative',
-                  padding: '16px',
-                  background: 'linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%)',
-                  borderRadius: '16px',
-                  boxShadow: '0 8px 20px rgba(139, 92, 246, 0.4)',
-                  animation: 'float 3s ease-in-out infinite'
+                  position: 'absolute',
+                  inset: 0,
+                  borderRadius: '20px',
+                  background: 'linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.15), transparent)',
+                  animation: 'pulse 3s ease-in-out infinite'
+                }} />
+              </div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <h3 style={{ 
+                fontSize: '24px', 
+                fontWeight: '700', 
+                margin: '0 0 8px 0',
+                color: 'white',
+                textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                background: 'linear-gradient(135deg, #ffffff 0%, #a78bfa 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}>AI Intelligence Assistant</h3>
+              <p style={{ 
+                fontSize: '16px', 
+                color: 'rgba(255, 255, 255, 0.8)', 
+                margin: '0 0 12px 0',
+                fontWeight: '500'
+              }}>
+                Powered by {data?.counts?.items || 0} curated items • Real-time insights
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <Badge style={{ 
+                  background: 'rgba(16, 185, 129, 0.2)', 
+                  color: '#10b981',
+                  border: '1px solid rgba(16, 185, 129, 0.3)',
+                  padding: '6px 12px',
+                  backdropFilter: 'blur(10px)'
                 }}>
-                  <Sparkles style={{ width: '24px', height: '24px', color: 'white' }} />
-                  <div style={{
-                    position: 'absolute',
-                    inset: 0,
-                    borderRadius: '16px',
-                    background: 'linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent)',
+                  <div style={{ 
+                    width: '8px', 
+                    height: '8px', 
+                    borderRadius: '50%', 
+                    background: '#10b981',
+                    marginRight: '6px',
                     animation: 'pulse 2s ease-in-out infinite'
                   }} />
-                </div>
-                <div>
-                  <h3 style={{ 
-                    fontSize: '20px', 
-                    fontWeight: '700', 
-                    margin: '0 0 4px 0',
-                    color: 'var(--foreground)',
-                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
-                  }}>AI Intelligence Assistant</h3>
-                  <p style={{ 
-                    fontSize: '14px', 
-                    color: 'var(--muted-foreground)', 
-                    margin: 0,
-                    fontWeight: '500'
-                  }}>
-                    Trained on {data?.counts?.items || 0} curated items • RAG-powered insights
-                  </p>
-                </div>
+                  Online
+                </Badge>
               </div>
-              <Badge style={{ 
-                background: 'linear-gradient(135deg, var(--green) 0%, #059669 100%)', 
-                color: 'white',
-                border: 'none',
-                padding: '6px 12px',
-                boxShadow: '0 4px 8px rgba(16, 185, 129, 0.3)'
-              }}>
-                <Sparkles style={{ width: '12px', height: '12px', marginRight: '4px' }} />
-                Ready
-              </Badge>
             </div>
           </div>
           
           {/* Chat Content */}
-          <div style={{ padding: '20px' }}>
+          <div style={{ padding: '24px' }}>
             {/* Chat Messages */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '20px', maxHeight: '320px', overflowY: 'auto' }}>
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: '20px', 
+              marginBottom: '24px', 
+              minHeight: '400px',
+              maxHeight: '500px', 
+              overflowY: 'auto',
+              paddingRight: '8px'
+            }}>
               <AnimatePresence mode="popLayout">
                 {messages.map((message) => (
                   <motion.div
