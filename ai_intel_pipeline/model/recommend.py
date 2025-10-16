@@ -9,6 +9,7 @@ from typing import Dict, List
 import numpy as np
 
 from .embedder import query_embeddings
+import json
 
 
 def _load_index(index_csv: Path) -> Dict[str, Dict]:
@@ -44,6 +45,15 @@ def _load_summary(vault_root: Path, item_id: str) -> str:
         return ""
 
 
+def _load_policy_weights(policy_path: Path) -> Dict:
+    if policy_path.exists():
+        try:
+            return json.loads(policy_path.read_text(encoding="utf-8"))
+        except Exception:
+            return {}
+    return {}
+
+
 def recommend(vault_root: Path, index_csv: Path, model_dir: Path, profile: Dict, top_k: int = 10) -> List[Dict]:
     # Build a query from profile priorities
     priorities = profile.get("priorities", [])
@@ -62,14 +72,16 @@ def recommend(vault_root: Path, index_csv: Path, model_dir: Path, profile: Dict,
         if item_id not in per_item or score > per_item[item_id]["sim"]:
             per_item[item_id] = {"sim": score, "meta": h}
 
-    # Combine with index scores and pillar weights
-    weights = {
+    # Combine with index scores and pillar weights; allow policy overrides
+    policy = _load_policy_weights(Path("config/policy/weights.json"))
+    weights = policy.get("score_weights") or {
         "sim": 0.5,
         "relevance": 0.3,
         "actionability": 0.2,
         "credibility": 0.1,
     }
-    pillar_weights = {p.lower(): 1.0 for p in priorities}
+    base_pillar = {p.lower(): 1.0 for p in priorities}
+    learned_pillars = (policy.get("pillars_multipliers") or {})
 
     results = []
     for item_id, data in per_item.items():
@@ -80,7 +92,9 @@ def recommend(vault_root: Path, index_csv: Path, model_dir: Path, profile: Dict,
         cred = float(idx.get("credibility", 0) or 0)
         pillars = _load_pillars(vault_root, item_id)
         # Pillar boost if matches priorities
-        boost = 1.0 + 0.05 * sum(pillar_weights.get(p.lower(), 0) for p in pillars)
+        boost_prior = 0.05 * sum(base_pillar.get(p.lower(), 0) for p in pillars)
+        boost_learn = sum(float(learned_pillars.get(p, 0)) for p in [pi.lower() for pi in pillars])
+        boost = 1.0 + boost_prior + boost_learn
         score = (weights["sim"] * sim + weights["relevance"] * rel + weights["actionability"] * act + weights["credibility"] * cred) * boost
         results.append(
             {
@@ -95,4 +109,3 @@ def recommend(vault_root: Path, index_csv: Path, model_dir: Path, profile: Dict,
 
     results.sort(key=lambda r: r["scores"]["combined"], reverse=True)
     return results[:top_k]
-

@@ -54,6 +54,19 @@ def gate1_validate(candidate: Dict, highlights: Dict, item_dir: Path, dry_run: b
     credibility = 0.8 if any(s in source for s in official_sources) else 0.5
     novelty = 0.7 if candidate.get("type") == "release" else 0.5
 
+    # Manual items: assume valid with high confidence
+    if candidate.get("manual"):
+        evidence = {
+            "verdict": "pass",
+            "confidence": 0.95,
+            "citations": [
+                {"source": candidate.get("url"), "pointer": candidate.get("url"), "quote": (highlights.get("summary_bullets") or [""])[0:1]}
+            ],
+            "notes": "Manually added source: treated as validated by user.",
+        }
+        scores = {"validity_conf": 0.95, "credibility": credibility, "novelty": novelty, "route": "weekly"}
+        return evidence, scores
+
     # Heuristic baseline
     evidence = {
         "verdict": "pass",

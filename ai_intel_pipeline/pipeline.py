@@ -269,3 +269,129 @@ def run_digest(settings: Dict, vault: Vault, index: Index, week: str = "current"
     out_path = out_dir / f"{iso_week}.md"
     out_path.write_text("\n".join(lines), encoding="utf-8")
     return out_path
+
+
+def run_ingest_url(url: str, settings: Dict, vault: Vault, index: Index, dry_run: bool = False) -> str:
+    """Ingest a single URL manually. Supports YouTube and GitHub links currently."""
+    profile = load_profile()
+    pillars_cfg = load_pillars()
+    state = State(Path("vault/state.json"))
+    views = Views(root=Path("vault"))
+
+    # Build minimal candidate
+    c: Dict = {"url": url, "manual": True, "links": {}}
+    if "youtube.com/watch" in url or "youtu.be/" in url:
+        c.update({
+            "title": url,
+            "source_type": "youtube",
+            "source_name": "Manual",
+            "published_at": datetime.utcnow().isoformat() + "Z",
+            "type": "talk",
+        })
+    elif "github.com/" in url:
+        c.update({
+            "title": url.split("github.com/")[-1],
+            "source_type": "github",
+            "source_name": url.split("github.com/")[-1],
+            "published_at": datetime.utcnow().isoformat() + "Z",
+            "type": "application",
+            "links": {"repo": url},
+        })
+    else:
+        c.update({
+            "title": url,
+            "source_type": "blog",
+            "source_name": "Manual",
+            "published_at": datetime.utcnow().isoformat() + "Z",
+            "type": "blog",
+        })
+
+    # Skip if seen
+    if state.seen(url=url, uid=url):
+        return ""
+
+    item_id, item_dir = vault.create_item_folder(dt=datetime.utcnow())
+    item = vault.init_item_json(
+        item_id=item_id,
+        title=c.get("title"),
+        canonical_url=c.get("url"),
+        source_type=c.get("source_type"),
+        source_name=c.get("source_name"),
+        published_at=c.get("published_at"),
+        content_type=c.get("type"),
+        links=c.get("links", {}),
+    )
+
+    # Build highlights
+    highlights = build_highlights(candidate=c, dry_run=dry_run)
+    vault.write_json(item_dir / "highlights.json", highlights)
+
+    # Enrichment
+    if c.get("source_type") == "youtube":
+        meta = enrich_youtube_metadata(c.get("url"))
+        if meta:
+            links = item.get("links", {})
+            links.setdefault("repos", [])
+            links.setdefault("urls", [])
+            links["repos"] = sorted(list(set(links["repos"] + meta.get("extracted_links", {}).get("repos", []))))
+            links["urls"] = sorted(list(set(links["urls"] + meta.get("extracted_links", {}).get("urls", []))))
+            extra_fields = {"links": links}
+            if meta.get("duration") is not None:
+                extra_fields["duration_seconds"] = int(meta.get("duration") or 0)
+            vault.update_fields(item_dir / "item.json", extra_fields)
+            desc = meta.get("description") or ""
+            if len(desc) > 40:
+                vault.write_text(item_dir / "source.md", desc)
+        segs = get_transcript_segments(c.get("url"))
+        if segs:
+            vault.write_json(item_dir / "transcript.json", {"segments": segs, "fallback": False})
+
+    if c.get("source_type") == "github" and c.get("links", {}).get("repo"):
+        (item_dir / "repo_snippets").mkdir(parents=True, exist_ok=True)
+        orpath = c.get("links", {}).get("repo").split("github.com/")[-1]
+        rd = fetch_readme(orpath)
+        if rd:
+            (item_dir / "repo_snippets" / f"{orpath.replace('/', '_')}_README.md").write_text(rd[:4000], encoding="utf-8")
+        ch = fetch_changelog(orpath)
+        if ch:
+            (item_dir / "repo_snippets" / f"{orpath.replace('/', '_')}_CHANGELOG.md").write_text(ch[:4000], encoding="utf-8")
+
+    # Gates
+    evidence, scores = gate1_validate(candidate=c, highlights=highlights, item_dir=item_dir, dry_run=dry_run)
+    if evidence:
+        vault.write_json(item_dir / "evidence.json", evidence)
+    vault.update_scores(item_dir / "item.json", scores)
+
+    summary_md, scores2 = gate2_personalize(highlights=highlights, profile=profile, candidate=c, item_dir=item_dir, dry_run=dry_run)
+    vault.write_text(item_dir / "summary.md", summary_md)
+    vault.update_scores(item_dir / "item.json", scores2)
+
+    # Pillars + views
+    from .classify.pillars import classify_pillars
+    text_for_class = (c.get("title") or "") + "\n" + (" ".join(highlights.get("summary_bullets", [])))[-1:]
+    pillars = classify_pillars(text_for_class, highlights.get("keyphrases", []), pillars_cfg)
+    vault.update_fields(item_dir / "item.json", {"pillars": pillars})
+    try:
+        item_meta = json.loads((item_dir / "item.json").read_text(encoding="utf-8"))
+    except Exception:
+        item_meta = {"id": item_id, "title": c.get("title"), "canonical_url": c.get("url"), "published_at": c.get("published_at")}
+    views.add_item_to_pillars(pillars, item_meta)
+
+    # Index
+    overall = scores2.get("overall") or scores.get("overall")
+    index.add(
+        item_id=item_id,
+        title=c.get("title"),
+        url=c.get("url"),
+        source=c.get("source_name"),
+        ctype=c.get("type"),
+        date=c.get("published_at"),
+        scores={**scores, **scores2, "overall": overall},
+        route=scores2.get("route") or scores.get("route") or "weekly",
+        drive_path=str(item_dir),
+    )
+
+    # Mark seen
+    state.mark(url=c.get("url"), uid=c.get("url"))
+    state.save()
+    return item_id

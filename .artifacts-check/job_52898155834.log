@@ -1,0 +1,318 @@
+run	Set up job	´++2025-10-16T09:55:11.9455312Z Current runner version: '2.328.0'
+run	Set up job	2025-10-16T09:55:11.9488005Z ##[group]Runner Image Provisioner
+run	Set up job	2025-10-16T09:55:11.9489113Z Hosted Compute Agent
+run	Set up job	2025-10-16T09:55:11.9489932Z Version: 20250912.392
+run	Set up job	2025-10-16T09:55:11.9490864Z Commit: d921fda672a98b64f4f82364647e2f10b2267d0b
+run	Set up job	2025-10-16T09:55:11.9491572Z Build Date: 2025-09-12T15:23:14Z
+run	Set up job	2025-10-16T09:55:11.9492230Z ##[endgroup]
+run	Set up job	2025-10-16T09:55:11.9492824Z ##[group]Operating System
+run	Set up job	2025-10-16T09:55:11.9493355Z Ubuntu
+run	Set up job	2025-10-16T09:55:11.9493836Z 24.04.3
+run	Set up job	2025-10-16T09:55:11.9494357Z LTS
+run	Set up job	2025-10-16T09:55:11.9494800Z ##[endgroup]
+run	Set up job	2025-10-16T09:55:11.9495340Z ##[group]Runner Image
+run	Set up job	2025-10-16T09:55:11.9496214Z Image: ubuntu-24.04
+run	Set up job	2025-10-16T09:55:11.9496728Z Version: 20250929.60.1
+run	Set up job	2025-10-16T09:55:11.9497752Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20250929.60/images/ubuntu/Ubuntu2404-Readme.md
+run	Set up job	2025-10-16T09:55:11.9499211Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20250929.60
+run	Set up job	2025-10-16T09:55:11.9500402Z ##[endgroup]
+run	Set up job	2025-10-16T09:55:11.9501571Z ##[group]GITHUB_TOKEN Permissions
+run	Set up job	2025-10-16T09:55:11.9503699Z Contents: read
+run	Set up job	2025-10-16T09:55:11.9504363Z Metadata: read
+run	Set up job	2025-10-16T09:55:11.9504880Z Pages: write
+run	Set up job	2025-10-16T09:55:11.9505343Z ##[endgroup]
+run	Set up job	2025-10-16T09:55:11.9508226Z Secret source: Actions
+run	Set up job	2025-10-16T09:55:11.9509248Z Prepare workflow directory
+run	Set up job	2025-10-16T09:55:12.0761260Z Prepare all required actions
+run	Set up job	2025-10-16T09:55:12.0819332Z Getting action download info
+run	Set up job	2025-10-16T09:55:12.5251839Z Download action repository 'actions/checkout@v4' (SHA:08eba0b27e820071cde6df949e0beb9ba4906955)
+run	Set up job	2025-10-16T09:55:12.7184052Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+run	Set up job	2025-10-16T09:55:12.8481075Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+run	Set up job	2025-10-16T09:55:12.9602498Z Download action repository 'actions/upload-pages-artifact@v3' (SHA:56afc609e74202658d3ffba0e8f6dda462b719fa)
+run	Set up job	2025-10-16T09:55:13.2400367Z Download action repository 'actions/deploy-pages@v4' (SHA:d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e)
+run	Set up job	2025-10-16T09:55:13.6474962Z Download action repository 'actions/github-script@v7' (SHA:f28e40c7f34bde8b3046d885e986cb6290c5673b)
+run	Set up job	2025-10-16T09:55:14.0457004Z Download action repository 'dawidd6/action-send-mail@v3' (SHA:4226df7daafa6fc901a43789c49bf7ab309066e7)
+run	Set up job	2025-10-16T09:55:14.5555299Z Getting action download info
+run	Set up job	2025-10-16T09:55:14.7594977Z Complete job name: run
+run	Run actions/checkout@v4	´++2025-10-16T09:55:14.8444085Z ##[group]Run actions/checkout@v4
+run	Run actions/checkout@v4	2025-10-16T09:55:14.8445409Z with:
+run	Run actions/checkout@v4	2025-10-16T09:55:14.8446395Z   repository: uasaleem0/ai-intel-pipeline
+run	Run actions/checkout@v4	2025-10-16T09:55:14.8447746Z   token: ***
+run	Run actions/checkout@v4	2025-10-16T09:55:14.8448477Z   ssh-strict: true
+run	Run actions/checkout@v4	2025-10-16T09:55:14.8449382Z   ssh-user: git
+run	Run actions/checkout@v4	2025-10-16T09:55:14.8450225Z   persist-credentials: true
+run	Run actions/checkout@v4	2025-10-16T09:55:14.8451085Z   clean: true
+run	Run actions/checkout@v4	2025-10-16T09:55:14.8451866Z   sparse-checkout-cone-mode: true
+run	Run actions/checkout@v4	2025-10-16T09:55:14.8452787Z   fetch-depth: 1
+run	Run actions/checkout@v4	2025-10-16T09:55:14.8453576Z   fetch-tags: false
+run	Run actions/checkout@v4	2025-10-16T09:55:14.8454329Z   show-progress: true
+run	Run actions/checkout@v4	2025-10-16T09:55:14.8455104Z   lfs: false
+run	Run actions/checkout@v4	2025-10-16T09:55:14.8455936Z   submodules: false
+run	Run actions/checkout@v4	2025-10-16T09:55:14.8456722Z   set-safe-directory: true
+run	Run actions/checkout@v4	2025-10-16T09:55:14.8457897Z env:
+run	Run actions/checkout@v4	2025-10-16T09:55:14.8458870Z   GH_TOKEN: ***
+run	Run actions/checkout@v4	2025-10-16T09:55:14.8460902Z   ANTHROPIC_API_KEY: ***
+run	Run actions/checkout@v4	2025-10-16T09:55:14.8463942Z   OPENAI_API_KEY: ***
+run	Run actions/checkout@v4	2025-10-16T09:55:14.8464716Z ##[endgroup]
+run	Run actions/checkout@v4	2025-10-16T09:55:14.9618938Z Syncing repository: uasaleem0/ai-intel-pipeline
+run	Run actions/checkout@v4	2025-10-16T09:55:14.9623284Z ##[group]Getting Git version info
+run	Run actions/checkout@v4	2025-10-16T09:55:14.9625151Z Working directory is '/home/runner/work/ai-intel-pipeline/ai-intel-pipeline'
+run	Run actions/checkout@v4	2025-10-16T09:55:14.9627516Z [command]/usr/bin/git version
+run	Run actions/checkout@v4	2025-10-16T09:55:14.9700783Z git version 2.51.0
+run	Run actions/checkout@v4	2025-10-16T09:55:14.9729270Z ##[endgroup]
+run	Run actions/checkout@v4	2025-10-16T09:55:14.9746565Z Temporarily overriding HOME='/home/runner/work/_temp/5637d48a-be1a-465a-9cf6-8a10208f00c9' before making global git config changes
+run	Run actions/checkout@v4	2025-10-16T09:55:14.9751507Z Adding repository directory to the temporary git global config as a safe directory
+run	Run actions/checkout@v4	2025-10-16T09:55:14.9764267Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/ai-intel-pipeline/ai-intel-pipeline
+run	Run actions/checkout@v4	2025-10-16T09:55:14.9806257Z Deleting the contents of '/home/runner/work/ai-intel-pipeline/ai-intel-pipeline'
+run	Run actions/checkout@v4	2025-10-16T09:55:14.9810200Z ##[group]Initializing the repository
+run	Run actions/checkout@v4	2025-10-16T09:55:14.9815069Z [command]/usr/bin/git init /home/runner/work/ai-intel-pipeline/ai-intel-pipeline
+run	Run actions/checkout@v4	2025-10-16T09:55:14.9983387Z hint: Using 'master' as the name for the initial branch. This default branch name
+run	Run actions/checkout@v4	2025-10-16T09:55:14.9987848Z hint: is subject to change. To configure the initial branch name to use in all
+run	Run actions/checkout@v4	2025-10-16T09:55:14.9990664Z hint: of your new repositories, which will suppress this warning, call:
+run	Run actions/checkout@v4	2025-10-16T09:55:14.9992871Z hint:
+run	Run actions/checkout@v4	2025-10-16T09:55:14.9994392Z hint: 	git config --global init.defaultBranch <name>
+run	Run actions/checkout@v4	2025-10-16T09:55:14.9996422Z hint:
+run	Run actions/checkout@v4	2025-10-16T09:55:14.9998184Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+run	Run actions/checkout@v4	2025-10-16T09:55:15.0001132Z hint: 'development'. The just-created branch can be renamed via this command:
+run	Run actions/checkout@v4	2025-10-16T09:55:15.0003500Z hint:
+run	Run actions/checkout@v4	2025-10-16T09:55:15.0004740Z hint: 	git branch -m <name>
+run	Run actions/checkout@v4	2025-10-16T09:55:15.0006391Z hint:
+run	Run actions/checkout@v4	2025-10-16T09:55:15.0008287Z hint: Disable this message with "git config set advice.defaultBranchName false"
+run	Run actions/checkout@v4	2025-10-16T09:55:15.0011726Z Initialized empty Git repository in /home/runner/work/ai-intel-pipeline/ai-intel-pipeline/.git/
+run	Run actions/checkout@v4	2025-10-16T09:55:15.0015588Z [command]/usr/bin/git remote add origin https://github.com/uasaleem0/ai-intel-pipeline
+run	Run actions/checkout@v4	2025-10-16T09:55:15.0051504Z ##[endgroup]
+run	Run actions/checkout@v4	2025-10-16T09:55:15.0052869Z ##[group]Disabling automatic garbage collection
+run	Run actions/checkout@v4	2025-10-16T09:55:15.0055264Z [command]/usr/bin/git config --local gc.auto 0
+run	Run actions/checkout@v4	2025-10-16T09:55:15.0086498Z ##[endgroup]
+run	Run actions/checkout@v4	2025-10-16T09:55:15.0088000Z ##[group]Setting up auth
+run	Run actions/checkout@v4	2025-10-16T09:55:15.0092966Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+run	Run actions/checkout@v4	2025-10-16T09:55:15.0124419Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+run	Run actions/checkout@v4	2025-10-16T09:55:15.0498810Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+run	Run actions/checkout@v4	2025-10-16T09:55:15.0531590Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+run	Run actions/checkout@v4	2025-10-16T09:55:15.0766108Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+run	Run actions/checkout@v4	2025-10-16T09:55:15.0812908Z ##[endgroup]
+run	Run actions/checkout@v4	2025-10-16T09:55:15.0815303Z ##[group]Fetching the repository
+run	Run actions/checkout@v4	2025-10-16T09:55:15.0824713Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +461b2943400947c51f374ff168856020329dc383:refs/remotes/origin/main
+run	Run actions/checkout@v4	2025-10-16T09:55:15.3661795Z From https://github.com/uasaleem0/ai-intel-pipeline
+run	Run actions/checkout@v4	2025-10-16T09:55:15.3666282Z  * [new ref]         461b2943400947c51f374ff168856020329dc383 -> origin/main
+run	Run actions/checkout@v4	2025-10-16T09:55:15.3696330Z ##[endgroup]
+run	Run actions/checkout@v4	2025-10-16T09:55:15.3700189Z ##[group]Determining the checkout info
+run	Run actions/checkout@v4	2025-10-16T09:55:15.3702751Z ##[endgroup]
+run	Run actions/checkout@v4	2025-10-16T09:55:15.3704218Z [command]/usr/bin/git sparse-checkout disable
+run	Run actions/checkout@v4	2025-10-16T09:55:15.3748235Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+run	Run actions/checkout@v4	2025-10-16T09:55:15.3779793Z ##[group]Checking out the ref
+run	Run actions/checkout@v4	2025-10-16T09:55:15.3784131Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+run	Run actions/checkout@v4	2025-10-16T09:55:15.3901479Z Switched to a new branch 'main'
+run	Run actions/checkout@v4	2025-10-16T09:55:15.3904719Z branch 'main' set up to track 'origin/main'.
+run	Run actions/checkout@v4	2025-10-16T09:55:15.3914211Z ##[endgroup]
+run	Run actions/checkout@v4	2025-10-16T09:55:15.3957779Z [command]/usr/bin/git log -1 --format=%H
+run	Run actions/checkout@v4	2025-10-16T09:55:15.3982656Z 461b2943400947c51f374ff168856020329dc383
+run	Run actions/setup-python@v5	´++2025-10-16T09:55:15.4252220Z ##[group]Run actions/setup-python@v5
+run	Run actions/setup-python@v5	2025-10-16T09:55:15.4253216Z with:
+run	Run actions/setup-python@v5	2025-10-16T09:55:15.4253900Z   python-version: 3.12
+run	Run actions/setup-python@v5	2025-10-16T09:55:15.4254689Z   check-latest: false
+run	Run actions/setup-python@v5	2025-10-16T09:55:15.4255840Z   token: ***
+run	Run actions/setup-python@v5	2025-10-16T09:55:15.4256597Z   update-environment: true
+run	Run actions/setup-python@v5	2025-10-16T09:55:15.4257470Z   allow-prereleases: false
+run	Run actions/setup-python@v5	2025-10-16T09:55:15.4258373Z   freethreaded: false
+run	Run actions/setup-python@v5	2025-10-16T09:55:15.4259184Z env:
+run	Run actions/setup-python@v5	2025-10-16T09:55:15.4260059Z   GH_TOKEN: ***
+run	Run actions/setup-python@v5	2025-10-16T09:55:15.4262045Z   ANTHROPIC_API_KEY: ***
+run	Run actions/setup-python@v5	2025-10-16T09:55:15.4265037Z   OPENAI_API_KEY: ***
+run	Run actions/setup-python@v5	2025-10-16T09:55:15.4265891Z ##[endgroup]
+run	Run actions/setup-python@v5	2025-10-16T09:55:15.5977506Z ##[group]Installed versions
+run	Run actions/setup-python@v5	2025-10-16T09:55:15.6661170Z Successfully set up CPython (3.12.11)
+run	Run actions/setup-python@v5	2025-10-16T09:55:15.6663276Z ##[endgroup]
+run	Setup Python deps	´++2025-10-16T09:55:15.6793960Z ##[group]Run python -m pip install --upgrade pip
+run	Setup Python deps	2025-10-16T09:55:15.6795251Z [36;1mpython -m pip install --upgrade pip[0m
+run	Setup Python deps	2025-10-16T09:55:15.6796495Z [36;1mpip install -r requirements.txt[0m
+run	Setup Python deps	2025-10-16T09:55:15.6975033Z shell: /usr/bin/bash -e {0}
+run	Setup Python deps	2025-10-16T09:55:15.6976187Z env:
+run	Setup Python deps	2025-10-16T09:55:15.6977290Z   GH_TOKEN: ***
+run	Setup Python deps	2025-10-16T09:55:15.6979305Z   ANTHROPIC_API_KEY: ***
+run	Setup Python deps	2025-10-16T09:55:15.6982308Z   OPENAI_API_KEY: ***
+run	Setup Python deps	2025-10-16T09:55:15.6983293Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.11/x64
+run	Setup Python deps	2025-10-16T09:55:15.6984753Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.11/x64/lib/pkgconfig
+run	Setup Python deps	2025-10-16T09:55:15.6986306Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.11/x64
+run	Setup Python deps	2025-10-16T09:55:15.6987605Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.11/x64
+run	Setup Python deps	2025-10-16T09:55:15.6988921Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.11/x64
+run	Setup Python deps	2025-10-16T09:55:15.6990245Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.11/x64/lib
+run	Setup Python deps	2025-10-16T09:55:15.6991369Z ##[endgroup]
+run	Setup Python deps	2025-10-16T09:55:19.9103437Z Requirement already satisfied: pip in /opt/hostedtoolcache/Python/3.12.11/x64/lib/python3.12/site-packages (25.2)
+run	Setup Python deps	2025-10-16T09:55:20.5762403Z Collecting requests>=2.31.0 (from -r requirements.txt (line 1))
+run	Setup Python deps	2025-10-16T09:55:20.6162160Z   Downloading requests-2.32.5-py3-none-any.whl.metadata (4.9 kB)
+run	Setup Python deps	2025-10-16T09:55:20.6607445Z Collecting PyYAML>=6.0.1 (from -r requirements.txt (line 2))
+run	Setup Python deps	2025-10-16T09:55:20.6651543Z   Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+run	Setup Python deps	2025-10-16T09:55:20.6794859Z Collecting python-dateutil>=2.9.0 (from -r requirements.txt (line 3))
+run	Setup Python deps	2025-10-16T09:55:20.6830798Z   Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
+run	Setup Python deps	2025-10-16T09:55:20.6973201Z Collecting feedparser>=6.0.11 (from -r requirements.txt (line 4))
+run	Setup Python deps	2025-10-16T09:55:20.7007988Z   Downloading feedparser-6.0.12-py3-none-any.whl.metadata (2.7 kB)
+run	Setup Python deps	2025-10-16T09:55:20.7209029Z Collecting youtube-transcript-api>=0.6.2 (from -r requirements.txt (line 5))
+run	Setup Python deps	2025-10-16T09:55:20.7264261Z   Downloading youtube_transcript_api-1.2.3-py3-none-any.whl.metadata (24 kB)
+run	Setup Python deps	2025-10-16T09:55:20.7460460Z Collecting tenacity>=8.2.3 (from -r requirements.txt (line 6))
+run	Setup Python deps	2025-10-16T09:55:20.7496802Z   Downloading tenacity-9.1.2-py3-none-any.whl.metadata (1.2 kB)
+run	Setup Python deps	2025-10-16T09:55:20.7666990Z Collecting colorama>=0.4.6 (from -r requirements.txt (line 7))
+run	Setup Python deps	2025-10-16T09:55:20.7699920Z   Downloading colorama-0.4.6-py2.py3-none-any.whl.metadata (17 kB)
+run	Setup Python deps	2025-10-16T09:55:20.7924740Z Collecting typer>=0.12.3 (from -r requirements.txt (line 8))
+run	Setup Python deps	2025-10-16T09:55:20.7958860Z   Downloading typer-0.19.2-py3-none-any.whl.metadata (16 kB)
+run	Setup Python deps	2025-10-16T09:55:20.8360124Z Collecting rich>=13.8.0 (from -r requirements.txt (line 9))
+run	Setup Python deps	2025-10-16T09:55:20.8399079Z   Downloading rich-14.2.0-py3-none-any.whl.metadata (18 kB)
+run	Setup Python deps	2025-10-16T09:55:20.9310235Z Collecting yt-dlp>=2025.1.8 (from -r requirements.txt (line 10))
+run	Setup Python deps	2025-10-16T09:55:20.9359187Z   Downloading yt_dlp-2025.10.14-py3-none-any.whl.metadata (175 kB)
+run	Setup Python deps	2025-10-16T09:55:21.0211121Z Collecting openai>=1.55.0 (from -r requirements.txt (line 11))
+run	Setup Python deps	2025-10-16T09:55:21.0253773Z   Downloading openai-2.3.0-py3-none-any.whl.metadata (29 kB)
+run	Setup Python deps	2025-10-16T09:55:21.0623365Z Collecting anthropic>=0.34.0 (from -r requirements.txt (line 12))
+run	Setup Python deps	2025-10-16T09:55:21.0670564Z   Downloading anthropic-0.70.0-py3-none-any.whl.metadata (28 kB)
+run	Setup Python deps	2025-10-16T09:55:21.2489760Z Collecting numpy>=1.26.0 (from -r requirements.txt (line 13))
+run	Setup Python deps	2025-10-16T09:55:21.2528557Z   Downloading numpy-2.3.4-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (62 kB)
+run	Setup Python deps	2025-10-16T09:55:21.3488278Z Collecting charset_normalizer<4,>=2 (from requests>=2.31.0->-r requirements.txt (line 1))
+run	Setup Python deps	2025-10-16T09:55:21.3529254Z   Downloading charset_normalizer-3.4.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (37 kB)
+run	Setup Python deps	2025-10-16T09:55:21.3712287Z Collecting idna<4,>=2.5 (from requests>=2.31.0->-r requirements.txt (line 1))
+run	Setup Python deps	2025-10-16T09:55:21.3745361Z   Downloading idna-3.11-py3-none-any.whl.metadata (8.4 kB)
+run	Setup Python deps	2025-10-16T09:55:21.4061017Z Collecting urllib3<3,>=1.21.1 (from requests>=2.31.0->-r requirements.txt (line 1))
+run	Setup Python deps	2025-10-16T09:55:21.4103277Z   Downloading urllib3-2.5.0-py3-none-any.whl.metadata (6.5 kB)
+run	Setup Python deps	2025-10-16T09:55:21.4341325Z Collecting certifi>=2017.4.17 (from requests>=2.31.0->-r requirements.txt (line 1))
+run	Setup Python deps	2025-10-16T09:55:21.4379015Z   Downloading certifi-2025.10.5-py3-none-any.whl.metadata (2.5 kB)
+run	Setup Python deps	2025-10-16T09:55:21.4583504Z Collecting six>=1.5 (from python-dateutil>=2.9.0->-r requirements.txt (line 3))
+run	Setup Python deps	2025-10-16T09:55:21.4622497Z   Downloading six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+run	Setup Python deps	2025-10-16T09:55:21.4756368Z Collecting sgmllib3k (from feedparser>=6.0.11->-r requirements.txt (line 4))
+run	Setup Python deps	2025-10-16T09:55:21.4791599Z   Downloading sgmllib3k-1.0.0.tar.gz (5.8 kB)
+run	Setup Python deps	2025-10-16T09:55:21.4862379Z   Installing build dependencies: started
+run	Setup Python deps	2025-10-16T09:55:22.3006424Z   Installing build dependencies: finished with status 'done'
+run	Setup Python deps	2025-10-16T09:55:22.3012277Z   Getting requirements to build wheel: started
+run	Setup Python deps	2025-10-16T09:55:22.7193918Z   Getting requirements to build wheel: finished with status 'done'
+run	Setup Python deps	2025-10-16T09:55:22.7202727Z   Preparing metadata (pyproject.toml): started
+run	Setup Python deps	2025-10-16T09:55:22.9177191Z   Preparing metadata (pyproject.toml): finished with status 'done'
+run	Setup Python deps	2025-10-16T09:55:22.9296082Z Collecting defusedxml<0.8.0,>=0.7.1 (from youtube-transcript-api>=0.6.2->-r requirements.txt (line 5))
+run	Setup Python deps	2025-10-16T09:55:22.9333113Z   Downloading defusedxml-0.7.1-py2.py3-none-any.whl.metadata (32 kB)
+run	Setup Python deps	2025-10-16T09:55:22.9581303Z Collecting click>=8.0.0 (from typer>=0.12.3->-r requirements.txt (line 8))
+run	Setup Python deps	2025-10-16T09:55:22.9613733Z   Downloading click-8.3.0-py3-none-any.whl.metadata (2.6 kB)
+run	Setup Python deps	2025-10-16T09:55:22.9800110Z Collecting typing-extensions>=3.7.4.3 (from typer>=0.12.3->-r requirements.txt (line 8))
+run	Setup Python deps	2025-10-16T09:55:22.9838085Z   Downloading typing_extensions-4.15.0-py3-none-any.whl.metadata (3.3 kB)
+run	Setup Python deps	2025-10-16T09:55:23.0001598Z Collecting shellingham>=1.3.0 (from typer>=0.12.3->-r requirements.txt (line 8))
+run	Setup Python deps	2025-10-16T09:55:23.0036208Z   Downloading shellingham-1.5.4-py2.py3-none-any.whl.metadata (3.5 kB)
+run	Setup Python deps	2025-10-16T09:55:23.0302710Z Collecting markdown-it-py>=2.2.0 (from rich>=13.8.0->-r requirements.txt (line 9))
+run	Setup Python deps	2025-10-16T09:55:23.0337678Z   Downloading markdown_it_py-4.0.0-py3-none-any.whl.metadata (7.3 kB)
+run	Setup Python deps	2025-10-16T09:55:23.0576889Z Collecting pygments<3.0.0,>=2.13.0 (from rich>=13.8.0->-r requirements.txt (line 9))
+run	Setup Python deps	2025-10-16T09:55:23.0612346Z   Downloading pygments-2.19.2-py3-none-any.whl.metadata (2.5 kB)
+run	Setup Python deps	2025-10-16T09:55:23.0867436Z Collecting anyio<5,>=3.5.0 (from openai>=1.55.0->-r requirements.txt (line 11))
+run	Setup Python deps	2025-10-16T09:55:23.0908793Z   Downloading anyio-4.11.0-py3-none-any.whl.metadata (4.1 kB)
+run	Setup Python deps	2025-10-16T09:55:23.1047840Z Collecting distro<2,>=1.7.0 (from openai>=1.55.0->-r requirements.txt (line 11))
+run	Setup Python deps	2025-10-16T09:55:23.1083441Z   Downloading distro-1.9.0-py3-none-any.whl.metadata (6.8 kB)
+run	Setup Python deps	2025-10-16T09:55:23.1317907Z Collecting httpx<1,>=0.23.0 (from openai>=1.55.0->-r requirements.txt (line 11))
+run	Setup Python deps	2025-10-16T09:55:23.1352163Z   Downloading httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
+run	Setup Python deps	2025-10-16T09:55:23.1992774Z Collecting jiter<1,>=0.10.0 (from openai>=1.55.0->-r requirements.txt (line 11))
+run	Setup Python deps	2025-10-16T09:55:23.2036826Z   Downloading jiter-0.11.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (5.2 kB)
+run	Setup Python deps	2025-10-16T09:55:23.3534428Z Collecting pydantic<3,>=1.9.0 (from openai>=1.55.0->-r requirements.txt (line 11))
+run	Setup Python deps	2025-10-16T09:55:23.3570055Z   Downloading pydantic-2.12.2-py3-none-any.whl.metadata (85 kB)
+run	Setup Python deps	2025-10-16T09:55:23.3736017Z Collecting sniffio (from openai>=1.55.0->-r requirements.txt (line 11))
+run	Setup Python deps	2025-10-16T09:55:23.3773100Z   Downloading sniffio-1.3.1-py3-none-any.whl.metadata (3.9 kB)
+run	Setup Python deps	2025-10-16T09:55:23.4141330Z Collecting tqdm>4 (from openai>=1.55.0->-r requirements.txt (line 11))
+run	Setup Python deps	2025-10-16T09:55:23.4179056Z   Downloading tqdm-4.67.1-py3-none-any.whl.metadata (57 kB)
+run	Setup Python deps	2025-10-16T09:55:23.4634974Z Collecting httpcore==1.* (from httpx<1,>=0.23.0->openai>=1.55.0->-r requirements.txt (line 11))
+run	Setup Python deps	2025-10-16T09:55:23.4671058Z   Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+run	Setup Python deps	2025-10-16T09:55:23.4828986Z Collecting h11>=0.16 (from httpcore==1.*->httpx<1,>=0.23.0->openai>=1.55.0->-r requirements.txt (line 11))
+run	Setup Python deps	2025-10-16T09:55:23.4862233Z   Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+run	Setup Python deps	2025-10-16T09:55:23.5008491Z Collecting annotated-types>=0.6.0 (from pydantic<3,>=1.9.0->openai>=1.55.0->-r requirements.txt (line 11))
+run	Setup Python deps	2025-10-16T09:55:23.5043631Z   Downloading annotated_types-0.7.0-py3-none-any.whl.metadata (15 kB)
+run	Setup Python deps	2025-10-16T09:55:24.2007248Z Collecting pydantic-core==2.41.4 (from pydantic<3,>=1.9.0->openai>=1.55.0->-r requirements.txt (line 11))
+run	Setup Python deps	2025-10-16T09:55:24.2043964Z   Downloading pydantic_core-2.41.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (7.3 kB)
+run	Setup Python deps	2025-10-16T09:55:24.2234795Z Collecting typing-inspection>=0.4.2 (from pydantic<3,>=1.9.0->openai>=1.55.0->-r requirements.txt (line 11))
+run	Setup Python deps	2025-10-16T09:55:24.2270665Z   Downloading typing_inspection-0.4.2-py3-none-any.whl.metadata (2.6 kB)
+run	Setup Python deps	2025-10-16T09:55:24.2440326Z Collecting docstring-parser<1,>=0.15 (from anthropic>=0.34.0->-r requirements.txt (line 12))
+run	Setup Python deps	2025-10-16T09:55:24.2474632Z   Downloading docstring_parser-0.17.0-py3-none-any.whl.metadata (3.5 kB)
+run	Setup Python deps	2025-10-16T09:55:24.2812479Z Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich>=13.8.0->-r requirements.txt (line 9))
+run	Setup Python deps	2025-10-16T09:55:24.2847886Z   Downloading mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
+run	Setup Python deps	2025-10-16T09:55:24.3067783Z Downloading requests-2.32.5-py3-none-any.whl (64 kB)
+run	Setup Python deps	2025-10-16T09:55:24.3136057Z Downloading charset_normalizer-3.4.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (153 kB)
+run	Setup Python deps	2025-10-16T09:55:24.3236242Z Downloading idna-3.11-py3-none-any.whl (71 kB)
+run	Setup Python deps	2025-10-16T09:55:24.3296259Z Downloading urllib3-2.5.0-py3-none-any.whl (129 kB)
+run	Setup Python deps	2025-10-16T09:55:24.3372551Z Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (807 kB)
+run	Setup Python deps	2025-10-16T09:55:24.3564320Z    ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü 807.9/807.9 kB 45.6 MB/s  0:00:00
+run	Setup Python deps	2025-10-16T09:55:24.3598648Z Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+run	Setup Python deps	2025-10-16T09:55:24.3684610Z Downloading feedparser-6.0.12-py3-none-any.whl (81 kB)
+run	Setup Python deps	2025-10-16T09:55:24.3761569Z Downloading youtube_transcript_api-1.2.3-py3-none-any.whl (485 kB)
+run	Setup Python deps	2025-10-16T09:55:24.3881110Z Downloading defusedxml-0.7.1-py2.py3-none-any.whl (25 kB)
+run	Setup Python deps	2025-10-16T09:55:24.3934000Z Downloading tenacity-9.1.2-py3-none-any.whl (28 kB)
+run	Setup Python deps	2025-10-16T09:55:24.3989110Z Downloading colorama-0.4.6-py2.py3-none-any.whl (25 kB)
+run	Setup Python deps	2025-10-16T09:55:24.4048978Z Downloading typer-0.19.2-py3-none-any.whl (46 kB)
+run	Setup Python deps	2025-10-16T09:55:24.4106450Z Downloading rich-14.2.0-py3-none-any.whl (243 kB)
+run	Setup Python deps	2025-10-16T09:55:24.4200170Z Downloading pygments-2.19.2-py3-none-any.whl (1.2 MB)
+run	Setup Python deps	2025-10-16T09:55:24.4380106Z    ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü 1.2/1.2 MB 70.8 MB/s  0:00:00
+run	Setup Python deps	2025-10-16T09:55:24.4419081Z Downloading yt_dlp-2025.10.14-py3-none-any.whl (3.2 MB)
+run	Setup Python deps	2025-10-16T09:55:24.4703645Z    ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü 3.2/3.2 MB 123.6 MB/s  0:00:00
+run	Setup Python deps	2025-10-16T09:55:24.4739473Z Downloading openai-2.3.0-py3-none-any.whl (999 kB)
+run	Setup Python deps	2025-10-16T09:55:24.4829718Z    ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü 999.8/999.8 kB 108.1 MB/s  0:00:00
+run	Setup Python deps	2025-10-16T09:55:24.4863343Z Downloading anyio-4.11.0-py3-none-any.whl (109 kB)
+run	Setup Python deps	2025-10-16T09:55:24.4923002Z Downloading distro-1.9.0-py3-none-any.whl (20 kB)
+run	Setup Python deps	2025-10-16T09:55:24.4979493Z Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
+run	Setup Python deps	2025-10-16T09:55:24.5036176Z Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
+run	Setup Python deps	2025-10-16T09:55:24.5093144Z Downloading jiter-0.11.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (347 kB)
+run	Setup Python deps	2025-10-16T09:55:24.5163123Z Downloading pydantic-2.12.2-py3-none-any.whl (460 kB)
+run	Setup Python deps	2025-10-16T09:55:24.5247825Z Downloading pydantic_core-2.41.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
+run	Setup Python deps	2025-10-16T09:55:24.5405317Z    ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü 2.1/2.1 MB 138.5 MB/s  0:00:00
+run	Setup Python deps	2025-10-16T09:55:24.5442559Z Downloading typing_extensions-4.15.0-py3-none-any.whl (44 kB)
+run	Setup Python deps	2025-10-16T09:55:24.5504660Z Downloading anthropic-0.70.0-py3-none-any.whl (337 kB)
+run	Setup Python deps	2025-10-16T09:55:24.5594497Z Downloading docstring_parser-0.17.0-py3-none-any.whl (36 kB)
+run	Setup Python deps	2025-10-16T09:55:24.5654115Z Downloading numpy-2.3.4-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.6 MB)
+run	Setup Python deps	2025-10-16T09:55:24.6377466Z    ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü 16.6/16.6 MB 235.3 MB/s  0:00:00
+run	Setup Python deps	2025-10-16T09:55:24.6414375Z Downloading annotated_types-0.7.0-py3-none-any.whl (13 kB)
+run	Setup Python deps	2025-10-16T09:55:24.6476463Z Downloading certifi-2025.10.5-py3-none-any.whl (163 kB)
+run	Setup Python deps	2025-10-16T09:55:24.6536013Z Downloading click-8.3.0-py3-none-any.whl (107 kB)
+run	Setup Python deps	2025-10-16T09:55:24.6595275Z Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+run	Setup Python deps	2025-10-16T09:55:24.6652937Z Downloading markdown_it_py-4.0.0-py3-none-any.whl (87 kB)
+run	Setup Python deps	2025-10-16T09:55:24.6716974Z Downloading mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+run	Setup Python deps	2025-10-16T09:55:24.6768613Z Downloading shellingham-1.5.4-py2.py3-none-any.whl (9.8 kB)
+run	Setup Python deps	2025-10-16T09:55:24.6824091Z Downloading six-1.17.0-py2.py3-none-any.whl (11 kB)
+run	Setup Python deps	2025-10-16T09:55:24.6882694Z Downloading sniffio-1.3.1-py3-none-any.whl (10 kB)
+run	Setup Python deps	2025-10-16T09:55:24.6934840Z Downloading tqdm-4.67.1-py3-none-any.whl (78 kB)
+run	Setup Python deps	2025-10-16T09:55:24.6993467Z Downloading typing_inspection-0.4.2-py3-none-any.whl (14 kB)
+run	Setup Python deps	2025-10-16T09:55:24.7684646Z Building wheels for collected packages: sgmllib3k
+run	Setup Python deps	2025-10-16T09:55:24.7693077Z   Building wheel for sgmllib3k (pyproject.toml): started
+run	Setup Python deps	2025-10-16T09:55:24.9910099Z   Building wheel for sgmllib3k (pyproject.toml): finished with status 'done'
+run	Setup Python deps	2025-10-16T09:55:24.9915418Z   Created wheel for sgmllib3k: filename=sgmllib3k-1.0.0-py3-none-any.whl size=6089 sha256=6964c2fad4409aaff3bbd38f1bb00358eee52e06a4943b360655f74e6d9347ce
+run	Setup Python deps	2025-10-16T09:55:24.9917567Z   Stored in directory: /home/runner/.cache/pip/wheels/03/f5/1a/23761066dac1d0e8e683e5fdb27e12de53209d05a4a37e6246
+run	Setup Python deps	2025-10-16T09:55:24.9934681Z Successfully built sgmllib3k
+run	Setup Python deps	2025-10-16T09:55:25.0838134Z Installing collected packages: sgmllib3k, yt-dlp, urllib3, typing-extensions, tqdm, tenacity, sniffio, six, shellingham, PyYAML, pygments, numpy, mdurl, jiter, idna, h11, feedparser, docstring-parser, distro, defusedxml, colorama, click, charset_normalizer, certifi, annotated-types, typing-inspection, requests, python-dateutil, pydantic-core, markdown-it-py, httpcore, anyio, youtube-transcript-api, rich, pydantic, httpx, typer, openai, anthropic
+run	Setup Python deps	2025-10-16T09:55:32.3717995Z 
+run	Setup Python deps	2025-10-16T09:55:32.3760086Z Successfully installed PyYAML-6.0.3 annotated-types-0.7.0 anthropic-0.70.0 anyio-4.11.0 certifi-2025.10.5 charset_normalizer-3.4.4 click-8.3.0 colorama-0.4.6 defusedxml-0.7.1 distro-1.9.0 docstring-parser-0.17.0 feedparser-6.0.12 h11-0.16.0 httpcore-1.0.9 httpx-0.28.1 idna-3.11 jiter-0.11.0 markdown-it-py-4.0.0 mdurl-0.1.2 numpy-2.3.4 openai-2.3.0 pydantic-2.12.2 pydantic-core-2.41.4 pygments-2.19.2 python-dateutil-2.9.0.post0 requests-2.32.5 rich-14.2.0 sgmllib3k-1.0.0 shellingham-1.5.4 six-1.17.0 sniffio-1.3.1 tenacity-9.1.2 tqdm-4.67.1 typer-0.19.2 typing-extensions-4.15.0 typing-inspection-0.4.2 urllib3-2.5.0 youtube-transcript-api-1.2.3 yt-dlp-2025.10.14
+run	Ingest	´++2025-10-16T09:55:32.6577438Z ##[group]Run python -m ai_intel_pipeline ingest --limit 12
+run	Ingest	2025-10-16T09:55:32.6577901Z [36;1mpython -m ai_intel_pipeline ingest --limit 12[0m
+run	Ingest	2025-10-16T09:55:32.6613248Z shell: /usr/bin/bash -e {0}
+run	Ingest	2025-10-16T09:55:32.6613501Z env:
+run	Ingest	2025-10-16T09:55:32.6614115Z   GH_TOKEN: ***
+run	Ingest	2025-10-16T09:55:32.6614702Z   ANTHROPIC_API_KEY: ***
+run	Ingest	2025-10-16T09:55:32.6615534Z   OPENAI_API_KEY: ***
+run	Ingest	2025-10-16T09:55:32.6616401Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.11/x64
+run	Ingest	2025-10-16T09:55:32.6616823Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.11/x64/lib/pkgconfig
+run	Ingest	2025-10-16T09:55:32.6617221Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.11/x64
+run	Ingest	2025-10-16T09:55:32.6617582Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.11/x64
+run	Ingest	2025-10-16T09:55:32.6617965Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.11/x64
+run	Ingest	2025-10-16T09:55:32.6618326Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.11/x64/lib
+run	Ingest	2025-10-16T09:55:32.6618623Z ##[endgroup]
+run	Ingest	2025-10-16T09:55:32.6802326Z Traceback (most recent call last):
+run	Ingest	2025-10-16T09:55:32.6810164Z   File "<frozen runpy>", line 198, in _run_module_as_main
+run	Ingest	2025-10-16T09:55:32.6810797Z   File "<frozen runpy>", line 88, in _run_code
+run	Ingest	2025-10-16T09:55:32.6811483Z   File "/home/runner/work/ai-intel-pipeline/ai-intel-pipeline/ai_intel_pipeline/__main__.py", line 1, in <module>
+run	Ingest	2025-10-16T09:55:32.6812130Z     from .cli import app
+run	Ingest	2025-10-16T09:55:32.6812611Z   File "/home/runner/work/ai-intel-pipeline/ai-intel-pipeline/ai_intel_pipeline/cli.py", line 16
+run	Ingest	2025-10-16T09:55:32.6813090Z     from .report import write_report\n
+run	Ingest	2025-10-16T09:55:32.6813341Z                                      ^
+run	Ingest	2025-10-16T09:55:32.6813683Z SyntaxError: unexpected character after line continuation character
+run	Ingest	2025-10-16T09:55:32.6842038Z ##[error]Process completed with exit code 1.
+run	Post Run actions/checkout@v4	´++2025-10-16T09:55:32.7001167Z Post job cleanup.
+run	Post Run actions/checkout@v4	2025-10-16T09:55:32.7934854Z [command]/usr/bin/git version
+run	Post Run actions/checkout@v4	2025-10-16T09:55:32.7971176Z git version 2.51.0
+run	Post Run actions/checkout@v4	2025-10-16T09:55:32.8015228Z Temporarily overriding HOME='/home/runner/work/_temp/c6caa363-305b-4698-ac70-49fe65aec981' before making global git config changes
+run	Post Run actions/checkout@v4	2025-10-16T09:55:32.8016708Z Adding repository directory to the temporary git global config as a safe directory
+run	Post Run actions/checkout@v4	2025-10-16T09:55:32.8029325Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/ai-intel-pipeline/ai-intel-pipeline
+run	Post Run actions/checkout@v4	2025-10-16T09:55:32.8066454Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+run	Post Run actions/checkout@v4	2025-10-16T09:55:32.8100454Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+run	Post Run actions/checkout@v4	2025-10-16T09:55:32.8340246Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+run	Post Run actions/checkout@v4	2025-10-16T09:55:32.8362778Z http.https://github.com/.extraheader
+run	Post Run actions/checkout@v4	2025-10-16T09:55:32.8376842Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+run	Post Run actions/checkout@v4	2025-10-16T09:55:32.8409401Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+run	Complete job	´++2025-10-16T09:55:32.8778283Z Evaluate and set environment url
+run	Complete job	2025-10-16T09:55:32.8782132Z Evaluated environment url: 
+run	Complete job	2025-10-16T09:55:32.8782786Z Cleaning up orphan processes
+
