@@ -377,6 +377,10 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
     <div class="min-h-screen flex">
       <aside id="sidebar" class="hidden md:flex flex-col h-screen w-64 shrink-0 bg-[#0d1220] border-r border-gray-800 p-4 overflow-y-auto">
         <div class="text-lg font-semibold mb-4">AI Intel</div>
+        <div class="flex items-center gap-2 mb-3">
+          <button id="closeSidebar" class="md:hidden px-2 py-1 rounded bg-gray-800 border border-gray-700">×</button>
+          <button id="collapseSidebarDesktop" class="hidden md:inline px-2 py-1 rounded bg-gray-800 border border-gray-700">⟨</button>
+        </div>
         <button id="closeSidebar" class="md:hidden px-2 py-1 rounded bg-gray-800 border border-gray-700 mb-3">×</button>
         <nav class="space-y-1">
           <a class="sidebar-link active" href="#overview" data-nav="overview">Overview</a>
@@ -401,8 +405,8 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
       </aside>
       <div class="flex-1 min-w-0 flex flex-col">
         <header class="sticky top-0 z-10 backdrop-blur bg-[#0b0f19]/70 border-b border-gray-800">
-          <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
-            <button id="toggleSidebar" style="display:none" aria-label="Toggle sidebar" class="px-2 py-1 rounded bg-gray-800 border border-gray-700">&#9776;</button>
+          <div class="w-full px-4 py-3 flex items-center gap-3">
+            <button id="toggleSidebar" style="display:none" aria-label="Toggle sidebar" class="px-2 py-1 rounded bg-gray-800 border border-gray-700" style="display:none">&#9776;</button>
             <div class="text-2xl md:text-3xl font-extrabold mr-auto">AI Intel Dashboard</div>
             <input id="globalSearch" placeholder="Search" class="w-56 md:w-96 bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700" />
             
@@ -410,14 +414,14 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
             <div id="lastUpdated" class="text-xs text-gray-400 ml-3"></div><div id="buildStamp" class="text-xs text-gray-500 ml-2"></div>
           </div>
         </header>
-        <main class="max-w-7xl mx-auto px-4 py-6 space-y-6 min-w-0">
+        <main class="w-full px-4 py-6 space-y-6 min-w-0">
           <div class="flex flex-wrap gap-3 text-xs text-gray-400">
             <a href="index.csv" class="px-2 py-1 rounded bg-gray-800 border border-gray-700 hover:bg-gray-700 text-gray-300">Download Index (CSV)</a>
             <a href="weekly-latest.md" class="px-2 py-1 rounded bg-gray-800 border border-gray-700 hover:bg-gray-700 text-gray-300">Weekly Digest (Markdown)</a>
           </div>
           <div class="text-xs text-gray-400">Quick links: <a class="underline" href="items.html">Items</a> · <a class="underline" href="browse.html">Browse</a></div>
 
-          <section id="ask" class="card ring-1 ring-indigo-500/30 bg-gradient-to-r from-indigo-900/20 via-blue-900/20 to-cyan-900/20">
+          <section id="ask" class="card ring-1 ring-indigo-500/30 bg-gradient-to-r from-indigo-900/20 via-blue-900/20 to-cyan-900/20 ring-1 ring-indigo-500/30 bg-gradient-to-r from-indigo-900/20 via-blue-900/20 to-cyan-900/20">
             <h3 class="mb-2 font-semibold text-lg">Ask AI (Using Your Data)</h3>
             <div class="flex flex-col md:flex-row gap-2 items-start md:items-center">
               <input id="askInput" placeholder="Ask a question about your indexed AI intel..." class="w-full md:flex-1 bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700" />
@@ -535,7 +539,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
           }
           if (sS) {
             const srcs = Object.entries(rep.by_source||{}).sort((a,b)=>b[1]-a[1]);
-            sS.innerHTML = srcs.map(([k,v])=>`<a class='sidebar-link' href='items.html?source=${encodeURIComponent(k)}&days=30'>${k} <span class="text-gray-500">(${v})</span></a>`).join('');
+            sS.innerHTML = srcs.map(([k,v])=>{ const kl=k.toLowerCase(); const icon = kl.includes('github')?'🐙':(kl.includes('youtube')?'▶️':'📦'); return `<a class='sidebar-link' href='items.html?source=${encodeURIComponent(k)}&days=30'><span class=\"mr-2\">${icon}</span>${k} <span class=\"text-gray-500\">(${v})</span></a>`; }).join('');
           }
         } catch(e){}
 
@@ -601,7 +605,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
     </style>
   </head>
   <body class=\"min-h-screen\">
-    <div class=\"max-w-7xl mx-auto px-4 py-6\">
+    <div class=\"w-full px-4 py-6\">
       <div class=\"flex items-center justify-between mb-4\"><a href=\"index.html\" class=\"text-sm text-gray-400\">← Dashboard</a><div class=\"font-bold\">All Items</div><div></div></div>
       <div class=\"card mb-4\">
         <div class=\"flex flex-wrap gap-2 items-center\">
@@ -642,7 +646,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
     </style>
   </head>
   <body class=\"min-h-screen\">
-    <div class=\"max-w-7xl mx-auto px-4 py-6\">
+    <div class=\"w-full px-4 py-6\">
       <div class=\"flex items-center justify-between mb-4\"><a href=\"index.html\" class=\"text-sm text-gray-400\">← Dashboard</a><div class=\"font-bold\">Browse</div><div></div></div>
       <div class=\"card mb-4\">
         <h3 class=\"mb-2 font-semibold\">By Source</h3>
@@ -678,7 +682,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
     </style>
   </head>
   <body class="min-h-screen">
-    <div class="max-w-7xl mx-auto px-4 py-6">
+    <div class="w-full px-4 py-6">
       <div class="flex items-center justify-between mb-4"><a href="index.html" class="text-sm text-gray-400">← Dashboard</a><div class="font-bold">All Items</div><div></div></div>
       <div class="card mb-4">
         <div class="flex flex-wrap gap-2 items-center">
@@ -718,7 +722,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
     </style>
   </head>
   <body class="min-h-screen">
-    <div class="max-w-7xl mx-auto px-4 py-6">
+    <div class="w-full px-4 py-6">
       <div class="flex items-center justify-between mb-4"><a href="index.html" class="text-sm text-gray-400">← Dashboard</a><div class="font-bold">Browse</div><div></div></div>
       <div class="card mb-4">
         <h3 class="mb-2 font-semibold">By Source</h3>
