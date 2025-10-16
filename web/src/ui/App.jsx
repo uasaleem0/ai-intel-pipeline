@@ -1,7 +1,7 @@
 import React from 'react'
-import NewDashboard from './NewDashboard.jsx'
+import ModernDashboard from './ModernDashboard.jsx'
 
 export default function App(){
-  return <NewDashboard />
+  return <ModernDashboard />
 }
 
