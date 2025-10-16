@@ -332,6 +332,8 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
         "transcripts": c["transcripts"],
         "transcripts_fallback": c["transcripts_fallback"],
         "run_url": run_url,
+    
+        "status": "success",
     })
     hist_path.write_text(json.dumps(hist[-50:], indent=2), encoding="utf-8")
     # Dashboard HTML (dark mode + charts + search using pure JS)
@@ -355,87 +357,114 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
       .card { background:#111827; border:1px solid #1f2937; border-radius:0.75rem; padding:1rem; }
       a { color:#60a5fa; } a:hover { text-decoration: underline; }
       .pill { display:inline-block; background:#1f2937; padding:2px 8px; border-radius:999px; margin-right:6px; font-size:12px; }
-      .kpi { font-size: 28px; font-weight: 700; }
-      .kpi-label { color:#9ca3af; font-size:12px; text-transform:uppercase; letter-spacing: .06em; }
       .sidebar-link { display:flex; align-items:center; gap:.75rem; padding:.5rem .75rem; border-radius:.5rem; color:#9ca3af; }
       .sidebar-link:hover { background:#0f172a; color:#e5e7eb; }
       .sidebar-link.active { background:#0f172a; color:#fff; border:1px solid #1f2937; }
+      .seg button { border:1px solid #374151; padding:.35rem .6rem; border-radius:.5rem; background:#0f172a; color:#cbd5e1; }
+      .seg button.active { background:#2563eb; color:white; border-color:#1d4ed8; }
+      .chip { display:inline-block; padding:.25rem .6rem; border-radius:9999px; background:#0f172a; border:1px solid #1f2937; margin:.2rem; cursor:pointer; }
+      .chip:hover { background:#111b33; }
     </style>
   </head>
   <body class="min-h-screen">
     <div class="min-h-screen flex">
-      <aside class="hidden md:block w-60 shrink-0 bg-[#0d1220] border-r border-gray-800 p-4">
+      <aside id="sidebar" class="hidden md:block w-64 shrink-0 bg-[#0d1220] border-r border-gray-800 p-4">
         <div class="text-lg font-semibold mb-4">AI Intel</div>
         <nav class="space-y-1">
-          <a class="sidebar-link active" href="#overview">Overview</a>
-          <a class="sidebar-link" href="#items">Items</a>
-          <a class="sidebar-link" href="#pillars">Pillars</a>
-          <a class="sidebar-link" href="#sources">Sources</a>
-          <a class="sidebar-link" href="#digests">Digests</a>
-          <a class="sidebar-link" href="#model">Model Index</a>
+          <a class="sidebar-link active" href="#overview" data-nav="overview">Overview</a>
+          <a class="sidebar-link" href="#items" data-nav="items">Items</a>
         </nav>
-        <div class="mt-8 border-t border-gray-800 pt-4">
-          <a class="sidebar-link" href="#settings">Settings</a>
-          <a class="sidebar-link" href="#help">Help</a>
+        <div class="mt-6">
+          <div class="text-xs uppercase tracking-wider text-gray-500 mb-2">System Health</div>
+          <div class="card text-sm">
+            <div id="healthLastRun" class="mb-1 text-gray-300">Last run: -</div>
+            <div id="healthItems" class="mb-1 text-gray-300">Items: -</div>
+            <div id="healthPassRate" class="mb-1 text-gray-300">Pass rate: -</div>
+            <div id="healthRuns30d" class="text-gray-300">Runs (30d): -</div>
+          </div>
         </div>
       </aside>
       <div class="flex-1 flex flex-col">
         <header class="sticky top-0 z-10 backdrop-blur bg-[#0b0f19]/70 border-b border-gray-800">
-          <div class="max-w-7xl mx-auto px-4 py-3 grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
-            <div class="font-bold">AI Intel Dashboard</div>
-            <div class="flex items-center gap-2 justify-start md:justify-center">
-              <select id="dateRange" class="bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700">
-                <option value="7">Last 7 days</option>
-                <option value="30" selected>Last 30 days</option>
-                <option value="90">Last 90 days</option>
-                <option value="all">All time</option>
-              </select>
-              <input id="globalSearch" placeholder="Search (title, TL;DR, pillars)" class="w-48 md:w-72 bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700" />
+          <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
+            <button id="toggleSidebar" class="px-2 py-1 rounded bg-gray-800 border border-gray-700 md:hidden">☰</button>
+            <div class="font-bold mr-auto">AI Intel Dashboard</div>
+            <input id="globalSearch" placeholder="Search" class="w-56 md:w-96 bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700" />
+            <div class="seg hidden sm:flex items-center gap-1 ml-2" id="dateSeg">
+              <button data-days="7">7d</button>
+              <button class="active" data-days="30">30d</button>
+              <button data-days="90">90d</button>
+              <button data-days="all">All</button>
             </div>
-            <div class="flex items-center gap-2 justify-end">
-              <button id="btnAddSource" class="px-3 py-2 rounded bg-blue-600 hover:bg-blue-500">Add Source</button>
-              <div id="lastUpdated" class="text-xs text-gray-400"></div>
-            </div>
+            <button id="btnAddSource" class="ml-2 px-3 py-2 rounded bg-blue-600 hover:bg-blue-500">Add Source</button>
+            <div id="lastUpdated" class="text-xs text-gray-400 ml-2"></div>
           </div>
         </header>
         <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
-          <div class="flex flex-wrap gap-3 text-xs text-gray-400"><a href="index.csv" class="px-2 py-1 rounded bg-gray-800 border border-gray-700 hover:bg-gray-700 text-gray-300">Download Index (CSV)</a><a href="weekly-latest.md" class="px-2 py-1 rounded bg-gray-800 border border-gray-700 hover:bg-gray-700 text-gray-300">Weekly Digest (Markdown)</a></div>
-          <section id="overview" class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div class="card lg:col-span-2">
-              <h3 class="mb-2 font-semibold">What Changed</h3>
-              <div id="whatChanged" class="text-sm text-gray-300">Loading...</div>
+          <div class="flex flex-wrap gap-3 text-xs text-gray-400">
+            <a href="index.csv" class="px-2 py-1 rounded bg-gray-800 border border-gray-700 hover:bg-gray-700 text-gray-300">Download Index (CSV)</a>
+            <a href="weekly-latest.md" class="px-2 py-1 rounded bg-gray-800 border border-gray-700 hover:bg-gray-700 text-gray-300">Weekly Digest (Markdown)</a>
+          </div>
+
+          <section id="overview" class="space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              <div class="card lg:col-span-2">
+                <h3 class="mb-2 font-semibold">What Changed</h3>
+                <div id="whatChanged" class="text-sm text-gray-300">Loading...</div>
+              </div>
+              <div class="card">
+                <h3 class="mb-2 font-semibold">For You</h3>
+                <div id="forYou" class="space-y-3 text-sm"></div>
+              </div>
             </div>
+
             <div class="card">
-              <h3 class="mb-2 font-semibold">For You</h3>
-              <div id="forYou" class="space-y-3 text-sm"></div>
+              <h3 class="mb-3 font-semibold">Action Queue</h3>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                <div id="aqUnreviewed" class="card hover:bg-gray-800 cursor-pointer">
+                  <div class="text-gray-400">Unreviewed</div>
+                  <div class="text-2xl font-bold" id="aqUnreviewedCount">-</div>
+                </div>
+                <div id="aqEvidence" class="card hover:bg-gray-800 cursor-pointer">
+                  <div class="text-gray-400">Needs Evidence Review</div>
+                  <div class="text-2xl font-bold" id="aqEvidenceCount">-</div>
+                </div>
+                <div id="aqReady" class="card hover:bg-gray-800 cursor-pointer">
+                  <div class="text-gray-400">Ready to Apply</div>
+                  <div class="text-2xl font-bold" id="aqReadyCount">-</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3 class="mb-3 font-semibold">Browse</h3>
+              <div class="mb-2 text-xs text-gray-400">By Source</div>
+              <div id="browseSources" class="mb-3"></div>
+              <div class="mb-2 text-xs text-gray-400">By Pillar</div>
+              <div id="browsePillars"></div>
             </div>
           </section>
 
-          <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="card"><div class="kpi" id="kpiItems">-</div><div class="kpi-label">Items</div><div id="kpiItemsDelta" class="text-xs text-gray-400"></div></div>
-            <div class="card"><div class="kpi" id="kpiPass">-</div><div class="kpi-label">Evidence Pass</div><div id="kpiPassRate" class="text-xs text-gray-400"></div></div>
-            <div class="card"><div class="kpi" id="kpiConfidence">-</div><div class="kpi-label">Avg Confidence</div></div>
-            <div class="card"><div class="kpi" id="kpiTranscripts">-</div><div class="kpi-label">Transcripts (fallback)</div></div>
-          </section>
-
-          <section class="grid grid-cols-1 xl:grid-cols-3 gap-4">
-            <div class="card"><h3 class="mb-2 font-semibold">By Source</h3><canvas id="chartSource"></canvas></div>
-            <div class="card"><h3 class="mb-2 font-semibold">By Type</h3><canvas id="chartType"></canvas></div>
-            <div class="card"><h3 class="mb-2 font-semibold">Pillars</h3><canvas id="chartPillars"></canvas></div>
-          </section>
-
-          <section class="card">
+          <section id="items" class="card">
             <div class="flex items-center justify-between mb-3">
-              <h3 class="font-semibold">Top Items</h3>
-              <div class="text-xs text-gray-400">Range applies to list; charts show totals.</div>
+              <h3 class="font-semibold">Items</h3>
+              <div id="activeFilters" class="text-xs text-gray-400"></div>
             </div>
             <div id="itemsTable" class="text-sm"></div>
           </section>
 
-          <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="card"><h3 class="mb-2 font-semibold">Trend: Items / day</h3><canvas id="chartTrendItems"></canvas></div>
-            <div class="card"><h3 class="mb-2 font-semibold">Run History</h3><div id="history" class="text-sm"></div></div>
-          </section>
+          <details id="analytics" class="card">
+            <summary class="cursor-pointer font-semibold">Analytics</summary>
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 mt-3">
+              <div class="card"><h3 class="mb-2 font-semibold">By Source</h3><canvas id="chartSource"></canvas></div>
+              <div class="card"><h3 class="mb-2 font-semibold">By Type</h3><canvas id="chartType"></canvas></div>
+              <div class="card"><h3 class="mb-2 font-semibold">Pillars</h3><canvas id="chartPillars"></canvas></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div class="card"><h3 class="mb-2 font-semibold">Trend: Items / day</h3><canvas id="chartTrendItems"></canvas></div>
+              <div class="card"><h3 class="mb-2 font-semibold">Run History</h3><div id="history" class="text-sm"></div></div>
+            </div>
+          </details>
         </main>
       </div>
     </div>
@@ -467,105 +496,39 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
         c.appendChild(el);
         setTimeout(()=>{ el.remove(); }, 3000);
       }
+      async function loadJSON(path) { const res = await fetch(path + '?cache=' + Date.now()); return await res.json(); }
 
-      async function loadJSON(path) {
-        const res = await fetch(path + '?cache=' + Date.now());
-        return await res.json();
-      }
+      function withinRange(d, days){ if(days==='all') return true; const cutoff = dayjs().subtract(Number(days), 'day'); return dayjs(d).isAfter(cutoff); }
 
-      function barChart(ctx, labels, data) {
-        new Chart(ctx, { type:'bar', data: { labels, datasets:[{ label:'Count', data, backgroundColor:'#60a5fa' }] }, options: { plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label:(ctx)=>` ${ctx.parsed.y}` } } }, scales:{ x:{ ticks:{ color:'#9ca3af' } }, y:{ ticks:{ color:'#9ca3af' }, beginAtZero:true, grid:{ color:'#1f2937' } } } });
-      }
+      function barChart(ctx, labels, data) { new Chart(ctx, { type:'bar', data: { labels, datasets:[{ label:'Count', data, backgroundColor:'#60a5fa' }] }, options: { plugins:{ legend:{ display:false } }, scales:{ x:{ ticks:{ color:'#9ca3af' } }, y:{ ticks:{ color:'#9ca3af' }, beginAtZero:true, grid:{ color:'#1f2937' } } } }); }
+      function lineChart(ctx, labels, data){ new Chart(ctx, { type:'line', data: { labels, datasets:[{ label:'Items', data, borderColor:'#60a5fa', backgroundColor:'#60a5fa22', fill:true, tension:.2 }] }, options: { plugins:{ legend:{ display:false } }, scales:{ x:{ ticks:{ color:'#9ca3af' } }, y:{ ticks:{ color:'#9ca3af' }, beginAtZero:true, grid:{ color:'#1f2937' } } } }); }
 
-      function lineChart(ctx, labels, data){
-        new Chart(ctx, { type:'line', data: { labels, datasets:[{ label:'Items', data, borderColor:'#60a5fa', backgroundColor:'#60a5fa22', fill:true, tension:.2 }] }, options: { plugins:{ legend:{ display:false } }, scales:{ x:{ ticks:{ color:'#9ca3af' } }, y:{ ticks:{ color:'#9ca3af' }, beginAtZero:true, grid:{ color:'#1f2937' } } } });
-      }
+      function renderCharts(rep){ const sL = Object.keys(rep.by_source), sV = Object.values(rep.by_source); const tL = Object.keys(rep.by_type), tV = Object.values(rep.by_type); const pL = Object.keys(rep.pillars), pV = Object.values(rep.pillars); barChart(document.getElementById('chartSource'), sL, sV); barChart(document.getElementById('chartType'), tL, tV); barChart(document.getElementById('chartPillars'), pL, pV); }
 
-      function renderCharts(rep){
-        const sL = Object.keys(rep.by_source), sV = Object.values(rep.by_source);
-        const tL = Object.keys(rep.by_type), tV = Object.values(rep.by_type);
-        const pL = Object.keys(rep.pillars), pV = Object.values(rep.pillars);
-        barChart(document.getElementById('chartSource'), sL, sV);
-        barChart(document.getElementById('chartType'), tL, tV);
-        barChart(document.getElementById('chartPillars'), pL, pV);
-      }
+      function updateHealth(rep, hist){ const c = rep.counts; const last = hist && hist.length ? hist[hist.length-1] : null; const runs30 = (hist||[]).filter(h => dayjs(h.ts).isAfter(dayjs().subtract(30,'day'))).length; document.getElementById('healthItems').textContent = `Items: ${c.items}`; const passRate = c.evidence ? (c.evidence_pass/c.evidence) : 0; document.getElementById('healthPassRate').textContent = `Pass rate: ${(passRate*100).toFixed(1)}%`; document.getElementById('healthRuns30d').textContent = `Runs (30d): ${runs30}`; if(last){ const lu = new Date(last.ts).toLocaleString(); const run = last.run_url ? ` - `+ `<a target='_blank' href='${last.run_url}'>run</a>` : ''; const status = last.status ? ` (${last.status})` : ''; document.getElementById('healthLastRun').innerHTML = `Last run: ${lu}${status}${run}`; } }
 
-      function updateKPIs(rep, last=null, prev=null){
-        const c = rep.counts;
-        document.getElementById('kpiItems').textContent = c.items;
-        document.getElementById('kpiPass').textContent = `${c.evidence_pass}/${c.evidence}`;
-        document.getElementById('kpiConfidence').textContent = Number(c.avg_confidence||0).toFixed(2);
-        document.getElementById('kpiTranscripts').textContent = `${c.transcripts} (${c.transcripts_fallback})`;
-        if(last){
-          const passRate = last.evidence ? (last.evidence_pass/last.evidence) : 0;
-          const prevPass = prev && prev.evidence ? (prev.evidence_pass/prev.evidence) : 0;
-          const deltaItems = prev ? (last.items - prev.items) : 0;
-          const deltaPassPct = (passRate - prevPass)*100;
-          document.getElementById('kpiItemsDelta').textContent = `${deltaItems>=0?'+':''}${deltaItems} vs prev`;
-          document.getElementById('kpiPassRate').textContent = `Pass rate ${ (passRate*100).toFixed(1) }% (${deltaPassPct>=0?'+':''}${deltaPassPct.toFixed(1)}pp)`;
-        }
-      }
+      function renderForYou(rep){ const el = document.getElementById('forYou'); const recs = (rep.recommendations||[]).slice(0,3); if(!recs.length){ el.innerHTML = '<div class="text-gray-400">No recommendations yet.</div>'; return; } el.innerHTML = recs.map(r => (`<div><div class='font-medium'>${r.title}</div><div class='text-xs text-gray-400 mb-1'>score: ${Number(r.scores?.combined||0).toFixed(3)} · pillars: ${(r.pillars||[]).join(', ')}</div>${r.tldr?`<div class='mb-1'>${r.tldr}</div>`:''}<a href='${r.url}' target='_blank'>Open</a></div>`)).join(''); }
 
-      function renderForYou(rep){
-        const el = document.getElementById('forYou');
-        const recs = (rep.recommendations||[]).slice(0,3);
-        if(!recs.length){ el.innerHTML = '<div class="text-gray-400">No recommendations yet.</div>'; return; }
-        el.innerHTML = recs.map(r => (
-          `<div><div class='font-medium'>${r.title}</div><div class='text-xs text-gray-400 mb-1'>score: ${Number(r.scores?.combined||0).toFixed(3)} | pillars: ${(r.pillars||[]).join(', ')}</div>${r.tldr?`<div class='mb-1'>${r.tldr}</div>`:''}<a href='${r.url}' target='_blank'>Open</a></div>`
-        )).join('');
-      }
+      function renderWhatChanged(hist){ const el = document.getElementById('whatChanged'); if(!hist || hist.length<2){ el.textContent = 'Not enough history yet.'; return; } const last = hist[hist.length-1], prev = hist[hist.length-2]; const itemsDelta = last.items - prev.items; const passRate = last.evidence ? (last.evidence_pass/last.evidence) : 0; const prevPass = prev.evidence ? (prev.evidence_pass/prev.evidence) : 0; const passDelta = (passRate - prevPass) * 100; el.innerHTML = `<ul class='list-disc ml-5'><li>${itemsDelta>=0?'+':''}${itemsDelta} items vs previous run</li><li>Pass rate ${(passRate*100).toFixed(1)}% (${passDelta>=0?'+':''}${passDelta.toFixed(1)}pp)</li><li>See Analytics for source/pillar shifts</li></ul>`; }
 
-      function renderWhatChanged(hist){
-        const el = document.getElementById('whatChanged');
-        if(!hist || hist.length<2){ el.textContent = 'Not enough history yet.'; return; }
-        const last = hist[hist.length-1], prev = hist[hist.length-2];
-        const itemsDelta = last.items - prev.items;
-        const passRate = last.evidence ? (last.evidence_pass/last.evidence) : 0;
-        const prevPass = prev.evidence ? (prev.evidence_pass/prev.evidence) : 0;
-        const passDelta = (passRate - prevPass) * 100;
-        el.innerHTML = `<ul class='list-disc ml-5'>
-          <li>${itemsDelta>=0?'+':''}${itemsDelta} items vs previous run</li>
-          <li>Pass rate ${(passRate*100).toFixed(1)}% (${passDelta>=0?'+':''}${passDelta.toFixed(1)}pp)</li>
-          <li>Top pillar: ${(Object.entries(hist[hist.length-1]).find(()=>false), 'see charts')}</li>
-        </ul>`;
-      }
+      function chip(label, onclick){ const d=document.createElement('span'); d.className='chip'; d.textContent=label; d.onclick=onclick; return d; }
 
-      function withinRange(d, days){
-        if(days==='all') return true;
-        const cutoff = dayjs().subtract(Number(days), 'day');
-        return dayjs(d).isAfter(cutoff);
-      }
+      function renderBrowse(rep, items){ const bs = document.getElementById('browseSources'); const bp = document.getElementById('browsePillars'); bs.innerHTML=''; bp.innerHTML=''; const srcs = Object.entries(rep.by_source||{}); srcs.sort((a,b)=>b[1]-a[1]); srcs.forEach(([k,v])=> bs.appendChild(chip(`${k} (${v})`, ()=>applyFilter({sourceType:k})))); const pillars = Object.entries(rep.pillars||{}); pillars.sort((a,b)=>b[1]-a[1]); pillars.slice(0,5).forEach(([k,v])=> bp.appendChild(chip(`${k} (${v})`, ()=>applyFilter({pillar:k})))); }
 
-      function renderItems(items, days, q, pillar){
-        const el = document.getElementById('itemsTable');
-        let list = items.filter(it=>!days || withinRange(it.date, days));
-        if(q){ const ql=q.toLowerCase(); list = list.filter(it=> (it.title||'').toLowerCase().includes(ql) || (it.tldr||'').toLowerCase().includes(ql) || (it.why||'').toLowerCase().includes(ql) || (it.pillars||[]).join(' ').toLowerCase().includes(ql)); }
-        if(pillar){ list = list.filter(it=> (it.pillars||[]).includes(pillar)); }
-        list = list.sort((a,b)=>(b.overall||0)-(a.overall||0));
-        const rows = list.slice(0,20).map(it=>{
-          const pills = (it.pillars||[]).map(p=>`<span class='pill'>${p}</span>`).join('');
-          const id = `row_${it.item_id}`;
-          return `<div class='border-b border-gray-800 py-2'>
-            <div class='flex items-center justify-between gap-3'>
-              <div class='min-w-0'>
-                <div class='font-medium truncate'>${it.title}</div>
-                <div class='text-xs text-gray-400'>${(it.source_type||it.source||'').toString()} | ${new Date(it.date).toLocaleDateString()} | score ${Number(it.overall||0).toFixed(3)}</div>
-                <div class='mt-1'>${pills}</div>
-              </div>
-              <div class='flex items-center gap-2'>
-                <a class='text-sm' href='${it.url}' target='_blank'>Open</a>
-                <button class='text-sm px-2 py-1 rounded bg-gray-800 border border-gray-700' onclick="const d=document.getElementById('${id}'); d.classList.toggle('hidden');">Details</button>
-              </div>
-            </div>
-            <div id='${id}' class='hidden mt-2 text-sm'>
-              ${it.tldr?`<div class='mb-2'><span class='text-gray-400'>TL;DR:</span> ${it.tldr}</div>`:''}
-              ${it.why?`<div class='mb-2'><span class='text-gray-400'>Why it matters:</span> ${it.why}</div>`:''}
-              ${(it.apply_steps||[]).length?`<div class='mb-2'><div class='text-gray-400'>Apply steps:</div><ul class='list-disc ml-5'>${it.apply_steps.map(s=>`<li>${s}</li>`).join('')}</ul></div>`:''}
-            </div>
-          </div>`
-        }).join('');
-        el.innerHTML = rows || `<div class='text-gray-400'>No items in this range. Try changing filters.</div>`;
-      }
+      let currentDays='30', currentQuery='', currentPillar='', currentSourceType='';
+      function applyFilter({pillar=null, sourceType=null}={}){ if(pillar!==null) currentPillar=pillar; if(sourceType!==null) currentSourceType=sourceType; document.querySelector('[data-nav="items"]').click(); renderItems(window.__items, currentDays, currentQuery, currentPillar, currentSourceType); showActiveFilters(); }
+      function clearFilters(){ currentPillar=''; currentSourceType=''; showActiveFilters(); renderItems(window.__items, currentDays, currentQuery, currentPillar, currentSourceType); }
+      function showActiveFilters(){ const el=document.getElementById('activeFilters'); const parts=[]; if(currentPillar) parts.push(`Pillar: ${currentPillar}`); if(currentSourceType) parts.push(`Source: ${currentSourceType}`); el.innerHTML = parts.length? parts.join(' · ') + ` · <button class='underline' onclick='clearFilters()'>Clear</button>` : ''; }
+
+      function renderItems(items, days, q, pillar, sourceType){ const el = document.getElementById('itemsTable'); let list = items.filter(it=>!days || withinRange(it.date, days)); if(q){ const ql=q.toLowerCase(); list = list.filter(it=> (it.title||'').toLowerCase().includes(ql) || (it.tldr||'').toLowerCase().includes(ql) || (it.why||'').toLowerCase().includes(ql) || (it.pillars||[]).join(' ').toLowerCase().includes(ql)); } if(pillar){ list = list.filter(it=> (it.pillars||[]).includes(pillar)); } if(sourceType){ const st = sourceType.toLowerCase(); list = list.filter(it=> (it.source_type||'').toLowerCase()===st); } list = list.sort((a,b)=>(b.overall||0)-(a.overall||0)); const rows = list.slice(0,30).map(it=>{ const pills = (it.pillars||[]).map(p=>`<span class='pill'>${p}</span>`).join(''); const id = `row_${it.item_id}`; return `<div class='border-b border-gray-800 py-2'><div class='flex items-center justify-between gap-3'><div class='min-w-0'><div class='font-medium truncate'>${it.title}</div><div class='text-xs text-gray-400'>${(it.source_type||it.source||'')} | ${new Date(it.date).toLocaleDateString()} | score ${Number(it.overall||0).toFixed(3)}</div><div class='mt-1'>${pills}</div></div><div class='flex items-center gap-2'><a class='text-sm' href='${it.url}' target='_blank'>Open</a><button class='text-sm px-2 py-1 rounded bg-gray-800 border border-gray-700' onclick="const d=document.getElementById('${id}'); d.classList.toggle('hidden');">Details</button></div></div><div id='${id}' class='hidden mt-2 text-sm'>${it.tldr?`<div class='mb-2'><span class='text-gray-400'>TL;DR:</span> ${it.tldr}</div>`:''}${it.why?`<div class='mb-2'><span class='text-gray-400'>Why it matters:</span> ${it.why}</div>`:''}${(it.apply_steps||[]).length?`<div class='mb-2'><div class='text-gray-400'>Apply steps:</div><ul class='list-disc ml-5'>${it.apply_steps.map(s=>`<li>${s}</li>`).join('')}</ul></div>`:''}</div></div>` }).join(''); el.innerHTML = rows || `<div class='text-gray-400'>No items in this range. Try changing filters.</div>`; }
+
+      function updateAQ(items){ const now30 = dayjs().subtract(30,'day'); const unreviewed = items.filter(it=> (!it.verdict) && (!it.confidence || it.confidence<0.5) && dayjs(it.date).isAfter(now30)).length; const needsEv = items.filter(it=> (it.verdict==='fail' || (it.confidence!=null && it.confidence<0.5))).length; const ready = items.filter(it=> (Number(it.overall||0)>=0.6) && (Number(it.credibility||0)>=0.7) && (Number(it.actionability||0)>=0.6) && (it.verdict==='pass' || (it.confidence!=null && it.confidence>=0.6))).length; document.getElementById('aqUnreviewedCount').textContent = unreviewed; document.getElementById('aqEvidenceCount').textContent = needsEv; document.getElementById('aqReadyCount').textContent = ready; document.getElementById('aqUnreviewed').onclick = ()=>{ applyFilter({}); currentQuery=''; currentPillar=''; currentSourceType=''; renderItems(window.__items, '30', '', '', ''); }; document.getElementById('aqEvidence').onclick = ()=>{ applyFilter({}); currentQuery=''; renderItems(window.__items, currentDays, '', '', ''); const el=document.getElementById('itemsTable'); el.scrollIntoView({behavior:'smooth'}); }; document.getElementById('aqReady').onclick = ()=>{ applyFilter({}); currentQuery=''; renderItems(window.__items, currentDays, '', '', ''); const el=document.getElementById('itemsTable'); el.scrollIntoView({behavior:'smooth'}); } }
+
+      function wireNav(){ document.querySelectorAll('[data-nav]').forEach(a=>{ a.addEventListener('click', (e)=>{ document.querySelectorAll('[data-nav]').forEach(x=>x.classList.remove('active')); a.classList.add('active'); const id = a.getAttribute('data-nav'); const sec = document.getElementById(id); if(sec){ sec.scrollIntoView({behavior:'smooth'}); } }); }); }
+
+      function wireSeg(){ document.querySelectorAll('#dateSeg button').forEach(btn=>{ btn.addEventListener('click', ()=>{ document.querySelectorAll('#dateSeg button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); currentDays = btn.getAttribute('data-days'); renderItems(window.__items, currentDays, currentQuery, currentPillar, currentSourceType); }); }); }
+
+      function wireSidebarToggle(){ const btn=document.getElementById('toggleSidebar'); const sb=document.getElementById('sidebar'); btn?.addEventListener('click', ()=>{ if(sb.classList.contains('hidden')){ sb.classList.remove('hidden'); } else { sb.classList.add('hidden'); } }); }
 
       async function init(){
         const [rep, hist, items] = await Promise.all([
@@ -573,43 +536,20 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
           (async()=>{ try{ return await loadJSON('history.json'); }catch(e){ return []; } })(),
           (async()=>{ try{ return await loadJSON('items.json'); }catch(e){ return []; } })(),
         ]);
-        const last = hist && hist.length ? hist[hist.length-1] : null;
-        const prev = hist && hist.length>1 ? hist[hist.length-2] : null;
-        if(last){
-          const lu = new Date(last.ts).toLocaleString();
-          const run = last.run_url ? ` - <a target='_blank' href='${last.run_url}'>run</a>` : '';
-          document.getElementById('lastUpdated').innerHTML = `Updated ${lu}${run}`;
-        }
-        updateKPIs(rep, last, prev);
-        renderCharts(rep);
+        window.__items = items;
+        const last = hist && hist.length ? hist[hist.length-1] : null; const prev = hist && hist.length>1 ? hist[hist.length-2] : null; if(last){ const lu = new Date(last.ts).toLocaleString(); const run = last.run_url ? ` - <a target='_blank' href='${last.run_url}'>run</a>` : ''; document.getElementById('lastUpdated').innerHTML = `Updated ${lu}${run}`; }
+        updateHealth(rep, hist||[]);
         renderForYou(rep);
         renderWhatChanged(hist||[]);
-        const drSel = document.getElementById('dateRange');
-        const search = document.getElementById('globalSearch');
-        const doRender = ()=> renderItems(items, drSel.value, search.value || '', '');
-        drSel.addEventListener('change', doRender);
-        search.addEventListener('input', doRender);
-        doRender();
+        renderBrowse(rep, items);
+        renderItems(items, currentDays, currentQuery, currentPillar, currentSourceType);
+        updateAQ(items);
+        wireNav(); wireSeg(); wireSidebarToggle();
+        const search = document.getElementById('globalSearch'); search.addEventListener('input', ()=>{ currentQuery = search.value || ''; renderItems(items, currentDays, currentQuery, currentPillar, currentSourceType); });
       }
 
       // Modal wiring
-      (function(){
-        const m = document.getElementById('addSourceModal');
-        const open = document.getElementById('btnAddSource');
-        const close = document.getElementById('modalClose');
-        const input = document.getElementById('modalUrl');
-        const wf = document.getElementById('modalIngestWorkflow');
-        const iss = document.getElementById('modalIngestIssue');
-        function links(){
-          const v = encodeURIComponent(input.value || '');
-          const user = (location.host.split('.')[0]||'');
-          wf.href = `https://github.com/${user}/ai-intel-pipeline/actions/workflows/ingest_manual.yml`;
-          iss.href = `https://github.com/${user}/ai-intel-pipeline/issues/new?labels=ingest&title=${encodeURIComponent('Ingest source')}&body=${encodeURIComponent('Paste URL here: ')}${v}`;
-        }
-        input.addEventListener('input', links);
-        open.addEventListener('click', ()=>{ m.classList.remove('hidden'); m.classList.add('flex'); links(); });
-        close.addEventListener('click', ()=>{ m.classList.add('hidden'); m.classList.remove('flex'); });
-      })();
+      (function(){ const m = document.getElementById('addSourceModal'); const open = document.getElementById('btnAddSource'); const close = document.getElementById('modalClose'); const input = document.getElementById('modalUrl'); const wf = document.getElementById('modalIngestWorkflow'); const iss = document.getElementById('modalIngestIssue'); function links(){ const v = encodeURIComponent(input.value || ''); const user = (location.host.split('.')[0]||''); wf.href = `https://github.com/${user}/ai-intel-pipeline/actions/workflows/ingest_manual.yml`; iss.href = `https://github.com/${user}/ai-intel-pipeline/issues/new?labels=ingest&title=${encodeURIComponent('Ingest source')}&body=${encodeURIComponent('Paste URL here: ')}${v}`; } input.addEventListener('input', links); open.addEventListener('click', ()=>{ m.classList.remove('hidden'); m.classList.add('flex'); links(); }); close.addEventListener('click', ()=>{ m.classList.add('hidden'); m.classList.remove('flex'); }); })();
 
       init();
     </script>
