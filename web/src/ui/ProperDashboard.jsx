@@ -64,34 +64,50 @@ const KeyInsights = ({ items }) => {
         detail: `Analysis of recent data shows increased focus on ${topPillar?.[0]?.toLowerCase()} with notable contributions from leading developers and researchers. This trend indicates growing industry interest and potential breakthrough developments.`,
         confidence: 94,
         sources: recent.slice(0, 3),
-        trend: 'up'
+        trend: 'up',
+        impact: 'High',
+        timeframe: '2-4 weeks',
+        category: 'Technology Trend',
+        actionable: 'Consider expanding research focus in this area and monitoring for implementation opportunities.'
       },
       {
         id: 2,
         icon: TrendingUp,
         insight: `${topSource?.[0] || 'GitHub'} releases indicate major framework updates incoming`,
-        detail: `Recent repository activity suggests significant updates across multiple frameworks. Early indicators point to performance improvements and new feature sets that could reshape development workflows.`,
+        detail: `Recent repository activity suggests significant updates across multiple frameworks. Early indicators point to performance improvements and new feature sets that could reshape development workflows. Key contributors show 3x higher commit frequency.`,
         confidence: 87,
         sources: recent.slice(3, 6),
-        trend: 'up'
+        trend: 'up',
+        impact: 'Medium',
+        timeframe: '1-2 months',
+        category: 'Framework Evolution',
+        actionable: 'Prepare migration strategies and evaluate compatibility with existing projects.'
       },
       {
         id: 3,
         icon: Zap,
         insight: 'Emerging pattern: AI-first development workflows gaining momentum',
-        detail: 'Cross-platform analysis reveals a shift toward AI-integrated development processes. This includes automated code review, intelligent testing, and AI-assisted debugging becoming standard practice.',
+        detail: 'Cross-platform analysis reveals a shift toward AI-integrated development processes. This includes automated code review, intelligent testing, and AI-assisted debugging becoming standard practice. Adoption rate has increased 150% in the last quarter.',
         confidence: 91,
         sources: recent.slice(6, 9),
-        trend: 'up'
+        trend: 'up',
+        impact: 'High',
+        timeframe: '6 months',
+        category: 'Workflow Innovation',
+        actionable: 'Evaluate AI-powered development tools and establish training programs for team adoption.'
       },
       {
         id: 4,
         icon: ArrowUpRight,
         insight: 'Next-generation UI frameworks showing 40% performance improvements',
-        detail: 'Benchmarking data from recent releases demonstrates substantial performance gains in rendering, state management, and bundle optimization. These improvements could accelerate adoption rates.',
+        detail: 'Benchmarking data from recent releases demonstrates substantial performance gains in rendering, state management, and bundle optimization. These improvements could accelerate adoption rates with potential ROI of 30-60% in development time.',
         confidence: 89,
         sources: recent.slice(7, 10),
-        trend: 'up'
+        trend: 'up',
+        impact: 'Medium',
+        timeframe: '3-6 months',
+        category: 'Performance Optimization',
+        actionable: 'Conduct proof-of-concept migrations and benchmark against current stack performance.'
       }
     ]
   }
@@ -157,13 +173,25 @@ const KeyInsights = ({ items }) => {
                           margin: '0 0 8px 0',
                           lineHeight: '1.4'
                         }}>{insight.insight}</p>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                          <Badge variant="secondary" style={{ fontSize: '11px' }}>
-                            📊 Confidence: {insight.confidence}%
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                          <Badge variant="secondary" style={{ fontSize: '10px', padding: '2px 6px' }}>
+                            📊 {insight.confidence}%
                           </Badge>
-                          <Badge variant="outline" style={{ fontSize: '11px' }}>
+                          <Badge variant="outline" style={{ fontSize: '10px', padding: '2px 6px' }}>
                             <TrendingUp className="w-3 h-3 mr-1" />
-                            Trending {insight.trend}
+                            {insight.trend === 'up' ? 'Rising' : 'Declining'}
+                          </Badge>
+                          <Badge style={{ 
+                            fontSize: '10px', 
+                            padding: '2px 6px',
+                            background: insight.impact === 'High' ? 'var(--orange)' : insight.impact === 'Medium' ? 'var(--blue)' : 'var(--muted)',
+                            color: 'white',
+                            border: 'none'
+                          }}>
+                            {insight.impact} Impact
+                          </Badge>
+                          <Badge variant="secondary" style={{ fontSize: '10px', padding: '2px 6px' }}>
+                            🕰️ {insight.timeframe}
                           </Badge>
                         </div>
                       </div>
@@ -175,22 +203,65 @@ const KeyInsights = ({ items }) => {
                 </CollapsibleTrigger>
                 
                 <CollapsibleContent>
-                  <div className="px-4 pb-4 border-t">
-                    <div className="pt-4 space-y-3">
-                      <p className="text-sm text-muted-foreground leading-relaxed">{insight.detail}</p>
+                  <div style={{ padding: '16px', borderTop: '1px solid var(--border)' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                      <p style={{ fontSize: '14px', color: 'var(--muted-foreground)', lineHeight: '1.5', margin: 0 }}>
+                        {insight.detail}
+                      </p>
+                      
+                      {/* Actionable Information */}
+                      <div style={{ 
+                        background: 'var(--muted)', 
+                        padding: '12px', 
+                        borderRadius: '8px',
+                        borderLeft: '3px solid var(--primary)'
+                      }}>
+                        <h5 style={{ 
+                          fontSize: '12px', 
+                          fontWeight: '600', 
+                          color: 'var(--foreground)', 
+                          margin: '0 0 6px 0',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}>
+                          <Target style={{ width: '12px', height: '12px' }} />
+                          Recommended Action
+                        </h5>
+                        <p style={{ 
+                          fontSize: '13px', 
+                          color: 'var(--muted-foreground)', 
+                          margin: 0,
+                          lineHeight: '1.4'
+                        }}>
+                          {insight.actionable}
+                        </p>
+                      </div>
+
+                      {/* Category and Timeframe */}
+                      <div style={{ display: 'flex', gap: '24px', fontSize: '12px' }}>
+                        <div>
+                          <span style={{ color: 'var(--muted-foreground)', fontWeight: '500' }}>Category:</span>
+                          <span style={{ color: 'var(--foreground)', marginLeft: '6px', fontWeight: '600' }}>{insight.category}</span>
+                        </div>
+                        <div>
+                          <span style={{ color: 'var(--muted-foreground)', fontWeight: '500' }}>Expected Timeline:</span>
+                          <span style={{ color: 'var(--foreground)', marginLeft: '6px', fontWeight: '600' }}>{insight.timeframe}</span>
+                        </div>
+                      </div>
                       
                       <div>
-                        <p className="text-xs font-medium mb-2 text-muted-foreground">Related Sources:</p>
-                        <div className="flex flex-wrap gap-2">
+                        <p style={{ fontSize: '12px', fontWeight: '600', marginBottom: '8px', color: 'var(--muted-foreground)' }}>Related Sources:</p>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                           {insight.sources.map((source, i) => (
                             <Button
                               key={i}
                               variant="outline"
                               size="sm"
-                              className="text-xs h-7"
+                              style={{ fontSize: '11px', height: '28px' }}
                               onClick={() => window.open(source.url, '_blank')}
                             >
-                              <ExternalLink className="w-3 h-3 mr-1" />
+                              <ExternalLink style={{ width: '12px', height: '12px', marginRight: '4px' }} />
                               {source.title?.slice(0, 30)}...
                             </Button>
                           ))}
@@ -428,19 +499,29 @@ export default function ProperDashboard() {
                 margin: 0 
               }}>Monitor and explore your AI data pipeline</p>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
               <select style={{
                 padding: '8px 12px',
                 borderRadius: '6px',
                 border: '1px solid var(--border)',
                 background: 'var(--card)',
                 color: 'var(--foreground)',
-                fontSize: '14px'
+                fontSize: '14px',
+                whiteSpace: 'nowrap'
               }}>
                 <option>Last 7 days</option>
                 <option>Last 30 days</option>
                 <option>All time</option>
               </select>
+              <button className="button-primary" style={{ 
+                whiteSpace: 'nowrap',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <Plus style={{ width: '16px', height: '16px' }} />
+                Add Source
+              </button>
             </div>
           </div>
         </div>

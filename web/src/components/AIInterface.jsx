@@ -70,37 +70,87 @@ const AIInterface = ({ data }) => {
   ]
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <Card className="relative overflow-hidden border-primary/20 shadow-xl bg-gradient-to-br from-primary/5 via-background to-primary/5">
-        {/* Subtle glow effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-primary/10 pointer-events-none" />
+    <div style={{ width: '100%' }}>
+      <div className="card ai-glow" style={{ 
+        position: 'relative',
+        overflow: 'hidden',
+        background: 'linear-gradient(135deg, var(--card) 0%, rgba(139, 92, 246, 0.02) 50%, var(--card) 100%)',
+        border: '1px solid rgba(139, 92, 246, 0.2)',
+        boxShadow: `
+          0 20px 25px -5px rgba(0, 0, 0, 0.4),
+          0 10px 10px -5px rgba(0, 0, 0, 0.3),
+          0 0 40px rgba(139, 92, 246, 0.15)
+        `
+      }}>
+        {/* Enhanced glow effect */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, transparent 30%, transparent 70%, rgba(139, 92, 246, 0.08) 100%)',
+          pointerEvents: 'none'
+        }} />
         
-        <div className="relative">
-          <CardHeader className="border-b border-border/50">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-12 w-12 border-2 border-primary/20">
-                  <AvatarFallback className="bg-primary text-primary-foreground">
-                    <Sparkles className="h-6 w-6" />
-                  </AvatarFallback>
-                </Avatar>
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          {/* Enhanced Header */}
+          <div style={{ 
+            padding: '20px',
+            borderBottom: '1px solid rgba(139, 92, 246, 0.15)',
+            background: 'linear-gradient(90deg, rgba(139, 92, 246, 0.03) 0%, transparent 100%)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{
+                  position: 'relative',
+                  padding: '16px',
+                  background: 'linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%)',
+                  borderRadius: '16px',
+                  boxShadow: '0 8px 20px rgba(139, 92, 246, 0.4)',
+                  animation: 'float 3s ease-in-out infinite'
+                }}>
+                  <Sparkles style={{ width: '24px', height: '24px', color: 'white' }} />
+                  <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    borderRadius: '16px',
+                    background: 'linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent)',
+                    animation: 'pulse 2s ease-in-out infinite'
+                  }} />
+                </div>
                 <div>
-                  <CardTitle className="text-xl">AI Intelligence Assistant</CardTitle>
-                  <CardDescription>
+                  <h3 style={{ 
+                    fontSize: '20px', 
+                    fontWeight: '700', 
+                    margin: '0 0 4px 0',
+                    color: 'var(--foreground)',
+                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+                  }}>AI Intelligence Assistant</h3>
+                  <p style={{ 
+                    fontSize: '14px', 
+                    color: 'var(--muted-foreground)', 
+                    margin: 0,
+                    fontWeight: '500'
+                  }}>
                     Trained on {data?.counts?.items || 0} curated items • RAG-powered insights
-                  </CardDescription>
+                  </p>
                 </div>
               </div>
-              <Badge variant="default" className="bg-green-500/10 text-green-500 border-green-500/20">
-                <Sparkles className="h-3 w-3 mr-1" />
+              <Badge style={{ 
+                background: 'linear-gradient(135deg, var(--green) 0%, #059669 100%)', 
+                color: 'white',
+                border: 'none',
+                padding: '6px 12px',
+                boxShadow: '0 4px 8px rgba(16, 185, 129, 0.3)'
+              }}>
+                <Sparkles style={{ width: '12px', height: '12px', marginRight: '4px' }} />
                 Ready
               </Badge>
             </div>
-          </CardHeader>
+          </div>
           
-          <CardContent className="p-6">
+          {/* Chat Content */}
+          <div style={{ padding: '20px' }}>
             {/* Chat Messages */}
-            <div className="space-y-4 mb-6 max-h-80 overflow-y-auto">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '20px', maxHeight: '320px', overflowY: 'auto' }}>
               <AnimatePresence mode="popLayout">
                 {messages.map((message) => (
                   <motion.div
@@ -108,29 +158,42 @@ const AIInterface = ({ data }) => {
                     initial={{ opacity: 0, y: 20, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    className={cn(
-                      "flex gap-3",
-                      message.type === 'user' ? "justify-end" : "justify-start"
-                    )}
+                    style={{
+                      display: 'flex',
+                      gap: '12px',
+                      justifyContent: message.type === 'user' ? 'flex-end' : 'flex-start'
+                    }}
                   >
                     {message.type === 'assistant' && (
-                      <Avatar className="h-8 w-8 mt-1">
-                        <AvatarFallback className="bg-primary text-primary-foreground">
-                          <Bot className="h-4 w-4" />
-                        </AvatarFallback>
-                      </Avatar>
+                      <div style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '16px',
+                        background: 'var(--primary)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginTop: '2px',
+                        flexShrink: 0
+                      }}>
+                        <Bot style={{ width: '16px', height: '16px', color: 'white' }} />
+                      </div>
                     )}
                     
-                    <div className={cn("flex flex-col max-w-[80%]", message.type === 'user' && "items-end")}>
-                      <Card className={cn(
-                        message.type === 'user' 
-                          ? "bg-primary text-primary-foreground border-primary" 
-                          : "bg-muted border-border"
-                      )}>
-                        <CardContent className="p-3">
-                          <p className="text-sm leading-relaxed">{message.content}</p>
-                        </CardContent>
-                      </Card>
+                    <div style={{ 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      maxWidth: '80%',
+                      alignItems: message.type === 'user' ? 'flex-end' : 'flex-start'
+                    }}>
+                      <div className="card" style={{
+                        padding: '12px 16px',
+                        background: message.type === 'user' ? 'var(--primary)' : 'var(--muted)',
+                        border: message.type === 'user' ? '1px solid var(--primary)' : '1px solid var(--border)',
+                        color: message.type === 'user' ? 'var(--primary-foreground)' : 'var(--foreground)'
+                      }}>
+                        <p style={{ fontSize: '14px', lineHeight: '1.4', margin: 0 }}>{message.content}</p>
+                      </div>
                       
                       {message.sources && message.sources.length > 0 && (
                         <motion.div 
@@ -216,26 +279,28 @@ const AIInterface = ({ data }) => {
             )}
 
             {/* Input Form */}
-            <form onSubmit={handleSubmit} className="flex gap-2">
-              <Input
+            <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '8px' }}>
+              <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask anything about your AI intelligence data..."
                 disabled={isLoading}
-                className="flex-1"
+                className="input"
+                style={{ flex: 1, background: 'var(--input)', border: '1px solid var(--input-border)' }}
                 autoFocus
               />
-              <Button 
+              <button
                 type="submit" 
                 disabled={!input.trim() || isLoading}
-                size="icon"
+                className="button-primary"
+                style={{ padding: '10px', aspectRatio: '1' }}
               >
-                <Send className="h-4 w-4" />
-              </Button>
+                <Send style={{ width: '16px', height: '16px' }} />
+              </button>
             </form>
-          </CardContent>
+          </div>
         </div>
-      </Card>
+      </div>
     </div>
   )
 }
