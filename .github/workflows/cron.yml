@@ -1,8 +1,8 @@
-name: AI Intel Daily
+﻿name: AI Intel Daily
 
 on:
   schedule:
-    - cron: "0 8 * * *" # daily at 08:00 UTC (≈ 09:00 BST)
+    - cron: "0 8 * * *" # daily at 08:00 UTC (â‰ˆ 09:00 BST)
   workflow_dispatch: {}
 
 jobs:
@@ -33,9 +33,17 @@ jobs:
       - name: Build embeddings index
         run: |
           python -m ai_intel_pipeline index-model
-      - name: Generate status report
+      
+      - name: Copy UI files to status
+        shell: bash
         run: |
-          python -m ai_intel_pipeline report
+          mkdir -p vault/ai-intel/status
+          cp -r ui/* vault/ai-intel/status/
+          echo '{' > vault/ai-intel/status/build.json
+          echo '  "sha": "'${GITHUB_SHA}'",' >> vault/ai-intel/status/build.json
+          echo '  "run_id": "'${GITHUB_RUN_ID}'",' >> vault/ai-intel/status/build.json
+          echo '  "ts": "'$(date -u +%FT%TZ)'"' >> vault/ai-intel/status/build.json
+          echo '}' >> vault/ai-intel/status/build.json
       - name: Export RAG JSONL
         run: |
           python -m ai_intel_pipeline export
