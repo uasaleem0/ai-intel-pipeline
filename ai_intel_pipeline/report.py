@@ -401,7 +401,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
               <button data-days="all">All</button>
             </div>
             <button id="btnAddSource" class="ml-2 px-3 py-2 rounded bg-blue-600 hover:bg-blue-500">Add Source</button>
-            <div id="lastUpdated" class="text-xs text-gray-400 ml-2"></div>
+            <a href="browse.html" class="hidden sm:inline text-sm text-gray-300 hover:underline">Browse</a><a href="items.html" class="hidden sm:inline text-sm text-gray-300 hover:underline ml-3">Items</a><div id="lastUpdated" class="text-xs text-gray-400 ml-3"></div><div id="buildStamp" class="text-xs text-gray-500 ml-2"></div>
           </div>
         </header>
         <main class="max-w-7xl mx-auto px-4 py-6 space-y-6 min-w-0">
@@ -409,6 +409,20 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
             <a href="index.csv" class="px-2 py-1 rounded bg-gray-800 border border-gray-700 hover:bg-gray-700 text-gray-300">Download Index (CSV)</a>
             <a href="weekly-latest.md" class="px-2 py-1 rounded bg-gray-800 border border-gray-700 hover:bg-gray-700 text-gray-300">Weekly Digest (Markdown)</a>
           </div>
+          <div class="text-xs text-gray-400">Quick links: <a class="underline" href="items.html">Items</a> · <a class="underline" href="browse.html">Browse</a></div>
+
+          <section id="ask" class="card">
+            <h3 class="mb-2 font-semibold">Ask AI (Using Your Data)</h3>
+            <div class="flex flex-col md:flex-row gap-2 items-start md:items-center">
+              <input id="askInput" placeholder="Ask a question about your indexed AI intel..." class="w-full md:flex-1 bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700" />
+              <div class="flex gap-2">
+                <button id="askBtn" class="px-3 py-2 rounded bg-gray-700 hover:bg-gray-600">Ask</button>
+                <button id="askSettings" class="px-3 py-2 rounded bg-gray-800 border border-gray-700">Settings</button>
+              </div>
+            </div>
+            <div id="askOutput" class="mt-3 text-sm text-gray-300"></div>
+            <div class="mt-2 text-xs text-gray-500">Answers are grounded in your indexed data (RAG). This will activate when the vector index is available.</div>
+          </section>
 
           <section id="overview" class="space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -532,7 +546,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
 
       function wireSeg(){ document.querySelectorAll('#dateSeg button').forEach(btn=>{ btn.addEventListener('click', ()=>{ document.querySelectorAll('#dateSeg button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); currentDays = btn.getAttribute('data-days'); renderItems(window.__items, currentDays, currentQuery, currentPillar, currentSourceType); }); }); }
 
-      function wireSidebarToggle(){ const btn=document.getElementById('toggleSidebar'); btn?.addEventListener('click', ()=>{ document.body.classList.toggle('is-collapsed'); }); } else { sb.classList.add('hidden'); } }); }
+      function wireSidebarToggle(){ const btn=document.getElementById('toggleSidebar'); const sb=document.getElementById('sidebar'); if(btn){ btn.addEventListener('click', ()=>{ if(sb){ sb.classList.toggle('hidden'); } document.body.classList.toggle('is-collapsed'); }); } } document.body.classList.toggle('is-collapsed'); }); }); } else { sb.classList.add('hidden'); } }); }
 
       async function init(){
         const [rep, hist, items] = await Promise.all([
@@ -541,7 +555,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
           (async()=>{ try{ return await loadJSON('items.json'); }catch(e){ return []; } })(),
         ]);
         window.__items = items;
-        const last = hist && hist.length ? hist[hist.length-1] : null; const prev = hist && hist.length>1 ? hist[hist.length-2] : null; if(last){ const lu = new Date(last.ts).toLocaleString(); const run = last.run_url ? ` - <a target='_blank' href='${last.run_url}'>run</a>` : ''; document.getElementById('lastUpdated').innerHTML = `Updated ${lu}${run}`; }
+        const last = hist && hist.length ? hist[hist.length-1] : null; const prev = hist && hist.length>1 ? hist[hist.length-2] : null; if(last){ const lu = new Date(last.ts).toLocaleString(); const run = last.run_url ? ` - <a target='_blank' href='${last.run_url}'>run</a>` : ''; document.getElementById('lastUpdated').innerHTML = `Updated ${lu}${run}`; try{ document.getElementById('buildStamp').textContent = `Build: ${lu}` }catch(e){}; }
         updateHealth(rep, hist||[]);
         renderForYou(rep);
         renderWhatChanged(hist||[]);
@@ -652,6 +666,76 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
     </div>
     <script>
       async function loadJSON(p){ const r = await fetch(p+'?cache='+Date.now()); return await r.json(); }
+      function tag(label, href){ const a=document.createElement('a'); a.className='chip'; a.href=href; a.textContent=label; return a; }
+      async function init(){ const rep = await loadJSON('report.json'); const s=document.getElementById('sources'); const p=document.getElementById('pillars'); Object.entries(rep.by_source||{}).sort((a,b)=>b[1]-a[1]).forEach(([k,v])=> s.appendChild(tag(`${k} (${v})`, `items.html?source=${encodeURIComponent(k)}&days=30`))); Object.entries(rep.pillars||{}).sort((a,b)=>b[1]-a[1]).slice(0,12).forEach(([k,v])=> p.appendChild(tag(`${k} (${v})`, `items.html?pillar=${encodeURIComponent(k)}&days=30`))); }
+      init();
+    </script>
+  </body>
+</html>
+"""
+    (out_dir / 'browse.html').write_text(browse_html, encoding='utf-8')
+
+    
+    items_html = """
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Intel · Items</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <style>:root{color-scheme:dark} body{background:#0b0f19;color:#e5e7eb} .card{background:#111827;border:1px solid #1f2937;border-radius:.75rem;padding:1rem} .pill{display:inline-block;background:#1f2937;padding:2px 8px;border-radius:999px;margin-right:6px;font-size:12px}</style>
+  </head>
+  <body class="min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 py-6">
+      <div class="flex items-center justify-between mb-4"><a href="index.html" class="text-sm text-gray-400">← Dashboard</a><div class="font-bold">All Items</div><div></div></div>
+      <div class="card mb-4">
+        <div class="flex flex-wrap gap-2 items-center">
+          <input id="q" class="bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700" placeholder="Search" />
+          <select id="days" class="bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700"><option value="7">7d</option><option value="30" selected>30d</option><option value="90">90d</option><option value="all">All</option></select>
+          <select id="source" class="bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700"><option value="">All sources</option><option>github</option><option>youtube</option><option>vendor</option></select>
+          <select id="pillar" class="bg-gray-900 text-gray-100 rounded px-3 py-2 border border-gray-700"><option value="">All pillars</option></select>
+        </div>
+      </div>
+      <div id="table" class="card"></div>
+    </div>
+    <script>
+      async function loadJSON(p){ const r = await fetch(p+'?cache='+Date.now()); return await r.json(); }
+      function withinRange(d, days){ if(days==='all') return true; const cut = dayjs().subtract(Number(days),'day'); return dayjs(d).isAfter(cut); }
+      function getParam(k){ const u=new URLSearchParams(location.search); return u.get(k)||''; }
+      function setParams(params){ const u=new URLSearchParams(location.search); Object.entries(params).forEach(([k,v])=>{ if(v) u.set(k,v); else u.delete(k); }); history.replaceState(null,'','?'+u.toString()); }
+      function render(items){ const el = document.getElementById('table'); const q=document.getElementById('q').value.toLowerCase(); const days=document.getElementById('days').value; const src=document.getElementById('source').value; const pil=document.getElementById('pillar').value; let list = items.filter(it=> withinRange(it.date, days)); if(q){ list=list.filter(it=> (it.title||'').toLowerCase().includes(q) || (it.tldr||'').toLowerCase().includes(q) || (it.why||'').toLowerCase().includes(q) || (it.pillars||[]).join(' ').toLowerCase().includes(q)); } if(src){ list=list.filter(it=> (it.source_type||'')===src); } if(pil){ list=list.filter(it=> (it.pillars||[]).includes(pil)); } list = list.sort((a,b)=>(b.overall||0)-(a.overall||0)); const rows = list.slice(0,200).map(it=> `<tr><td class='py-2 pr-3 align-top'><a class='hover:underline' href='${it.url}' target='_blank'>${it.title}</a><div class='text-xs text-gray-400 mt-1'>${(it.source_type||'')} · ${new Date(it.date).toLocaleDateString()} · score ${(Number(it.overall||0)).toFixed(3)}</div><div class='mt-1'>${(it.pillars||[]).map(p=>`<span class='pill'>${p}</span>`).join('')}</div></td><td class='py-2 pr-3 align-top text-sm'>${it.tldr||''}${it.why?`<div class='mt-1 text-gray-300'><span class='text-gray-400'>Why:</span> ${it.why}</div>`:''}${(it.apply_steps||[]).length?`<div class='mt-1 text-gray-300'><span class='text-gray-400'>Apply:</span><ul class='list-disc ml-5'>${it.apply_steps.map(s=>`<li>${s}</li>`).join('')}</ul></div>`:''}</td><td class='py-2 align-top text-xs'>${it.verdict||''}${it.confidence!=null?`<div>conf ${Number(it.confidence).toFixed(2)}</div>`:''}</td></tr>`).join(''); el.innerHTML = `<table class='w-full text-sm'><thead><tr class='text-left text-gray-400'><th class='py-2 pr-3'>Item</th><th class='py-2 pr-3'>Summary</th><th class='py-2'>Quality</th></tr></thead><tbody>${rows||"<tr><td colspan='3' class='text-gray-400 py-6'>No items match.</td></tr>"}</tbody></table>`; }
+      async function init(){ const rep = await loadJSON('report.json'); const items = await loadJSON('items.json'); const pilSel = document.getElementById('pillar'); Object.keys(rep.pillars||{}).forEach(k=>{ const o=document.createElement('option'); o.value=k; o.textContent=k; pilSel.appendChild(o); }); const qp = { q: getParam('q'), source: getParam('source'), pillar: getParam('pillar'), days: getParam('days')||'30' }; document.getElementById('q').value = qp.q; document.getElementById('source').value = qp.source; document.getElementById('pillar').value = qp.pillar; document.getElementById('days').value = qp.days; ['q','source','pillar','days'].forEach(id=> document.getElementById(id).addEventListener('input', ()=>{ setParams({ q: q.value, source: source.value, pillar: pillar.value, days: days.value }); render(items); })); render(items); }
+      init();
+    </script>
+  </body>
+</html>
+"""
+    (out_dir / 'items.html').write_text(items_html, encoding='utf-8')
+
+    browse_html = """
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Intel · Browse</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>:root{color-scheme:dark} body{background:#0b0f19;color:#e5e7eb} .card{background:#111827;border:1px solid #1f2937;border-radius:.75rem;padding:1rem} .chip{display:inline-block;padding:.35rem .65rem;border-radius:9999px;background:#0f172a;border:1px solid #1f2937;margin:.25rem;cursor:pointer}</style>
+  </head>
+  <body class="min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 py-6">
+      <div class="flex items-center justify-between mb-4"><a href="index.html" class="text-sm text-gray-400">← Dashboard</a><div class="font-bold">Browse</div><div></div></div>
+      <div class="card mb-4">
+        <h3 class="mb-2 font-semibold">By Source</h3>
+        <div id="sources" class="mb-4"></div>
+        <h3 class="mb-2 font-semibold">By Pillar</h3>
+        <div id="pillars"></div>
+      </div>
+    </div>
+    <script>
+      async function loadJSON(p){ const r = await fetch(p+'?cache='+Date.Now()); return await r.json(); }
       function tag(label, href){ const a=document.createElement('a'); a.className='chip'; a.href=href; a.textContent=label; return a; }
       async function init(){ const rep = await loadJSON('report.json'); const s=document.getElementById('sources'); const p=document.getElementById('pillars'); Object.entries(rep.by_source||{}).sort((a,b)=>b[1]-a[1]).forEach(([k,v])=> s.appendChild(tag(`${k} (${v})`, `items.html?source=${encodeURIComponent(k)}&days=30`))); Object.entries(rep.pillars||{}).sort((a,b)=>b[1]-a[1]).slice(0,12).forEach(([k,v])=> p.appendChild(tag(`${k} (${v})`, `items.html?pillar=${encodeURIComponent(k)}&days=30`))); }
       init();
