@@ -13,7 +13,7 @@ from .exporter import export_jsonl
 from .apply.pr import apply_to_repo_from_item
 from .model.embedder import build_embeddings
 from .model.recommend import recommend
-from .report import write_report\n
+from .report import write_report
 app = typer.Typer(add_completion=False, help="AI Intel Pipeline CLI")
 console = Console()
 
@@ -191,6 +191,7 @@ def ingest_url(
     from .pipeline import run_ingest_url as _run
     item_id = _run(url=url, settings=settings, vault=vault, index=index, dry_run=dry_run)
     console.print(f"Ingested item: {item_id}")
+
 
 
 
