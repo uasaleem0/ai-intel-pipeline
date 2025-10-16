@@ -546,7 +546,7 @@ def write_report(vault_root: Path, index_csv: Path) -> Path:
         renderForYou(rep);
         renderWhatChanged(hist||[]);
         renderBrowse(rep, items);
-        const fl = filterByDays(items, currentDays); updateKPIsFromItems(fl); renderItems(items, currentDays, currentQuery, currentPillar, currentSourceType); updateAQ(fl);
+        const fl = filterByDays(items, currentDays); updateKPIsFromItems(fl); renderItems(items, currentDays, currentQuery, currentPillar, currentSourceType); updateAQ(window.__items||[]);
         wireNav();  wireSidebarToggle();
         const search = document.getElementById('globalSearch'); search.addEventListener('input', ()=>{ currentQuery = search.value || ''; renderItems(items, currentDays, currentQuery, currentPillar, currentSourceType); });
       }
