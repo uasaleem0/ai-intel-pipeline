@@ -266,6 +266,39 @@ def get_recommendations(top_k: int = Query(default=5, ge=1, le=20)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Recommendation error: {str(e)}")
 
+class IngestUrlRequest(BaseModel):
+    url: str
+    dry_run: Optional[bool] = False
+
+@app.post("/ingest-url")
+def ingest_url_endpoint(request: IngestUrlRequest):
+    """Manually ingest a single source URL (YouTube or GitHub)"""
+    settings = load_settings()
+    vault = Vault(root=VAULT_ROOT)
+    index = Index(index_path=INDEX_PATH)
+    
+    try:
+        from .pipeline import run_ingest_url
+        item_id = run_ingest_url(
+            url=request.url,
+            settings=settings,
+            vault=vault,
+            index=index,
+            dry_run=request.dry_run
+        )
+        
+        if item_id:
+            return {
+                "success": True,
+                "item_id": item_id,
+                "message": f"Successfully ingested {request.url}"
+            }
+        else:
+            raise HTTPException(status_code=400, detail="URL was already processed or failed validation")
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ingestion error: {str(e)}")
+
 # Serve static files for the frontend
 if Path("ui").exists():
     app.mount("/ui", StaticFiles(directory="ui", html=True), name="ui")

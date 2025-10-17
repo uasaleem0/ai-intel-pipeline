@@ -13,7 +13,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collap
 import { Separator } from './ui/separator'
 import { cn } from '../lib/utils'
 
-const Sidebar = ({ isOpen, data, onPillarClick, onSourceClick }) => {
+const Sidebar = ({ isOpen, data, onPillarClick, onSettingsClick, onHomeClick, currentPage }) => {
   const [activeItem, setActiveItem] = useState('dashboard')
   const [openSections, setOpenSections] = useState({
     pillars: false,
@@ -29,7 +29,7 @@ const Sidebar = ({ isOpen, data, onPillarClick, onSourceClick }) => {
 
   // Main navigation following the "product spine" principle
   const mainNavItems = [
-    { id: 'dashboard', icon: Home, label: 'Dashboard', active: activeItem === 'dashboard' },
+    { id: 'dashboard', icon: Home, label: 'Dashboard', active: currentPage === 'dashboard' },
     { id: 'insights', icon: Lightbulb, label: 'Key Insights', badge: '4' },
     { id: 'pillars', icon: BarChart3, label: 'Explore Pillars', count: Object.keys(data?.pillars || {}).length },
     { id: 'sources', icon: Globe, label: 'Data Sources', count: Object.keys(data?.by_source || {}).length },
@@ -54,10 +54,14 @@ const Sidebar = ({ isOpen, data, onPillarClick, onSourceClick }) => {
 
   const handleNavClick = (item) => {
     setActiveItem(item.id)
-    if (item.id === 'pillars') {
+    if (item.id === 'dashboard') {
+      onHomeClick?.()
+    } else if (item.id === 'pillars') {
       setOpenSections(prev => ({ ...prev, pillars: !prev.pillars }))
     } else if (item.id === 'sources') {
       setOpenSections(prev => ({ ...prev, sources: !prev.sources }))
+    } else if (item.id === 'settings') {
+      onSettingsClick?.()
     }
   }
 
@@ -136,8 +140,8 @@ const Sidebar = ({ isOpen, data, onPillarClick, onSourceClick }) => {
                     padding: '12px 16px',
                     borderRadius: '8px',
                     border: 'none',
-                    background: isActive ? 'var(--primary)' : 'transparent',
-                    color: isActive ? 'var(--primary-foreground)' : 'var(--foreground)',
+                      background: (isActive || (item.id === 'settings' && currentPage === 'settings')) ? 'var(--primary)' : 'transparent',
+                      color: (isActive || (item.id === 'settings' && currentPage === 'settings')) ? 'var(--primary-foreground)' : 'var(--foreground)',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
                     textAlign: 'left',
