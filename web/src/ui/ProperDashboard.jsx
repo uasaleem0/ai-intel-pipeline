@@ -127,62 +127,6 @@ const KeyInsights = ({ items }) => {
       ]
     }
   }
-    
-    return [
-      {
-        id: 1,
-        icon: Zap,
-        insight: 'Try Claude 3.5 Sonnet with Artifacts - Game changer for rapid prototyping',
-        detail: `Claude 3.5 Sonnet's Artifacts feature lets you create interactive demos, code examples, and mini-apps directly in the chat. Perfect for testing UI components, data visualizations, or quick proof-of-concepts. Users report 3x faster iteration cycles for frontend work.`,
-        confidence: 96,
-        sources: recent.slice(0, 3),
-        trend: 'up',
-        impact: 'High',
-        timeframe: 'Try today',
-        category: 'AI Tool',
-        actionable: 'Start with simple React components or data visualizations. Use for client presentations and rapid mockups.'
-      },
-      {
-        id: 2,
-        icon: Bot,
-        insight: 'Implement cursor.sh + GitHub Copilot combo for 10x coding productivity',
-        detail: `Latest workflow: Cursor IDE with GitHub Copilot for real-time code completion + Claude for architecture decisions. Developers report 60-80% faster feature development and fewer bugs. The AI-first coding approach is becoming the new standard.`,
-        confidence: 92,
-        sources: recent.slice(3, 6),
-        trend: 'up',
-        impact: 'High',
-        timeframe: '1-2 weeks setup',
-        category: 'Development Workflow',
-        actionable: 'Replace your current IDE with Cursor, enable Copilot, and use Claude for code reviews and planning.'
-      },
-      {
-        id: 3,
-        icon: Target,
-        insight: 'Master prompt engineering with the STAR method for better AI outputs',
-        detail: `The STAR framework (Situation, Task, Action, Result) dramatically improves AI responses. Instead of "write code", use "I'm building a React app (S), need user authentication (T), using Firebase (A), expecting clean, production-ready code (R)". 40% better results confirmed.`,
-        confidence: 88,
-        sources: recent.slice(6, 9),
-        trend: 'up',
-        impact: 'Medium',
-        timeframe: 'Learn in 1 hour',
-        category: 'Prompting Technique',
-        actionable: 'Apply STAR to your next 5 AI interactions. Template: "I am [situation], I need to [task], I will use [action], I expect [result]".'
-      },
-      {
-        id: 4,
-        icon: Lightbulb,
-        insight: 'Use Perplexity Pro for research + Claude for implementation = perfect combo',
-        detail: `New workflow emerging: Perplexity Pro for initial research and finding latest info/papers, then Claude 3.5 for implementation and code generation. Combines real-time search with powerful reasoning. Saves 2-3 hours per research task.`,
-        confidence: 85,
-        sources: recent.slice(7, 10),
-        trend: 'up',
-        impact: 'Medium',
-        timeframe: 'Start this week',
-        category: 'Research Workflow',
-        actionable: 'Use Perplexity for "What are the latest developments in [topic]?", then paste findings into Claude for "Help me implement this".'
-      }
-    ]
-  }
   
   const insights = generateInsights()
   
