@@ -45,17 +45,21 @@ const PillarsPage = ({ pillarName, onBack }) => {
   const fetchPillarItems = async () => {
     setLoading(true)
     try {
-      const response = await fetch('/items?limit=500')
+      // Use static files for GitHub Pages compatibility
+      const basePath = import.meta.env.BASE_URL || '/';
+      const response = await fetch(`${basePath}ui/items.json`)
       const data = await response.json()
       
       // Filter items that contain this pillar
-      const pillarItems = (data.items || []).filter(item => 
+      const allItems = data.items || data || []
+      const pillarItems = allItems.filter(item => 
         item.pillars && item.pillars.includes(pillarName)
       )
       
       setItems(pillarItems)
     } catch (error) {
       console.error('Error fetching pillar items:', error)
+      // Fallback to empty array
       setItems([])
     } finally {
       setLoading(false)

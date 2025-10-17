@@ -13,7 +13,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collap
 import { Separator } from './ui/separator'
 import { cn } from '../lib/utils'
 
-const Sidebar = ({ isOpen, data, onPillarClick, onSettingsClick, onHomeClick, currentPage }) => {
+const Sidebar = ({ isOpen, data, onPillarClick, onSettingsClick, onHomeClick, onHelpClick, currentPage }) => {
   const [activeItem, setActiveItem] = useState('dashboard')
   const [openSections, setOpenSections] = useState({
     pillars: false,
@@ -150,12 +150,12 @@ const Sidebar = ({ isOpen, data, onPillarClick, onSettingsClick, onHomeClick, cu
                   }}
                   onMouseEnter={(e) => {
                     if (!isActive) {
-                      e.target.style.background = 'var(--accent)'
+                      e.currentTarget.style.background = 'var(--accent)'
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (!isActive) {
-                      e.target.style.background = 'transparent'
+                      e.currentTarget.style.background = 'transparent'
                     }
                   }}
                 >
@@ -239,8 +239,8 @@ const Sidebar = ({ isOpen, data, onPillarClick, onSettingsClick, onHomeClick, cu
                               width: '100%',
                               textAlign: 'left'
                             }}
-                            onMouseEnter={(e) => e.target.style.background = 'var(--accent)'}
-                            onMouseLeave={(e) => e.target.style.background = 'transparent'}
+                            onMouseEnter={(e) => e.currentTarget.style.background = 'var(--accent)'}
+                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                           >
                             <Icon style={{ width: '16px', height: '16px', color: 'var(--muted-foreground)' }} />
                             <span style={{ fontSize: '13px', flex: 1 }}>{pillar}</span>
@@ -275,6 +275,13 @@ const Sidebar = ({ isOpen, data, onPillarClick, onSettingsClick, onHomeClick, cu
               return (
                 <button
                   key={item.id}
+                  onClick={() => {
+                    if (item.id === 'settings') {
+                      onSettingsClick?.()
+                    } else if (item.id === 'help') {
+                      onHelpClick?.()
+                    }
+                  }}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -290,12 +297,12 @@ const Sidebar = ({ isOpen, data, onPillarClick, onSettingsClick, onHomeClick, cu
                     textAlign: 'left'
                   }}
                   onMouseEnter={(e) => {
-                    e.target.style.background = 'var(--accent)'
-                    e.target.style.color = 'var(--foreground)'
+                    e.currentTarget.style.background = 'var(--accent)'
+                    e.currentTarget.style.color = 'var(--foreground)'
                   }}
                   onMouseLeave={(e) => {
-                    e.target.style.background = 'transparent'
-                    e.target.style.color = 'var(--muted-foreground)'
+                    e.currentTarget.style.background = 'transparent'
+                    e.currentTarget.style.color = 'var(--muted-foreground)'
                   }}
                 >
                   <Icon style={{ width: '18px', height: '18px' }} />

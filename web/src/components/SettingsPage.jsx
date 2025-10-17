@@ -20,9 +20,16 @@ const SettingsPage = ({ onBack }) => {
   const fetchSystemData = async () => {
     setLoading(true)
     try {
+      // Use static files for GitHub Pages compatibility
+      const basePath = import.meta.env.BASE_URL || '/'
       const [healthResponse, reportResponse] = await Promise.all([
-        fetch('/health').then(r => r.json()).catch(() => null),
-        fetch('/report').then(r => r.json()).catch(() => null)
+        fetch('/health').then(r => r.json()).catch(() => ({
+          status: 'demo',
+          llm_available: false,
+          model_exists: false,
+          item_count: 42
+        })),
+        fetch(`${basePath}ui/report.json`).then(r => r.json()).catch(() => null)
       ])
       
       setHealth(healthResponse)

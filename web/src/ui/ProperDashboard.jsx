@@ -14,6 +14,7 @@ import Sidebar from '../components/Sidebar'
 import AddSourceModal from '../components/AddSourceModal'
 import PillarsPage from '../components/PillarsPage'
 import SettingsPage from '../components/SettingsPage'
+import HelpModal from '../components/HelpModal'
 import { cn } from '../lib/utils'
 
 // Hook for data fetching
@@ -577,6 +578,7 @@ export default function ProperDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [mouseTrail, setMouseTrail] = useState([])
   const [addSourceModalOpen, setAddSourceModalOpen] = useState(false)
+  const [helpModalOpen, setHelpModalOpen] = useState(false)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const [currentPage, setCurrentPage] = useState('dashboard') // dashboard, pillars, settings
   const [selectedPillar, setSelectedPillar] = useState(null)
@@ -596,6 +598,10 @@ export default function ProperDashboard() {
   const navigateToHome = () => {
     setCurrentPage('dashboard')
     setSelectedPillar(null)
+  }
+  
+  const openHelpModal = () => {
+    setHelpModalOpen(true)
   }
   
   // Mouse trail effect
@@ -689,15 +695,29 @@ export default function ProperDashboard() {
             >
               <Menu className="h-5 w-5" />
             </button>
-            <h1 style={{ 
-              fontSize: '20px', 
-              fontWeight: 'bold',
-              background: 'linear-gradient(to right, var(--primary), rgba(139, 92, 246, 0.6))',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
-            }}>
+            <button
+              onClick={navigateToHome}
+              style={{ 
+                fontSize: '20px', 
+                fontWeight: 'bold',
+                background: 'linear-gradient(to right, var(--primary), rgba(139, 92, 246, 0.6))',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '4px 8px',
+                borderRadius: '4px',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.02)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)'
+              }}
+            >
               AI Intel Pipeline
-            </h1>
+            </button>
           </div>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -711,11 +731,18 @@ export default function ProperDashboard() {
             </div>
             <button 
               className="button-primary" 
-              style={{ flexShrink: 0, whiteSpace: 'nowrap' }}
+              style={{ 
+                flexShrink: 0, 
+                whiteSpace: 'nowrap',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                minWidth: 'fit-content'
+              }}
               onClick={() => setAddSourceModalOpen(true)}
             >
-              <Plus style={{ width: '16px', height: '16px', marginRight: '8px' }} />
-              Add Source
+              <Plus style={{ width: '14px', height: '14px' }} />
+              <span>Add Source</span>
             </button>
           </div>
         </div>
@@ -728,6 +755,7 @@ export default function ProperDashboard() {
         onPillarClick={navigateToPillar}
         onSettingsClick={navigateToSettings}
         onHomeClick={navigateToHome}
+        onHelpClick={openHelpModal}
         currentPage={currentPage}
       />
 
@@ -782,6 +810,12 @@ export default function ProperDashboard() {
           setRefreshTrigger(prev => prev + 1)
           // Could also show a success toast here
         }}
+      />
+      
+      {/* Help Modal */}
+      <HelpModal
+        isOpen={helpModalOpen}
+        onClose={() => setHelpModalOpen(false)}
       />
     </div>
   )
