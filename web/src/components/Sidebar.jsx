@@ -13,7 +13,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collap
 import { Separator } from './ui/separator'
 import { cn } from '../lib/utils'
 
-const Sidebar = ({ isOpen, data, onPillarClick, onSettingsClick, onHomeClick, onHelpClick, currentPage }) => {
+const Sidebar = ({ isOpen, data, onPillarClick, onSettingsClick, onSourcesClick, onHomeClick, onHelpClick, currentPage }) => {
   const [activeItem, setActiveItem] = useState('dashboard')
   const [openSections, setOpenSections] = useState({
     pillars: false,
@@ -59,9 +59,27 @@ const Sidebar = ({ isOpen, data, onPillarClick, onSettingsClick, onHomeClick, on
     } else if (item.id === 'pillars') {
       setOpenSections(prev => ({ ...prev, pillars: !prev.pillars }))
     } else if (item.id === 'sources') {
-      setOpenSections(prev => ({ ...prev, sources: !prev.sources }))
+      onSourcesClick?.()
     } else if (item.id === 'settings') {
       onSettingsClick?.()
+    } else if (item.id === 'insights') {
+      // Scroll to insights section on dashboard
+      onHomeClick?.()
+      setTimeout(() => {
+        const insightsSection = document.querySelector('[data-insights]')
+        if (insightsSection) {
+          insightsSection.scrollIntoView({ behavior: 'smooth' })
+        }
+      }, 100)
+    } else if (item.id === 'search') {
+      // Focus search input
+      onHomeClick?.()
+      setTimeout(() => {
+        const searchInput = document.querySelector('input[placeholder*="Search"]')
+        if (searchInput) {
+          searchInput.focus()
+        }
+      }, 100)
     }
   }
 

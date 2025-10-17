@@ -14,6 +14,7 @@ import Sidebar from '../components/Sidebar'
 import AddSourceModal from '../components/AddSourceModal'
 import PillarsPage from '../components/PillarsPage'
 import SettingsPage from '../components/SettingsPage'
+import DataSourcesPage from '../components/DataSourcesPage'
 import HelpModal from '../components/HelpModal'
 import { cn } from '../lib/utils'
 
@@ -463,9 +464,24 @@ const KeyInsights = ({ items }) => {
   )
 }
 
-// Pillar Grid Component
-const PillarGrid = ({ report, onPillarClick }) => {
-  const pillars = report?.pillars || {}
+// Pillar Grid Component - Fixed to show actual counts
+const PillarGrid = ({ report, items, onPillarClick }) => {
+  // Calculate actual pillar counts from items data
+  const pillars = React.useMemo(() => {
+    if (!items?.length) return report?.pillars || {}
+    
+    const actualCounts = {}
+    items.forEach(item => {
+      if (item.pillars && item.pillars.length > 0) {
+        item.pillars.forEach(pillar => {
+          actualCounts[pillar] = (actualCounts[pillar] || 0) + 1
+        })
+      }
+    })
+    
+    // If we have actual counts, use them; otherwise fallback to report
+    return Object.keys(actualCounts).length > 0 ? actualCounts : (report?.pillars || {})
+  }, [report, items])
   const pillarConfigs = {
     'AI UI/UX': { icon: Palette, color: 'bg-pink-500' },
     'Agents': { icon: Bot, color: 'bg-blue-500' },
@@ -580,7 +596,7 @@ export default function ProperDashboard() {
   const [addSourceModalOpen, setAddSourceModalOpen] = useState(false)
   const [helpModalOpen, setHelpModalOpen] = useState(false)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
-  const [currentPage, setCurrentPage] = useState('dashboard') // dashboard, pillars, settings
+  const [currentPage, setCurrentPage] = useState('dashboard') // dashboard, pillars, settings, sources
   const [selectedPillar, setSelectedPillar] = useState(null)
   
   // Navigation handlers
@@ -602,6 +618,11 @@ export default function ProperDashboard() {
   
   const openHelpModal = () => {
     setHelpModalOpen(true)
+  }
+  
+  const navigateToSources = () => {
+    setCurrentPage('sources')
+    setSidebarOpen(false)
   }
   
   // Mouse trail effect
@@ -754,6 +775,7 @@ export default function ProperDashboard() {
         data={report} 
         onPillarClick={navigateToPillar}
         onSettingsClick={navigateToSettings}
+        onSourcesClick={navigateToSources}
         onHomeClick={navigateToHome}
         onHelpClick={openHelpModal}
         currentPage={currentPage}
@@ -780,13 +802,13 @@ export default function ProperDashboard() {
             </div>
             
             {/* Key Insights */}
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'center' }} data-insights>
               <KeyInsights items={items} />
             </div>
             
             {/* Pillar Grid */}
             <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <PillarGrid report={report} onPillarClick={navigateToPillar} />
+              <PillarGrid report={report} items={items} onPillarClick={navigateToPillar} />
             </div>
           </div>
         )}
@@ -797,6 +819,10 @@ export default function ProperDashboard() {
         
         {currentPage === 'settings' && (
           <SettingsPage onBack={navigateToHome} />
+        )}
+        
+        {currentPage === 'sources' && (
+          <DataSourcesPage onBack={navigateToHome} />
         )}
       </main>
       

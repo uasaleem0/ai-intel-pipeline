@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { 
   ArrowLeft, Search, Filter, ExternalLink, Calendar, Star, 
-  TrendingUp, BarChart3, Palette, Bot, Zap, Settings, Target 
+  TrendingUp, BarChart3, Palette, Bot, Zap, Settings, Target,
+  Grid, List 
 } from 'lucide-react'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
@@ -14,6 +15,7 @@ const PillarsPage = ({ pillarName, onBack }) => {
   const [filteredItems, setFilteredItems] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState('overall') // overall, date, relevance
+  const [viewMode, setViewMode] = useState('grid') // grid, table
   const [loading, setLoading] = useState(true)
 
   const pillarIcons = {
@@ -199,16 +201,51 @@ const PillarsPage = ({ pillarName, onBack }) => {
             <option value="date">Sort by Date</option>
             <option value="relevance">Sort by Relevance</option>
           </select>
+          
+          <div style={{ display: 'flex', borderRadius: '6px', border: '1px solid var(--border)', overflow: 'hidden' }}>
+            <button
+              onClick={() => setViewMode('grid')}
+              style={{
+                padding: '8px 12px',
+                border: 'none',
+                background: viewMode === 'grid' ? 'var(--primary)' : 'var(--input)',
+                color: viewMode === 'grid' ? 'var(--primary-foreground)' : 'var(--foreground)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <Grid style={{ width: '16px', height: '16px' }} />
+              Grid
+            </button>
+            <button
+              onClick={() => setViewMode('table')}
+              style={{
+                padding: '8px 12px',
+                border: 'none',
+                background: viewMode === 'table' ? 'var(--primary)' : 'var(--input)',
+                color: viewMode === 'table' ? 'var(--primary-foreground)' : 'var(--foreground)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <List style={{ width: '16px', height: '16px' }} />
+              Table
+            </button>
+          </div>
         </div>
 
-        {/* Items Grid */}
+        {/* Items Display */}
         {filteredItems.length === 0 ? (
           <Card style={{ textAlign: 'center', padding: '48px 24px' }}>
             <p style={{ color: 'var(--muted-foreground)', fontSize: '16px' }}>
               {searchQuery ? 'No items match your search.' : 'No items found for this pillar.'}
             </p>
           </Card>
-        ) : (
+        ) : viewMode === 'grid' ? (
           <div style={{ 
             display: 'grid', 
             gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', 
@@ -333,6 +370,103 @@ const PillarsPage = ({ pillarName, onBack }) => {
               </motion.div>
             ))}
           </div>
+        ) : (
+          /* Table View */
+          <Card>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                    <th style={{ padding: '12px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: 'var(--muted-foreground)' }}>Title</th>
+                    <th style={{ padding: '12px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: 'var(--muted-foreground)' }}>Score</th>
+                    <th style={{ padding: '12px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: 'var(--muted-foreground)' }}>Source</th>
+                    <th style={{ padding: '12px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: 'var(--muted-foreground)' }}>Date</th>
+                    <th style={{ padding: '12px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: 'var(--muted-foreground)' }}>TLDR</th>
+                    <th style={{ padding: '12px', textAlign: 'center', fontSize: '12px', fontWeight: '600', color: 'var(--muted-foreground)' }}>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredItems.map((item, index) => (
+                    <motion.tr
+                      key={item.id || index}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: index * 0.02 }}
+                      style={{ 
+                        borderBottom: '1px solid var(--border)',
+                        transition: 'background-color 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = 'var(--muted)'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <td style={{ padding: '12px', maxWidth: '300px' }}>
+                        <div>
+                          <p style={{ fontSize: '14px', fontWeight: '500', margin: '0 0 4px 0', lineHeight: '1.3' }}>
+                            {item.title}
+                          </p>
+                          <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                            {item.pillars && item.pillars.filter(p => p !== pillarName).slice(0, 2).map((pillar, pi) => (
+                              <Badge key={pi} variant="outline" style={{ fontSize: '9px', padding: '1px 4px' }}>
+                                {pillar}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      </td>
+                      <td style={{ padding: '12px' }}>
+                        <Badge style={{ 
+                          background: pillarColor, 
+                          color: 'white',
+                          fontSize: '10px'
+                        }}>
+                          <Star style={{ width: '10px', height: '10px', marginRight: '4px' }} />
+                          {(item.overall || 0).toFixed(2)}
+                        </Badge>
+                        <div style={{ fontSize: '10px', color: 'var(--muted-foreground)', marginTop: '2px' }}>
+                          {item.relevance && `R:${item.relevance.toFixed(1)}`}
+                          {item.actionability && ` A:${item.actionability.toFixed(1)}`}
+                        </div>
+                      </td>
+                      <td style={{ padding: '12px', fontSize: '12px', color: 'var(--muted-foreground)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <span>{item.source_type === 'youtube' ? '▶️' : item.source_type === 'github' ? '🐙' : '📄'}</span>
+                          <span>{item.source}</span>
+                        </div>
+                      </td>
+                      <td style={{ padding: '12px', fontSize: '12px', color: 'var(--muted-foreground)' }}>
+                        {new Date(item.date).toLocaleDateString()}
+                      </td>
+                      <td style={{ padding: '12px', maxWidth: '250px' }}>
+                        <p style={{ fontSize: '12px', color: 'var(--muted-foreground)', margin: 0, lineHeight: '1.3' }}>
+                          {item.tldr ? (item.tldr.length > 100 ? item.tldr.substring(0, 100) + '...' : item.tldr) : 'No summary available'}
+                        </p>
+                      </td>
+                      <td style={{ padding: '12px', textAlign: 'center' }}>
+                        <button
+                          onClick={() => window.open(item.url, '_blank')}
+                          style={{
+                            padding: '6px 12px',
+                            background: 'var(--primary)',
+                            color: 'var(--primary-foreground)',
+                            border: 'none',
+                            borderRadius: '4px',
+                            fontSize: '12px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          <ExternalLink style={{ width: '12px', height: '12px' }} />
+                          View
+                        </button>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
         )}
       </div>
     </div>
