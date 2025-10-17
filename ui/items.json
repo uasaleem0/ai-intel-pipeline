@@ -1,0 +1,116 @@
+[
+  {
+    "id": "202406201",
+    "title": "Claude 3.5 Sonnet with Artifacts - Game Changing Feature",
+    "url": "https://www.anthropic.com/claude-3-5-sonnet",
+    "source": "Anthropic Blog",
+    "source_type": "blog",
+    "date": "2024-06-20T00:00:00Z",
+    "overall": 0.95,
+    "relevance": 0.98,
+    "credibility": 0.95,
+    "actionability": 0.92,
+    "pillars": ["Claude/OpenAI Best Practices", "AI UI/UX"],
+    "tldr": "Claude 3.5 Sonnet introduces Artifacts - a revolutionary feature that lets you create interactive demos, code examples, and mini-apps directly in chat. Perfect for rapid prototyping and client presentations.",
+    "why": "This fundamentally changes how we prototype and iterate on ideas. Instead of switching between tools, you can build and test concepts instantly.",
+    "apply_steps": [
+      "Start with simple React components or data visualizations",
+      "Use for client presentations and rapid mockups",
+      "Integrate into your design workflow for faster iteration"
+    ],
+    "verdict": "pass",
+    "confidence": 0.96
+  },
+  {
+    "id": "202406181",
+    "title": "Cursor IDE + GitHub Copilot: The Future of AI-Assisted Development",
+    "url": "https://cursor.sh/features",
+    "source": "YouTube",
+    "source_type": "youtube",
+    "date": "2024-06-18T00:00:00Z",
+    "overall": 0.92,
+    "relevance": 0.94,
+    "credibility": 0.88,
+    "actionability": 0.95,
+    "pillars": ["DevOps/Infra for AI", "Automation"],
+    "tldr": "Cursor IDE with GitHub Copilot provides unprecedented AI-assisted development. Real-time code completion, architecture suggestions, and 60-80% faster feature development.",
+    "why": "The AI-first coding approach is becoming the new standard. Early adopters report massive productivity gains.",
+    "apply_steps": [
+      "Replace your current IDE with Cursor",
+      "Enable GitHub Copilot integration",
+      "Use Claude for code reviews and architectural planning",
+      "Measure productivity improvements over 2-week trial"
+    ],
+    "verdict": "pass",
+    "confidence": 0.89
+  },
+  {
+    "id": "202406151",
+    "title": "Next.js 15 App Router Performance Optimizations",
+    "url": "https://nextjs.org/blog/next-15",
+    "source": "Vercel Changelog",
+    "source_type": "changelog",
+    "date": "2024-06-15T00:00:00Z",
+    "overall": 0.89,
+    "relevance": 0.91,
+    "credibility": 0.95,
+    "actionability": 0.82,
+    "pillars": ["AI UI/UX", "DevOps/Infra for AI"],
+    "tldr": "Next.js 15 introduces major App Router optimizations: 40% faster builds, improved caching, and enhanced Partial Prerendering for AI applications.",
+    "why": "Performance improvements directly impact user experience and SEO, especially critical for AI-heavy applications.",
+    "apply_steps": [
+      "Upgrade to Next.js 15 in a test environment",
+      "Benchmark current performance metrics",
+      "Enable Partial Prerendering for dynamic AI content",
+      "Monitor Core Web Vitals improvements"
+    ],
+    "verdict": "pass",
+    "confidence": 0.93
+  },
+  {
+    "id": "202406121",
+    "title": "Building Production RAG Systems with LangChain",
+    "url": "https://github.com/langchain-ai/langchain",
+    "source": "GitHub",
+    "source_type": "github",
+    "date": "2024-06-12T00:00:00Z",
+    "overall": 0.87,
+    "relevance": 0.89,
+    "credibility": 0.92,
+    "actionability": 0.81,
+    "pillars": ["Agents", "Claude/OpenAI Best Practices"],
+    "tldr": "Comprehensive guide to production RAG systems. Covers vector stores, chunking strategies, evaluation metrics, and deployment patterns for enterprise applications.",
+    "why": "RAG is becoming essential for AI applications. This provides battle-tested patterns for production deployment.",
+    "apply_steps": [
+      "Implement chunking and embedding strategy",
+      "Set up vector database (Pinecone/Weaviate)",
+      "Create evaluation pipeline with RAGAS",
+      "Deploy with monitoring and fallbacks"
+    ],
+    "verdict": "pass",
+    "confidence": 0.85
+  },
+  {
+    "id": "202406101",
+    "title": "STAR Method for Prompt Engineering Excellence",
+    "url": "https://example.com/star-prompting",
+    "source": "YouTube",
+    "source_type": "youtube", 
+    "date": "2024-06-10T00:00:00Z",
+    "overall": 0.82,
+    "relevance": 0.85,
+    "credibility": 0.78,
+    "actionability": 0.88,
+    "pillars": ["Claude/OpenAI Best Practices"],
+    "tldr": "STAR framework (Situation, Task, Action, Result) dramatically improves AI responses. 40% better results confirmed across multiple use cases.",
+    "why": "Most developers use vague prompts. STAR provides a structured approach for consistent, high-quality AI outputs.",
+    "apply_steps": [
+      "Apply STAR to your next 5 AI interactions",
+      "Template: 'I am [situation], I need to [task], I will use [action], I expect [result]'",
+      "Measure response quality improvements",
+      "Create team prompt templates using STAR"
+    ],
+    "verdict": "pass",
+    "confidence": 0.79
+  }
+]

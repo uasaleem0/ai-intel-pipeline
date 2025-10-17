@@ -1,0 +1,52 @@
+{
+  "counts": {
+    "items": 42,
+    "evidence_pass": 38,
+    "evidence_fail": 4
+  },
+  "by_source": {
+    "YouTube": 18,
+    "GitHub": 12,
+    "Anthropic Blog": 6,
+    "OpenAI Blog": 4,
+    "Vercel Changelog": 2
+  },
+  "pillars": {
+    "Claude/OpenAI Best Practices": 15,
+    "AI UI/UX": 12,
+    "Agents": 8,
+    "DevOps/Infra for AI": 7,
+    "Automation": 5,
+    "Hygienic Workflow": 3
+  },
+  "top_items": [
+    {
+      "title": "Claude 3.5 Sonnet with Artifacts - Game Changing Feature",
+      "url": "https://www.anthropic.com/claude-3-5-sonnet",
+      "overall": 0.95,
+      "source": "Anthropic Blog",
+      "date": "2024-06-20T00:00:00Z"
+    },
+    {
+      "title": "Cursor IDE + GitHub Copilot: The Future of AI-Assisted Development",
+      "url": "https://cursor.sh/features",
+      "overall": 0.92,
+      "source": "YouTube",
+      "date": "2024-06-18T00:00:00Z"
+    },
+    {
+      "title": "Next.js 15 App Router Performance Optimizations",
+      "url": "https://nextjs.org/blog/next-15",
+      "overall": 0.89,
+      "source": "Vercel Changelog",
+      "date": "2024-06-15T00:00:00Z"
+    },
+    {
+      "title": "Building Production RAG Systems with LangChain",
+      "url": "https://github.com/langchain-ai/langchain",
+      "overall": 0.87,
+      "source": "GitHub",
+      "date": "2024-06-12T00:00:00Z"
+    }
+  ]
+}

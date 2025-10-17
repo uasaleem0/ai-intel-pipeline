@@ -173,6 +173,33 @@ def feedback(
     Console().print("Feedback recorded.")
 
 
+@app.command()
+def serve(
+    host: str = typer.Option("0.0.0.0", help="Host to bind to"),
+    port: int = typer.Option(8000, help="Port to bind to"),
+    reload: bool = typer.Option(False, help="Auto-reload on code changes"),
+):
+    """Start the web API server for frontend and RAG queries."""
+    try:
+        import uvicorn
+        from .api_server import app as api_app
+        console.print(f"Starting API server on http://{host}:{port}")
+        console.print("Available endpoints:")
+        console.print("  - GET  /health          - Health check")
+        console.print("  - GET  /report          - Dashboard data")
+        console.print("  - GET  /items           - List items")
+        console.print("  - POST /query           - RAG chat queries")
+        console.print("  - GET  /recommendations - Personalized recommendations")
+        console.print("  - Static files served from /ui and /web")
+        uvicorn.run(api_app, host=host, port=port, reload=reload)
+    except ImportError:
+        console.print("❌ uvicorn not installed. Install with: pip install uvicorn")
+        raise typer.Exit(code=1)
+    except Exception as e:
+        console.print(f"❌ Server failed to start: {e}")
+        raise typer.Exit(code=1)
+
+
 if __name__ == "__main__":
     try:
         app()

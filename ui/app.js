@@ -61,18 +61,68 @@
     wireSidebar();
     Promise.all([
       fetchJSON('build.json').catch(function(){ return {}; }),
-      fetchJSON('report.json'),
+      fetchJSON('./report.json'),
       fetchJSON('history.json').catch(function(){ return []; }),
-      fetchJSON('items.json')
+      fetchJSON('./items.json')
     ]).then(function(arr){
       var build=arr[0]||{}; window.__BUILD = { v: (build.run_id||build.ts||Date.now()) };
       if(build.sha){ text('buildTag', 'Build '+build.sha.slice(0,7)); }
-      var rep=arr[1], hist=arr[2], items=arr[3];
+      var rep=arr[1], hist=arr[2], itemsResp=arr[3];
+      var items = itemsResp.items || itemsResp; // Handle both old and new format
       computeHealth(rep, hist);
       computeAQ(items);
       renderBrowse(rep);
-      // Ask AI settings
-      var askBtn=$('askBtn'); if(askBtn){ askBtn.addEventListener('click', function(){ var out=$('askOutput'); if(out){ out.textContent='RAG not enabled yet. Build embeddings and wire client.'; } }); }
+      // Ask AI functionality
+      var askBtn=$('askBtn'), askInput=$('askInput'), askOutput=$('askOutput');
+      if(askBtn && askInput && askOutput){
+        askBtn.addEventListener('click', function(){
+          var query = askInput.value.trim();
+          if(!query){ askOutput.textContent='Please enter a question.'; return; }
+          
+          askOutput.innerHTML='<div style="color:#9ca3af">🤔 Thinking...</div>';
+          askBtn.disabled = true;
+          askBtn.textContent = 'Asking...';
+          
+          fetch('./query', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({query: query, top_k: 5})
+          })
+          .then(function(r){ return r.json(); })
+          .then(function(data){
+            if(data.answer){
+              var sourcesHtml = '';
+              if(data.sources && data.sources.length){
+                sourcesHtml = '<div style="margin-top:12px;padding-top:8px;border-top:1px solid #374151"><strong>Sources:</strong>';
+                for(var i=0; i<data.sources.length; i++){
+                  var s = data.sources[i];
+                  sourcesHtml += '<div style="margin:4px 0"><a target="_blank" href="'+s.url+'" style="color:#60a5fa">'+s.title+'</a> (score: '+s.score.toFixed(3)+')</div>';
+                }
+                sourcesHtml += '</div>';
+              }
+              askOutput.innerHTML = '<div style="color:#e5e7eb">'+data.answer.replace(/\n/g,'<br>')+'</div>' + sourcesHtml;
+            } else {
+              askOutput.innerHTML = '<div style="color:#f87171">Error: '+(data.detail || 'Unknown error')+'</div>';
+            }
+          })
+          .catch(function(e){
+            askOutput.innerHTML = '<div style="color:#f87171">Network error. Make sure the API server is running (python -m ai_intel_pipeline serve)</div>';
+            console.error('Query error:', e);
+          })
+          .finally(function(){
+            askBtn.disabled = false;
+            askBtn.textContent = 'Ask';
+          });
+        });
+        
+        // Enter key support
+        askInput.addEventListener('keypress', function(e){
+          if(e.key === 'Enter' && !e.shiftKey){ 
+            e.preventDefault();
+            askBtn.click();
+          }
+        });
+      }
       // Analytics toggle
       var at=$('analyticsToggle'), ap=$('analyticsPanel'); if(at && ap){ at.addEventListener('click', function(){ ap.classList.toggle('hidden'); }); }
       // Items feed (top items sample)
@@ -82,10 +132,10 @@
 
   function initItems(){
     function qp(k){ var u=new URLSearchParams(location.search); return u.get(k)||''; }
-    fetchJSON('report.json').then(function(rep){
+    fetchJSON('./report.json').then(function(rep){
       var pilSel=$('filterPillar'); if(pilSel && rep && rep.pillars){ var keys=Object.keys(rep.pillars); for(var i=0;i<keys.length;i++){ var o=document.createElement('option'); o.value=keys[i]; o.textContent=keys[i]; pilSel.appendChild(o);} }
     });
-    fetchJSON('items.json').then(function(items){
+    fetchJSON('./items.json').then(function(items){
       $('q').value = qp('q'); $('filterSource').value = qp('source'); $('filterPillar').value = qp('pillar');
       function render(){
         var q = $('q').value.toLowerCase(); var src=$('filterSource').value; var pil=$('filterPillar').value; var out=''; var list=items.slice(0);

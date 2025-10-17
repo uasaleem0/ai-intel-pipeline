@@ -21,7 +21,7 @@
       (function(){
         function fetchJSON(p){ return fetch(p+'?v='+(Date.now())).then(function(r){return r.json();}); }
         document.addEventListener('DOMContentLoaded', function(){
-          fetchJSON('report.json').then(function(rep){
+          fetchJSON('./report.json').then(function(rep){
             var s=rep.by_source||{}, p=rep.pillars||{};
             var bs=document.getElementById('bySources'); var bp=document.getElementById('byPillars');
             var sk=Object.keys(s).sort(function(a,b){return (s[b]|0)-(s[a]|0)});

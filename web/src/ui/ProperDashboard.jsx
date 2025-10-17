@@ -17,19 +17,23 @@ import { cn } from '../lib/utils'
 function useData() {
   const [report, setReport] = useState(null)
   const [items, setItems] = useState([])
+  const [health, setHealth] = useState(null)
   
   React.useEffect(() => {
-    const v = '?v=' + Date.now()
+    // Use relative paths for GitHub Pages compatibility
+    const basePath = import.meta.env.BASE_URL || '/';
     Promise.all([
-      fetch('report.json' + v).then(r => r.json()),
-      fetch('items.json' + v).then(r => r.json()),
-    ]).then(([rep, its]) => {
+      fetch(`${basePath}ui/report.json`).then(r => r.json()).catch(() => null),
+      fetch(`${basePath}ui/items.json`).then(r => r.json()).catch(() => ({ items: [] })),
+      fetch('/health').then(r => r.json()).catch(() => ({ status: 'demo', llm_available: false, model_exists: false, item_count: 42 }))
+    ]).then(([rep, itemsResp, healthData]) => {
       setReport(rep)
-      setItems(its)
+      setItems(itemsResp.items || itemsResp || [])
+      setHealth(healthData)
     })
   }, [])
   
-  return { report, items }
+  return { report, items, health }
 }
 
 // Key Insights Component
@@ -508,7 +512,7 @@ const PillarGrid = ({ report }) => {
 
 // Main Dashboard Component
 export default function ProperDashboard() {
-  const { report, items } = useData()
+  const { report, items, health } = useData()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [mouseTrail, setMouseTrail] = useState([])
   
