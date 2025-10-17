@@ -193,10 +193,10 @@ def serve(
         console.print("  - Static files served from /ui and /web")
         uvicorn.run(api_app, host=host, port=port, reload=reload)
     except ImportError:
-        console.print("❌ uvicorn not installed. Install with: pip install uvicorn")
+        console.print("[ERROR] uvicorn not installed. Install with: pip install uvicorn")
         raise typer.Exit(code=1)
     except Exception as e:
-        console.print(f"❌ Server failed to start: {e}")
+        console.print(f"[ERROR] Server failed to start: {e}")
         raise typer.Exit(code=1)
 
 
@@ -222,3 +222,154 @@ def ingest_url(
 
 
 
+
+@app.command("extract-patterns")
+def extract_patterns():
+    """Extract reusable patterns from all validated items."""
+    console.rule("Extracting Patterns")
+    vault_root = Path("vault/ai-intel")
+    patterns_dir = vault_root / "patterns"
+    patterns_dir.mkdir(parents=True, exist_ok=True)
+
+    from .model.patterns import extract_patterns_from_item, save_pattern
+
+    items_dir = vault_root / "items"
+    count = 0
+
+    for month_dir in sorted(items_dir.iterdir(), reverse=True):
+        if not month_dir.is_dir():
+            continue
+        for item_dir in month_dir.iterdir():
+            if not item_dir.is_dir():
+                continue
+
+            item_id = item_dir.name
+            item_file = item_dir / "item.json"
+            highlights_file = item_dir / "highlights.json"
+            summary_file = item_dir / "summary.md"
+
+            if not all([item_file.exists(), highlights_file.exists(), summary_file.exists()]):
+                continue
+
+            # Skip if pattern already extracted
+            if (patterns_dir / f"{item_id}.json").exists():
+                continue
+
+            try:
+                import json
+                with open(item_file, encoding="utf-8") as f:
+                    item_data = json.load(f)
+                with open(highlights_file, encoding="utf-8") as f:
+                    highlights = json.load(f)
+                summary = summary_file.read_text(encoding="utf-8")
+
+                pattern = extract_patterns_from_item(item_data, highlights, summary)
+                save_pattern(item_id, pattern, patterns_dir)
+                count += 1
+                console.print(f"[OK] Extracted pattern from {item_id}")
+            except Exception as e:
+                console.print(f"[FAIL] Failed to extract pattern from {item_id}: {e}")
+
+    console.print(f"\n{count} patterns extracted to {patterns_dir}")
+
+
+@app.command("synthesize")
+def synthesize():
+    """Generate meta-insights from extracted patterns."""
+    console.rule("Synthesizing Meta-Insights")
+    vault_root = Path("vault/ai-intel")
+    patterns_dir = vault_root / "patterns"
+
+    from .model.patterns import load_all_patterns, cluster_similar_patterns, synthesize_meta_insights
+    import json
+
+    patterns = load_all_patterns(patterns_dir)
+    console.print(f"Loaded {len(patterns)} patterns")
+
+    if len(patterns) < 3:
+        console.print("Need at least 3 patterns to synthesize insights")
+        return
+
+    clusters = cluster_similar_patterns(patterns)
+    console.print(f"Found {len(clusters)} pattern clusters")
+
+    insights = synthesize_meta_insights(patterns, clusters)
+    console.print(f"Generated {len(insights)} meta-insights")
+
+    # Save to vault
+    insights_file = vault_root / "meta_insights.json"
+    with open(insights_file, "w", encoding="utf-8") as f:
+        json.dump(insights, f, indent=2, ensure_ascii=False)
+
+    console.print(f"\nMeta-insights saved to {insights_file}")
+
+    # Display insights
+    for i, insight in enumerate(insights, 1):
+        console.print(f"\n{i}. {insight.get('insight')}")
+        console.print(f"   Confidence: {insight.get('confidence', 0):.2f}")
+        console.print(f"   Actionable: {insight.get('actionable_takeaway')}")
+
+
+@app.command("ask")
+def ask(
+    query: str = typer.Argument(..., help="Your question or problem"),
+):
+    """Ask the AI assistant for a creative solution based on learned knowledge."""
+    console.rule("AI Assistant")
+    vault_root = Path("vault/ai-intel")
+
+    from .config import load_profile
+    from .model.assistant import generate_solution, format_solution_markdown
+
+    profile = load_profile()
+    console.print(f"Query: {query}\n")
+    console.print("Generating solution...\n")
+
+    solution = generate_solution(query, profile, vault_root)
+
+    if solution.get("solution"):
+        md = format_solution_markdown(solution)
+        console.print(md)
+
+        # Save solution to file
+        solutions_dir = vault_root / "solutions"
+        solutions_dir.mkdir(parents=True, exist_ok=True)
+        from datetime import datetime
+        timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+        solution_file = solutions_dir / f"solution_{timestamp}.md"
+        solution_file.write_text(f"# Query: {query}\n\n{md}", encoding="utf-8")
+        console.print(f"\nSolution saved to {solution_file}")
+    else:
+        console.print("Unable to generate solution. Check LLM configuration.")
+
+
+@app.command("build-knowledge")
+def build_knowledge():
+    """Build complete knowledge base: embeddings + patterns + meta-insights."""
+    console.rule("Building Knowledge Base")
+
+    # Step 1: Export JSONL
+    console.print("Step 1/4: Exporting items to JSONL...")
+    vault_root = Path("vault/ai-intel")
+    index_path = Path("vault/index.csv")
+    export_jsonl(vault_root, index_path)
+
+    # Step 2: Build embeddings
+    console.print("\nStep 2/4: Building embeddings index...")
+    export_p = Path("vault/export/chunks.jsonl")
+    out_p = Path("vault/model")
+    if export_p.exists():
+        emb_path, meta_path = build_embeddings(export_p, out_p)
+        console.print(f"[OK] Embeddings: {emb_path}")
+    else:
+        console.print("[FAIL] No export file found, skipping embeddings")
+
+    # Step 3: Extract patterns
+    console.print("\nStep 3/4: Extracting patterns...")
+    extract_patterns()
+
+    # Step 4: Synthesize meta-insights
+    console.print("\nStep 4/4: Synthesizing meta-insights...")
+    synthesize()
+
+    console.print("\n[SUCCESS] Knowledge base built successfully!")

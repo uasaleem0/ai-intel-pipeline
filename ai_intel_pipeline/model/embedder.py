@@ -87,3 +87,19 @@ def query_embeddings(index_dir: Path, query: str, top_k: int = 10, model: str = 
         out.append(m)
     return out
 
+
+
+def create_embedding(text: str, model: str = "text-embedding-3-small") -> np.ndarray:
+    """
+    Create a single embedding vector for given text.
+    Returns numpy array of shape (D,) where D is embedding dimension.
+    """
+    from openai import OpenAI
+    
+    if not text or not text.strip():
+        # Return zero vector for empty text
+        return np.zeros(1536, dtype=np.float32)
+    
+    client = OpenAI()
+    resp = client.embeddings.create(model=model, input=[text[:3000]])
+    return np.array(resp.data[0].embedding, dtype=np.float32)
