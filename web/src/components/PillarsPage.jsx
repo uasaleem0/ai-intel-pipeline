@@ -179,7 +179,7 @@ const PillarsPage = ({ pillarName, onBack }) => {
               color: 'var(--muted-foreground)'
             }} />
             <Input
-              placeholder="Search items..."
+              placeholder="Search pillar content..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{ paddingLeft: '40px' }}
@@ -372,17 +372,78 @@ const PillarsPage = ({ pillarName, onBack }) => {
           </div>
         ) : (
           /* Table View */
-          <Card>
+          <Card style={{ 
+            background: 'var(--card)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius)',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+            overflow: 'hidden'
+          }}>
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <table style={{ 
+                width: '100%', 
+                borderCollapse: 'collapse',
+                background: 'var(--card)'
+              }}>
                 <thead>
-                  <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                    <th style={{ padding: '12px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: 'var(--muted-foreground)' }}>Title</th>
-                    <th style={{ padding: '12px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: 'var(--muted-foreground)' }}>Score</th>
-                    <th style={{ padding: '12px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: 'var(--muted-foreground)' }}>Source</th>
-                    <th style={{ padding: '12px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: 'var(--muted-foreground)' }}>Date</th>
-                    <th style={{ padding: '12px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: 'var(--muted-foreground)' }}>TLDR</th>
-                    <th style={{ padding: '12px', textAlign: 'center', fontSize: '12px', fontWeight: '600', color: 'var(--muted-foreground)' }}>Action</th>
+                  <tr style={{ 
+                    borderBottom: '2px solid var(--border)',
+                    background: 'linear-gradient(135deg, var(--muted) 0%, rgba(139, 92, 246, 0.05) 100%)'
+                  }}>
+                    <th style={{ 
+                      padding: '16px 12px', 
+                      textAlign: 'left', 
+                      fontSize: '12px', 
+                      fontWeight: '700', 
+                      color: 'var(--foreground)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}>Title</th>
+                    <th style={{ 
+                      padding: '16px 12px', 
+                      textAlign: 'left', 
+                      fontSize: '12px', 
+                      fontWeight: '700', 
+                      color: 'var(--foreground)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}>Score</th>
+                    <th style={{ 
+                      padding: '16px 12px', 
+                      textAlign: 'left', 
+                      fontSize: '12px', 
+                      fontWeight: '700', 
+                      color: 'var(--foreground)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}>Source</th>
+                    <th style={{ 
+                      padding: '16px 12px', 
+                      textAlign: 'left', 
+                      fontSize: '12px', 
+                      fontWeight: '700', 
+                      color: 'var(--foreground)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}>Date</th>
+                    <th style={{ 
+                      padding: '16px 12px', 
+                      textAlign: 'left', 
+                      fontSize: '12px', 
+                      fontWeight: '700', 
+                      color: 'var(--foreground)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}>Summary</th>
+                    <th style={{ 
+                      padding: '16px 12px', 
+                      textAlign: 'center', 
+                      fontSize: '12px', 
+                      fontWeight: '700', 
+                      color: 'var(--foreground)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -394,12 +455,25 @@ const PillarsPage = ({ pillarName, onBack }) => {
                       transition={{ delay: index * 0.02 }}
                       style={{ 
                         borderBottom: '1px solid var(--border)',
-                        transition: 'background-color 0.2s ease'
+                        transition: 'all 0.2s ease',
+                        cursor: 'pointer'
                       }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = 'var(--muted)'}
-                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'linear-gradient(135deg, var(--muted) 0%, rgba(139, 92, 246, 0.03) 100%)'
+                        e.currentTarget.style.transform = 'translateY(-1px)'
+                        e.currentTarget.style.boxShadow = '0 4px 8px -2px rgba(0, 0, 0, 0.1)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'transparent'
+                        e.currentTarget.style.transform = 'translateY(0)'
+                        e.currentTarget.style.boxShadow = 'none'
+                      }}
                     >
-                      <td style={{ padding: '12px', maxWidth: '300px' }}>
+                      <td style={{ 
+                        padding: '16px 12px', 
+                        maxWidth: '300px',
+                        borderRight: '1px solid rgba(var(--border-rgb), 0.5)'
+                      }}>
                         <div>
                           <p style={{ fontSize: '14px', fontWeight: '500', margin: '0 0 4px 0', lineHeight: '1.3' }}>
                             {item.title}
@@ -413,7 +487,10 @@ const PillarsPage = ({ pillarName, onBack }) => {
                           </div>
                         </div>
                       </td>
-                      <td style={{ padding: '12px' }}>
+                      <td style={{ 
+                        padding: '16px 12px',
+                        borderRight: '1px solid rgba(var(--border-rgb), 0.5)'
+                      }}>
                         <Badge style={{ 
                           background: pillarColor, 
                           color: 'white',
@@ -427,21 +504,35 @@ const PillarsPage = ({ pillarName, onBack }) => {
                           {item.actionability && ` A:${item.actionability.toFixed(1)}`}
                         </div>
                       </td>
-                      <td style={{ padding: '12px', fontSize: '12px', color: 'var(--muted-foreground)' }}>
+                      <td style={{ 
+                        padding: '16px 12px', 
+                        fontSize: '12px', 
+                        color: 'var(--muted-foreground)',
+                        borderRight: '1px solid rgba(var(--border-rgb), 0.5)'
+                      }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                           <span>{item.source_type === 'youtube' ? '▶️' : item.source_type === 'github' ? '🐙' : '📄'}</span>
                           <span>{item.source}</span>
                         </div>
                       </td>
-                      <td style={{ padding: '12px', fontSize: '12px', color: 'var(--muted-foreground)' }}>
+                      <td style={{ 
+                        padding: '16px 12px', 
+                        fontSize: '12px', 
+                        color: 'var(--muted-foreground)',
+                        borderRight: '1px solid rgba(var(--border-rgb), 0.5)'
+                      }}>
                         {new Date(item.date).toLocaleDateString()}
                       </td>
-                      <td style={{ padding: '12px', maxWidth: '250px' }}>
+                      <td style={{ 
+                        padding: '16px 12px', 
+                        maxWidth: '250px',
+                        borderRight: '1px solid rgba(var(--border-rgb), 0.5)'
+                      }}>
                         <p style={{ fontSize: '12px', color: 'var(--muted-foreground)', margin: 0, lineHeight: '1.3' }}>
                           {item.tldr ? (item.tldr.length > 100 ? item.tldr.substring(0, 100) + '...' : item.tldr) : 'No summary available'}
                         </p>
                       </td>
-                      <td style={{ padding: '12px', textAlign: 'center' }}>
+                      <td style={{ padding: '16px 12px', textAlign: 'center' }}>
                         <button
                           onClick={() => window.open(item.url, '_blank')}
                           style={{

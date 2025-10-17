@@ -30,7 +30,7 @@ function useData() {
     Promise.all([
       fetch(`${basePath}ui/report.json`).then(r => r.json()).catch(() => null),
       fetch(`${basePath}ui/items.json`).then(r => r.json()).catch(() => ({ items: [] })),
-      fetch('/health').then(r => r.json()).catch(() => ({ status: 'demo', llm_available: false, model_exists: false, item_count: 42 }))
+fetch('/health').then(r => r.json()).catch(() => ({ status: 'offline', llm_available: false, model_exists: false, item_count: items?.length || 0 }))
     ]).then(([rep, itemsResp, healthData]) => {
       setReport(rep)
       setItems(itemsResp.items || itemsResp || [])
@@ -68,34 +68,42 @@ const KeyInsights = ({ items }) => {
   }
   
   const generateDetailedInsight = (item, index) => {
+    // Dynamic pillar configuration based on actual item data
     const pillarInsights = {
       'Claude/OpenAI Best Practices': {
         icon: Zap,
         category: 'AI Enhancement',
-        powerAnalysis: 'This represents a fundamental shift in how we interact with AI systems, offering unprecedented capabilities for rapid prototyping and iterative development.',
-        practicalValue: 'Reduces development time by 60-80% through direct AI-assisted creation, eliminates context switching, and enables real-time experimentation.',
-        strategicImportance: 'Early adoption provides competitive advantage in AI-first development workflows.'
+        powerAnalysis: `This ${item.type || 'resource'} demonstrates advanced AI integration patterns and best practices for modern development.`,
+        practicalValue: `Provides actionable insights from ${item.source || 'industry experts'} with proven implementation strategies.`,
+        strategicImportance: 'Critical for staying current with rapidly evolving AI development standards.'
       },
       'AI UI/UX': {
         icon: Palette,
         category: 'User Experience',
-        powerAnalysis: 'Modern AI interfaces are evolving beyond chat to become collaborative workspaces that understand context and user intent.',
-        practicalValue: 'Improves user engagement by 40% and reduces cognitive load through intelligent UI patterns and predictive interactions.',
-        strategicImportance: 'Essential for building intuitive AI applications that users actually want to use.'  
+        powerAnalysis: `Explores cutting-edge interface design patterns specifically optimized for AI-enhanced applications.`,
+        practicalValue: `Real-world examples from ${item.source || 'leading teams'} showing measurable UX improvements.`,
+        strategicImportance: 'Essential for creating intuitive AI-powered user experiences.'  
       },
       'DevOps/Infra for AI': {
         icon: Settings,
         category: 'Infrastructure',
-        powerAnalysis: 'AI-optimized infrastructure patterns are becoming critical for scaling intelligent applications reliably.',
-        practicalValue: 'Reduces deployment complexity by 50% and improves system reliability through AI-specific monitoring and optimization.',
-        strategicImportance: 'Foundation for enterprise AI adoption and production-ready AI systems.'
+        powerAnalysis: `Addresses critical infrastructure challenges in deploying and scaling AI systems in production.`,
+        practicalValue: `Technical implementation details from ${item.source || 'production environments'} with optimization strategies.`,
+        strategicImportance: 'Foundation for reliable, scalable AI system deployment.'
       },
       'Agents': {
         icon: Bot,
         category: 'Automation',
-        powerAnalysis: 'Autonomous agents represent the next evolution of AI, moving from reactive tools to proactive collaborators.',
-        practicalValue: 'Automates 70% of routine development tasks and enables 24/7 intelligent system monitoring.',
-        strategicImportance: 'Key differentiator for building self-improving and self-maintaining systems.'
+        powerAnalysis: `Showcases autonomous agent architectures and integration patterns for intelligent automation.`,
+        practicalValue: `Practical examples from ${item.source || 'working systems'} with deployment considerations.`,
+        strategicImportance: 'Key to building self-improving and adaptive AI systems.'
+      },
+      'Automation': {
+        icon: Target,
+        category: 'Process Optimization',
+        powerAnalysis: `Demonstrates workflow automation strategies that enhance productivity and reduce manual overhead.`,
+        practicalValue: `Step-by-step implementation from ${item.source || 'successful projects'} with ROI metrics.`,
+        strategicImportance: 'Critical for scaling operations and maintaining competitive advantage.'
       }
     }
     
@@ -746,7 +754,7 @@ export default function ProperDashboard() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
               <input
                 className="input"
-                placeholder="Search data..."
+placeholder="Search knowledge base..."
                 style={{ paddingLeft: '40px', width: '320px' }}
               />
             </div>

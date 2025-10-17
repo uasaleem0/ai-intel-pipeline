@@ -199,7 +199,7 @@ const DataSourcesPage = ({ onBack }) => {
               color: 'var(--muted-foreground)'
             }} />
             <Input
-              placeholder="Search sources..."
+              placeholder="Search across all sources..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{ paddingLeft: '40px' }}
