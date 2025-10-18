@@ -8,6 +8,97 @@ import { Badge } from './ui/badge'
 import { Avatar, AvatarFallback } from './ui/avatar'
 import { cn } from '../lib/utils'
 
+// Canvas-based particle system for smooth, continuous animation
+const ParticleCanvas = () => {
+  const canvasRef = useRef(null)
+  const particlesRef = useRef([])
+  const animationRef = useRef(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const ctx = canvas.getContext('2d', { alpha: true })
+
+    const resizeCanvas = () => {
+      canvas.width = canvas.offsetWidth * window.devicePixelRatio
+      canvas.height = canvas.offsetHeight * window.devicePixelRatio
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio)
+    }
+
+    resizeCanvas()
+    window.addEventListener('resize', resizeCanvas)
+
+    // Initialize particles with smooth movement
+    const particleCount = 35
+    particlesRef.current = Array.from({ length: particleCount }, () => ({
+      x: Math.random() * canvas.offsetWidth,
+      y: Math.random() * canvas.offsetHeight,
+      size: Math.random() * 2 + 1,
+      speedX: (Math.random() - 0.5) * 0.3,
+      speedY: (Math.random() - 0.5) * 0.3,
+      hue: Math.random() * 60 + 220,
+      alpha: Math.random() * 0.4 + 0.2
+    }))
+
+    // Smooth animation loop - RUNS CONTINUOUSLY
+    const animate = () => {
+      const w = canvas.offsetWidth
+      const h = canvas.offsetHeight
+
+      ctx.clearRect(0, 0, w, h)
+
+      particlesRef.current.forEach((p) => {
+        // Update position smoothly
+        p.x += p.speedX
+        p.y += p.speedY
+
+        // Wrap around edges
+        if (p.x < 0) p.x = w
+        if (p.x > w) p.x = 0
+        if (p.y < 0) p.y = h
+        if (p.y > h) p.y = 0
+
+        // Draw particle with glow
+        const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3)
+        gradient.addColorStop(0, `hsla(${p.hue}, 70%, 60%, ${p.alpha})`)
+        gradient.addColorStop(1, `hsla(${p.hue}, 70%, 40%, 0)`)
+
+        ctx.fillStyle = gradient
+        ctx.beginPath()
+        ctx.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2)
+        ctx.fill()
+      })
+
+      animationRef.current = requestAnimationFrame(animate)
+    }
+
+    animate() // Start the loop
+
+    return () => {
+      window.removeEventListener('resize', resizeCanvas)
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current)
+      }
+    }
+  }, [])
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        pointerEvents: 'none',
+        opacity: 0.6
+      }}
+    />
+  )
+}
+
 const AIInterface = ({ data }) => {
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -97,8 +188,8 @@ const AIInterface = ({ data }) => {
           position: 'absolute',
           inset: 0,
           background: `
-            linear-gradient(-45deg, 
-              rgba(139, 92, 246, 0.2) 0%, 
+            linear-gradient(-45deg,
+              rgba(139, 92, 246, 0.2) 0%,
               rgba(59, 130, 246, 0.15) 25%,
               rgba(16, 185, 129, 0.1) 50%,
               rgba(59, 130, 246, 0.15) 75%,
@@ -109,27 +200,9 @@ const AIInterface = ({ data }) => {
           animation: 'colorShift 4s ease-in-out infinite',
           backgroundSize: '400% 400%'
         }} />
-        
-        {/* Animated Floating Particles */}
-        {[...Array(8)].map((_, i) => (
-          <div
-            key={i}
-            style={{
-              position: 'absolute',
-              width: `${Math.random() * 6 + 3}px`,
-              height: `${Math.random() * 6 + 3}px`,
-              background: `hsl(${Math.random() * 60 + 240}, 70%, ${Math.random() * 30 + 50}%)`,
-              borderRadius: '50%',
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animation: `float ${Math.random() * 6 + 8}s ease-in-out infinite`,
-              animationDelay: `${Math.random() * 4}s`,
-              opacity: 0.7,
-              pointerEvents: 'none',
-              filter: 'blur(0.5px)'
-            }}
-          />
-        ))}
+
+        {/* Canvas-based Particle Animation - Smooth 60fps */}
+        <ParticleCanvas />
         
         {/* Pulsing Glow Ring */}
         <div style={{
@@ -162,28 +235,44 @@ const AIInterface = ({ data }) => {
             background: 'linear-gradient(90deg, rgba(139, 92, 246, 0.05) 0%, rgba(59, 130, 246, 0.02) 100%)'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>
-              <div style={{
-                position: 'relative',
-                padding: '12px',
-                background: 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #6366f1 100%)',
-                borderRadius: '20px',
-                boxShadow: `
-                  0 8px 25px rgba(139, 92, 246, 0.6), 
-                  0 0 50px rgba(139, 92, 246, 0.3),
-                  inset 0 1px 0 rgba(255, 255, 255, 0.2),
-                  inset 0 -1px 0 rgba(0, 0, 0, 0.1)
-                `,
-                animation: 'float 3s ease-in-out infinite, buttonGlow 2s ease-in-out infinite'
-              }}>
-                <Sparkles style={{ width: '28px', height: '28px', color: 'white' }} />
-                <div style={{
-                  position: 'absolute',
-                  inset: 0,
+              <motion.div
+                animate={{
+                  y: [0, -8, 0],
+                  boxShadow: [
+                    '0 8px 25px rgba(139, 92, 246, 0.6), 0 0 50px rgba(139, 92, 246, 0.3)',
+                    '0 12px 30px rgba(139, 92, 246, 0.8), 0 0 60px rgba(139, 92, 246, 0.5)',
+                    '0 8px 25px rgba(139, 92, 246, 0.6), 0 0 50px rgba(139, 92, 246, 0.3)'
+                  ]
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                style={{
+                  position: 'relative',
+                  padding: '12px',
+                  background: 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #6366f1 100%)',
                   borderRadius: '20px',
-                  background: 'linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.15), transparent)',
-                  animation: 'pulse 3s ease-in-out infinite'
-                }} />
-              </div>
+                  boxShadow: '0 8px 25px rgba(139, 92, 246, 0.6), 0 0 50px rgba(139, 92, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(0, 0, 0, 0.1)'
+                }}
+              >
+                <Sparkles style={{ width: '28px', height: '28px', color: 'white' }} />
+                <motion.div
+                  animate={{ opacity: [0.5, 1, 0.5] }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    borderRadius: '20px',
+                    background: 'linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.15), transparent)'
+                  }}
+                />
+              </motion.div>
             </div>
             <div style={{ textAlign: 'center' }}>
               <h3 style={{ 
@@ -355,10 +444,21 @@ const AIInterface = ({ data }) => {
                 <p className="text-sm text-muted-foreground mb-3">Try asking:</p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                   {suggestedQueries.map((query, index) => (
-                    <button
+                    <motion.button
                       key={index}
                       onClick={() => setInput(query)}
-                      className="hover-lift"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      whileHover={{
+                        scale: 1.05,
+                        y: -2,
+                        backgroundColor: 'var(--primary)',
+                        color: 'var(--primary-foreground)',
+                        borderColor: 'var(--primary)',
+                        boxShadow: '0 8px 16px rgba(139, 92, 246, 0.3)'
+                      }}
+                      whileTap={{ scale: 0.95 }}
                       style={{
                         padding: '6px 12px',
                         fontSize: '12px',
@@ -366,26 +466,11 @@ const AIInterface = ({ data }) => {
                         border: '1px solid var(--border)',
                         borderRadius: 'calc(var(--radius) - 2px)',
                         color: 'var(--foreground)',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.background = 'var(--primary)'
-                        e.target.style.color = 'var(--primary-foreground)'
-                        e.target.style.borderColor = 'var(--primary)'
-                        e.target.style.transform = 'translateY(-2px) scale(1.05)'
-                        e.target.style.boxShadow = '0 8px 16px rgba(139, 92, 246, 0.3)'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.background = 'var(--muted)'
-                        e.target.style.color = 'var(--foreground)'
-                        e.target.style.borderColor = 'var(--border)'
-                        e.target.style.transform = 'translateY(0) scale(1)'
-                        e.target.style.boxShadow = 'none'
+                        cursor: 'pointer'
                       }}
                     >
                       {query}
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
               </motion.div>
@@ -410,19 +495,29 @@ const AIInterface = ({ data }) => {
                   overflow: 'hidden'
                 }}
               />
-              <button
-                type="submit" 
+              <motion.button
+                type="submit"
                 disabled={!input.trim() || isLoading}
                 className="button-primary"
-                style={{ 
-                  padding: '10px', 
+                whileHover={{
+                  scale: 1.05,
+                  boxShadow: '0 8px 20px rgba(139, 92, 246, 0.4)'
+                }}
+                whileTap={{ scale: 0.95 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 400,
+                  damping: 17
+                }}
+                style={{
+                  padding: '10px',
                   height: '44px',
                   width: '44px',
                   flexShrink: 0
                 }}
               >
                 <Send style={{ width: '16px', height: '16px' }} />
-              </button>
+              </motion.button>
             </form>
           </div>
         </div>
